@@ -1,0 +1,74 @@
+# ==========================================
+# Archivos globales y del sistema
+# ==========================================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# ==========================================
+# Configuración de Java (Maven, Gradle, IDEs)
+# ==========================================
+# Compilación y ejecutables
+*.class
+*.war
+*.ear
+*.jar
+target/
+build/
+.gradle/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Eclipse
+.metadata/
+.classpath
+.project
+.settings/
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+
+# ==========================================
+# Archivos auxiliares de LaTeX
+# ==========================================
+# Archivos principales de compilación
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.glg
+*.glo
+*.gls
+*.idx
+*.ilg
+*.ind
+*.ist
+*.lof
+*.lot
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.synctex.gz
+*.bcf
+*.run.xml
+
+# Archivos de respaldo de editores (TeXstudio, Texmaker, etc.)
+*.bak
+*.sav
+*.tex~
+
+# ==========================================
+# Opcional: Resultados finales de LaTeX
+# ==========================================
+# Descomenta la siguiente línea si NO quieres subir los PDFs generados
+# *.pdf
