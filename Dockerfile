@@ -1,8 +1,9 @@
-FROM danteev/texlive
+FROM texlive/texlive
 
 # Copiar MACROS y referenciarlas como packages
 COPY "texmf" "/root/texmf"
 RUN texhash
 
-# Install tools
-RUN pip install arxiv-latex-cleaner==0.1.* pdflinkchecker-cli==0.2.* --break-system-packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    default-jre default-jdk maven   \
+    && rm -rf /var/lib/apt/lists/*
