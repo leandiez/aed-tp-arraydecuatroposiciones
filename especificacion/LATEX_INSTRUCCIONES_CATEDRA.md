@@ -12,6 +12,8 @@ Para instalar los paquetes, copiar la carpeta "texmf" de este directorio al home
 
     $ sudo texhash texmf/
 
+** NOTA DE LEANDRO A.: Para que funcione en un contenedor Docker, se colocaron las MACROS en la carpeta raiz, y desde ahi el Dockerfile se encarga de instalar todo. **
+
 ### WINDOWS (MiKTeX 2.9)
 
 - Copiar todas las carpetas `texmf\tex\latex\AED*` de este directorio al directorio `tex\latex\` de la carpeta de instalación del MiKTeX. Por ejemplo: `C:\Program Files\MikTex 2.9\tex\latex\`
