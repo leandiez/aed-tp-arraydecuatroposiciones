@@ -5,22 +5,26 @@
 \usepackage{AEDLogica, AEDEspecificacion, AEDTADs}
 \usepackage{caratula}
 
+\newlength{\miSangria}
+\setlength{\miSangria}{2em}
 
-\titulo{Trabajo práctico}
-\subtitulo{El subtitulo ideal}
+\titulo{Trabajo práctico 1: Especificacion de Tads}
+\subtitulo{Tad AirMiles}
 
 \fecha{\today}
 
 \materia{Algoritmos y Estructuras de Datos}
-\grupo{Nombre del grupo} 
+\grupo{Grupo: Arraydecuatroposiciones} 
 
-\integrante{Cosme, Fulanito}{1113/22}{cosme@algunmail.com}
+\integrante{Javier M. Ramos}{288/20}{ramosjavier276@gmail.com}
+\integrante{Nancy Ramos}{1206/24}{Ramosnancydaniela@outlook.com}
+\integrante{Elian Uba}{1420/23}{elianuba2004@gmail.com }
 % \integrante{Apellido, Nombre2}{002/01}{email2@dominio.com} %
 
 
 % Declaramos donde van a estar las figuras
 % No es obligatorio, pero suele ser comodo
-\graphicspath{{../static/}}
+\graphicspath{{../static/}} 
 
 % Asi pueden escribir nuevos comandos. 
 % Este por ejemplo asegura q los nombres 
@@ -42,19 +46,66 @@ Por ejemplo, podrán hacer uso de comandos que definen los conectores lógicos: 
 
 Además, disponen de comandos para cuantificadores: $\paraTodo{x}{\mathbb{Z}}{x \geq 0 \lor x < 0}$, $\existe{x}{\mathbb{Z}}{x \geq 0}$. A estos comandos se les puede agregar un \texttt{Largo} al final para que ocupen múltiples renglones.
 
-\section{Ejemplos de uso de las macros}
+\section{Renombres de Tipos y Estructuras}
+
+FactorDePromocion \textbf{ES}: $\mathbb{Z}$
+
+\noindent estadoPromocion \textbf{ES}: bool
+
+\noindent topeDePromocion \textbf{ES}: $\mathbb{R}$
 
 
-\begin{tad}{EjemploDeTAD}
+\noindent enum Categoría \textbf{ES} \{Bronce, Plata,Oro, Platino  \}
 
-	asdasd
-	\obs{secuenciaDeCaracteres}{\seq{\cha}}
+\vspace{0.5cm}
+\noindent PropiedadesUsuario \textbf{ES} Struct \{
+
+\hspace*{1.5em} Millas: tuple $\tupla{\begin{array}{l}
+			MillasTotales: \mathbb{Z},\ MillasDisponibles: \mathbb{Z}, \\
+			MillasCanjeadas: \mathbb{Z},\ MillasTransferidas: \mathbb{Z}
+		\end{array}}$,
+
+\hspace*{1.5em} VuelosRealizados: $\mathbb{Z}$,
+
+\hspace*{1.5em} TransferenciasRealizados: $\mathbb{Z}$,
+
+\hspace*{1.5em} Categorías: Categoría,
+
+\hspace*{1.5em} EsReferido: bool,
+
+
+
+\noindent \}
+
+\vspace{0.2cm}
+
+\noindent Transferencias \textbf{ES} Struct \{
+
+\hspace*{1.5em} idTransferencia:  $\mathbb{Z}$,
+
+\hspace*{1.5em} UsuarioOrigen:  $\mathbb{Z}$,
+
+\hspace*{1.5em} UsuarioDestino:  $\mathbb{Z}$,
+
+\hspace*{1.5em} TipoDeTransferencia:  $\mathbb{Z}$,
+
+\hspace*{1.5em} monto:  $\mathbb{Z}$,
+
+\noindent \}
+
+
+
+\vspace{2em}
+\begin{tad}{Airmiles}
+
+	\obs{Usuarios}{\Diccionario{id}{PropiedadesUsuario}}
 	\\
-	\obs{conjuntoDeTuplas}{\conj{\tupla{nombre: \seq{\cha}, apellido: \seq{\cha}}}}
+	\obs{HistorialDeTransacciones}$\seq{Transferencias}$
 	\\
-
-	Esto es otro texto
-
+	\texttt{obs} Promociones : dict \{ \\
+	\hspace*{1.5em} NombrePromocion: $\str$, \\
+	\hspace*{1.5em} $\seq{\Tipo{FactorDePromocion}, \Tipo{estadoPromocion},\Tipo{topeDePromocion}}$ \\
+	\}
 
 	\begin{proc}{crearTAD}
 		{
