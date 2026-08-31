@@ -4,7 +4,6 @@
 \usepackage[left=2.5cm,top=3cm,right=2.5cm,bottom=3cm,bindingoffset=0.5cm]{geometry}
 \usepackage{AEDLogica, AEDEspecificacion, AEDTADs}
 \usepackage{caratula}
-
 \newlength{\miSangria}
 \setlength{\miSangria}{2em}
 
@@ -107,28 +106,93 @@ FactorDePromocion \textbf{ES}: $\mathbb{Z}$
 	\hspace*{1.5em} $\seq{\Tipo{FactorDePromocion}, \Tipo{estadoPromocion},\Tipo{topeDePromocion}}$ \\
 	\}
 
-	\begin{proc}{crearTAD}
-		{
-			\In caracteres: \seq{\cha},
-			\In secuenciaDeNombres: \seq{\tupla{nombre: \seq{\cha}, apellido: \seq{\cha}}}
-		}{
-			\Tipo{EjemploDeTAD}
-		}
-		\requiere{predicadoUnilinea(caracteres)}
-		\asegura{res.secuenciaDeCaracteres = caracteres}
-		\aseguraLargo{ \norm{res.conjuntoDeTuplas} = \norm{secuenciaDeNombres} \land \\predicadoMultilinea(secuenciaDeNombres, res.conjuntoDeTuplas) }
+
+	\begin{proc}{crearSistema}
+		{}
+		{AirMiles}
+		\requiere{\Tipo{True}}
+		\aseguraLargo{ \norm{res.Usuarios = 0} \land \norm{res.HistorialDeTransacciones = 0} \land res.promociones = setKey(\dict{}{},"NoPromo",\seq{1,True,0}) }
 	\end{proc}
 
-	\predLargo{predicadoMultilinea}{s: \seq{\cha}, conjunto: \conj{\tupla{\seq{\cha}, \seq{\cha}}}}{
-		\paraTodo{i}{\Z}{0 \leq i < \norm{s}
-			\implicaLuego s[i] \in c}
+	\begin{proc}{registrarUsuario}
+		{
+			\Inout Usuarios: \dict{id}{PropiedadesUsuario},
+			\In id: \Tipo{\Z}
+		}
+		{}
+		\comentario{Actualiza el diccionario de usuarios con  nuevo usuario} \\
+		\requiere{Usuarios0 = Usuarios \land id \notin claves(Usuarios)}
+		\aseguraLargo{ Usuarios = SetKey(Usuarios0, id, \tupla{
+				Millas: \tupla{0,0,0,0},
+				VuelosRealizados: 0,\\
+				TransferenciasRealizadas: 0,
+				Categorias: Bronce,
+				EsReferido: \Tipo{False}
+			})}
+	\end{proc}
+
+	\begin{proc}{registrarUsuarioConReferidor}
+		{
+			\Inout Usuarios: \dict{id}{PropiedadesUsuario},\\
+			\In idReferidor: \Tipo{Z},
+			\In idUsuario: \Tipo{Z}
+		}
+		{}
+		\requiere{Usuarios0 = Usuarios \land idReferidor \in claves(Usuarios) \land idUsuario \notin claves(U)}
+		\aseguraLargo{ EsNuevoUsuarioReferido(Usuarios,Usuarios0,idUsuarios)\\ \land ReferidorEsActualizado(idReferidor,Usuarios)
+		}
+	\end{proc}
+
+	\predLargo{EsNuevoUsuarioReferido}{Usuarios, Usuarios0, idUsuario}{
+		\comentario{Crea un usuario Referido con 500 millas totales y disponibles} \\
+		Usuarios = SetKey(Usuarios0,idUsuario, \tupla{
+			Millas: \tupla{500,500,0,0},
+			VuelosRealizados: 0,
+			TransferenciasRealizadas: 0,
+			Categorias: Bronce,
+			EsReferido: True,
+		})
 	}
 
-	\pred{predicadoUnilínea}{s: \seq{\cha}}{
-		\norm{s} > 0
+
+	\predLargo{ReferidorEsActualizado}{Usuarios, Usuarios0, idUsuario}{
+		\comentario{Actualiza el usuario referidor en Usuarios y chequea categoria nuevamente} \\
+		Usuarios = SetKey(Usuarios0,idUsuario,
+		\tupla{
+			\\
+			Millas: \tupla{MillasTotales + 500, MillasDisponibles + 500, 0, 0},\\
+			VuelosRealizados: 0,
+			TransferenciasRealizadas: 0, \\
+			Categorias: DarCategoria(idUsuario, Usuarios), \\
+			EsReferido: Usuarios\lbrack idUsuario\rbrack.EsReferido
+		})
 	}
 
-	\aux{unAuxiliar}{k: \Z,l: \Z}{\Z}{\norm{k-l}}
+	\auxLargo{DarCategoria}
+	{\In \Tipo{Z}, \In Usuarios: \Diccionario{id}{PropiedadesUsuario}}
+	{Categoria}
+	{
+		\IfThenElse{MillasTotales < 10000}{Bronce}{ \\
+			\IfThenElse{MillasTotales \leq 49999}{Plata}{ \\
+				\IfThenElse{MillasTotales < 1000000}{Oro}{Platino}
+			}
+		}
+	}
+
+
+	\vspace{1.0cm}
+
+	\auxLargo{MillasTotales}
+	{\In Usuarios, \In IdUsuario}
+	{\Tipo{\Z}}
+	{Usuarios\lbrack IdUsuario\rbrack.millas \lbrack 0 \rbrack}
+
+	\vspace{1.0cm}
+	\auxLargo{MillasDisponibles}
+	{\In Usuarios, \In IdUsuario}
+	{\Tipo{\Z}}
+	{Usuarios\lbrack IdUsuario\rbrack.millas \lbrack 1 \rbrack}
+
 
 \end{tad}
 

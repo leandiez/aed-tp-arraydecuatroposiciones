@@ -38,6 +38,24 @@
 
 \newcommand{\IfThenElse}[3]{\RequireMathMode{IfThenElse}{\mathsf{IfThenElse}(#1, #2, #3)}} 
 
+% Comentario (Hecho por javi)
+
+% Requiere el paquete xcolor
+\RequirePackage{xcolor}
+
+% Definir el color verde oscuro
+\definecolor{comentarioColor}{RGB}{0, 128, 0}
+
+% Comentario en línea (una línea)
+\newcommand{\comentario}[1]{\textcolor{comentarioColor}{\textit{#1}}}
+
+% Comentario multilínea (para texto largo)
+\newcommand{\comentarioLargo}[1]{
+    \begin{adjustwidth}{+0em}{}
+        \textcolor{comentarioColor}{\textit{#1}}
+    \end{adjustwidth}
+}
+
 
 % A discusion: dejar o no los \noindent
 
@@ -115,7 +133,7 @@
 \newcommand{\asegura}[1]{\noindent\aseguraSinSalto{#1} \par}
 
 % \encabezadoProc{Nombre}{Argumentos}{Tipo (si no hay dejar en blanco, pero no pueden faltar las llaves)}
-\newcommand{\encabezadoProc}[3]{\noindent\texttt{proc #1}$(#2) \ifthenelse{\equal{#3}{}}{}{: #3} $}
+\newcommand{\encabezadoProc}[3]{\noindent\texttt{proc }\textbf{#1}$(#2) \ifthenelse{\equal{#3}{}}{}{: #3} $}
 
 % \begin{proc}{Nombre}{Argumentos}{Tipo (si no hay dejar en blanco, pero no pueden faltar las llaves)}
 \newenvironment{proc}[3]{
