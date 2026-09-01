@@ -9,7 +9,6 @@
         "vscode": {
             "extensions": [
                 "james-yu.latex-workshop@10.7.1",
-                "nickfode.latex-formatter",
                 "mathematic.vscode-latex",
                 "ms-azuretools.vscode-docker",
                 "meezilla.json",
@@ -48,7 +47,6 @@
                 },
                 "editor.wordWrap": "bounded",
                 "editor.formatOnSave": true,
-                "editor.defaultFormatter": "nickfode.latex-formatter",
                 "spellright.language": [
                     "en"
                 ],
