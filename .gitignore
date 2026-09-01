@@ -71,4 +71,4 @@ dist/
 # Opcional: Resultados finales de LaTeX
 # ==========================================
 # Descomenta la siguiente línea si NO quieres subir los PDFs generados
-# *.pdf
+*.pdf
