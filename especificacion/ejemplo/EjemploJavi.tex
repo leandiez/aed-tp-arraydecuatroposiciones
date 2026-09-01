@@ -103,6 +103,8 @@ FactorDePromocion \textbf{ES}: $\mathbb{Z}$
 \vspace{2em}
 \begin{tad}{Airmiles}
 
+
+
 	\obs{Usuarios}{\Diccionario{id}{PropiedadesUsuario}}
 	\\
 	\obs{HistorialDeTransacciones}$\seq{Transacciones}$
@@ -191,7 +193,7 @@ FactorDePromocion \textbf{ES}: $\mathbb{Z}$
 			VuelosRealizados: 0,
 			TransferenciasRealizadas: 0, \\
 			Categorias: DarCategoria(idUsuario, AM.Usuarios), \\
-			EsReferido: Usuarios\lbrack idUsuario\rbrack.EsReferido
+			EsReferido: AM0.Usuarios.EsReferido
 		})
 	}
 
