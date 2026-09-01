@@ -136,7 +136,7 @@ FactorDePromocion \textbf{ES}: $\mathbb{Z}$
 				Categorias: Bronce,
 				EsReferido: \Tipo{False}
 			}) \land
-			AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \\ 
+			AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \\
 			\land AM.Promociones = AM0.Promociones
 		}
 	\end{proc}
@@ -151,8 +151,8 @@ FactorDePromocion \textbf{ES}: $\mathbb{Z}$
 		{}
 		\requiere{AM0 = AM \land idReferidor \in claves(AM.Usuarios) \land idUsuario \notin claves(AM.Usuarios)}
 		\aseguraLargo{ EsNuevoUsuarioReferido(AM,AM0: Airmiles,idUsuario: \Tipo{\Z})\\ \land ReferidorEsActualizado(AM,AM0,idReferidor) \land \\
-		AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \land \\
-		AM.Promociones = AM0.Promociones
+			AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \land \\
+			AM.Promociones = AM0.Promociones
 		}
 	\end{proc}
 
@@ -199,9 +199,9 @@ FactorDePromocion \textbf{ES}: $\mathbb{Z}$
 	{\In id: \Tipo{\Z}, \In Usuarios: \Diccionario{id}{PropiedadesUsuario}}
 	{Categoria}
 	{
-		\IfThenElse{MillasTotales(Usuarios,id) < 10000}{Bronce}{ \\
-			\IfThenElse{MillasTotales(Usuarios,id) \leq 49999}{Plata}{ \\
-				\IfThenElse{MillasTotales(Usuarios,id) < 1000000}{Oro}{Platino}
+		\IfThenElse{MillasTotales(\Tipo{Usuarios},\Tipo{id}) < 10000}{Bronce}{ \\
+			\IfThenElse{MillasTotales(\Tipo{Usuarios},\Tipo{id}) \leq 49999}{Plata}{ \\
+				\IfThenElse{MillasTotales(\Tipo{Usuarios},\Tipo{id}) < 1000000}{Oro}{Platino}
 			}
 		}
 	}
@@ -210,13 +210,13 @@ FactorDePromocion \textbf{ES}: $\mathbb{Z}$
 	\vspace{1.0cm}
 
 	\auxLargo{MillasTotales}
-	{\In Usuarios, \In Id}
+	{Usuarios: \Tipo{\Diccionario{\Tipo{Id}}{\Tipo{PropiedadesUsuario}}}, Id: \Tipo{\Z}}
 	{\Tipo{\Z}}
 	{Usuarios\lbrack Id\rbrack.millas \lbrack 0 \rbrack}
 
 	\vspace{1.0cm}
 	\auxLargo{MillasDisponibles}
-	{\In Usuarios, \In Id}
+	{Usuarios: \Tipo{\Diccionario{\Tipo{Id}}{\Tipo{PropiedadesUsuario}}}, Id: \Tipo{\Z}}
 	{\Tipo{\Z}}
 	{Usuarios\lbrack Id\rbrack.millas \lbrack 1 \rbrack}
 
