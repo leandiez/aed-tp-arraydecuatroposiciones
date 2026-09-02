@@ -48,71 +48,37 @@ Además, disponen de comandos para cuantificadores: $\paraTodo{x}{\mathbb{Z}}{x 
 
 \section{Renombres de Tipos y Estructuras}
 
-FactorDePromocion \textbf{ES}: $\mathbb{Z}$
-
-\noindent estadoPromocion \textbf{ES}: bool
+\noindent PromocionUtilizada \textbf{ES}: bool
 
 \noindent topeDePromocion \textbf{ES}: $\mathbb{R}$
-
 
 \noindent enum Categoría \textbf{ES} \{Bronce, Plata,Oro, Platino  \}
 
 \vspace{0.5cm}
-\noindent PropiedadesUsuario \textbf{ES} Struct \{
 
-\hspace*{1.5em} Millas: tuple $\tupla{\begin{array}{l}
-			MillasTotales: \mathbb{Z},\ MillasDisponibles: \mathbb{Z}, \\
-			MillasCanjeadas: \mathbb{Z},\ MillasTransferidas: \mathbb{Z}
-		\end{array}}$,
+\noindent Transacciones \textbf{ES} Tuple $\tupla{
+	UsuarioOrigen: \Tipo{\Z}, \\
+	UsuarioDestino: \Tipo{\Z},
+	TipoDeTransaccion: \Tipo{\Z},
+	Millas: \Tipo{\R}, \\
+	NombrePromo: \Tipo{\str},
+	FactorPromo: \Tipo{\R}
+	}$
 
-\hspace*{1.5em} VuelosRealizados: $\mathbb{Z}$,
-
-\hspace*{1.5em} TransferenciasRealizados: $\mathbb{Z}$,
-
-\hspace*{1.5em} Categorías: Categoría,
-
-\hspace*{1.5em} EsReferido: bool,
-
-
-
-\noindent \}
-
-\vspace{0.2cm}
-
-\noindent Transacciones \textbf{ES} Struct \{
-
-\hspace*{1.5em} idTransaccion:  $\mathbb{Z}$,
-
-\hspace*{1.5em} UsuarioOrigen:  $\mathbb{Z}$,
-
-\hspace*{1.5em} UsuarioDestino:  $\mathbb{Z}$,
-
-\hspace*{1.5em} TipoDeTransaccion:  $\mathbb{Z}$,
-
-\hspace*{1.5em} Monto:  $\mathbb{Z}$,
-
-\hspace*{1.5em} Distancia:  $\mathbb{Z}$,
-
-\hspace*{1.5em} NombrePromo:  $\Tipo{Str}$,
-
-\hspace*{1.5em} FactorPromo:  $\Tipo{\R}$,
-
-\noindent \}
-
-
+\noindent \comentario{Tipo de transacciones es algo que yo pongo a mano creo, ejemplo 0:Transaccion por referidor, 1: Transferencia, 2: Canjeo de puntos}
 
 \vspace{2em}
 \begin{tad}{Airmiles}
 
 
 
-	\obs{Usuarios}{\Diccionario{id}{PropiedadesUsuario}}
-	\\
-	\obs{HistorialDeTransacciones}$\seq{Transacciones}$
+	\obs{Usuarios}{\Diccionario{id}{\tupla{MillasTotales: \Tipo{\Z}, MillasDisponiles: \Tipo{\Z}}}}
+
+	\noindent \obs{HistorialDeTransacciones}{\seq{Transacciones}}
 	\\
 	\texttt{obs} Promociones : dict \{ \\
 	\hspace*{1.5em} NombrePromocion: $\str$, \\
-	\hspace*{1.5em} $\seq{\Tipo{FactorDePromocion}, \Tipo{estadoPromocion},\Tipo{topeDePromocion}}$ \\
+	\hspace*{1.5em} $\seq{\Tipo{FactorDePromocion}, \Tipo{PromocionUtilizada},\Tipo{topeDePromocion}}$ \\
 	\}
 
 
@@ -120,7 +86,7 @@ FactorDePromocion \textbf{ES}: $\mathbb{Z}$
 		{}
 		{AirMiles}
 		\requiere{\Tipo{True}}
-		\aseguraLargo{ \norm{res.Usuarios = 0} \land \norm{res.HistorialDeTransacciones = 0} \land res.promociones = setKey(\dict{}{},"NoPromo",\seq{1,True,0}) }
+		\aseguraLargo{ \norm{res.Usuarios} = 0 \land \norm{res.HistorialDeTransacciones} = 0 \land res.promociones = setKey(\dict{}{},"NoPromo",\seq{1,False,0}) }
 	\end{proc}
 
 	\begin{proc}{registrarUsuario}
@@ -131,14 +97,7 @@ FactorDePromocion \textbf{ES}: $\mathbb{Z}$
 		{}
 		\comentario{Actualiza el diccionario de usuarios con  nuevo usuario} \\
 		\requiere{AM = AM0 \land id \notin claves(AM.Usuarios)}
-		\aseguraLargo{ AM.Usuarios = SetKey(AM0.Usuarios, id, \\
-			\tupla{
-				Millas: \tupla{0,0,0,0},
-				VuelosRealizados: 0,\\
-				TransferenciasRealizadas: 0,
-				Categorias: Bronce,
-				EsReferido: \Tipo{False}
-			}) \land
+		\aseguraLargo{ AM.Usuarios = SetKey(AM0.Usuarios, id,\tupla{0,0}) \land \\
 			AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \\
 			\land AM.Promociones = AM0.Promociones
 		}
@@ -153,25 +112,23 @@ FactorDePromocion \textbf{ES}: $\mathbb{Z}$
 		}
 		{}
 		\requiere{AM0 = AM \land idReferidor \in claves(AM.Usuarios) \land idUsuario \notin claves(AM.Usuarios)}
-		\aseguraLargo{ EsNuevoUsuarioReferido(AM,AM0: Airmiles,idUsuario: \Tipo{\Z})\\ \land ReferidorEsActualizado(AM,AM0,idReferidor) \land \\
-			AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \land \\
-			AM.Promociones = AM0.Promociones
+		\aseguraLargo{ EsNuevoUsuarioReferido(AM,AM0,idUsuario)\\ \land ReferidorEsActualizado(AM,AM0,idReferidor) \land \\
+		EsNuevaTransferencia(AM,AM0,idUsuario, idReferidor, 0, \\
+		500,
+		"NoPromo", 1) \land AM.Promociones = AM0.Promociones
 		}
 	\end{proc}
 
+	\predLargo{EsNuevaTransferencia}{AM,AM0,idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}}{AM.HistorialTransacciones = AM0.HistorialTransacciones ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
+
+	% 
 	% Proc registrarUsuarioConReferidor(inout AM: AirMiles, in idReferidor: Z, in id:Z){
 	% Requiere{ AM0 = AM  ∧ idReferidor ∈ claves(AM.Usuarios) ∧ id ∉ claves(AM.Usuarios)}
 	% Asegura{ EsNuevoUsuarioReferido(AM,AM0,id) ∧ ReferidorEsActualizado(idReferidor,AM) }
 
 	\predLargo{EsNuevoUsuarioReferido}{AM, AM0: Airmiles, idUsuario: \Tipo{\Z}}{
 		\comentario{Crea un usuario Referido con 500 millas totales y disponibles} \\
-		AM.Usuarios = SetKey(AM0.Usuarios,idUsuario, \tupla{
-			Millas: \tupla{500,500,0,0}, \\
-			VuelosRealizados: 0,
-			TransferenciasRealizadas: 0, \\
-			Categorias: Bronce,
-			EsReferido: True,
-		})
+		AM.Usuarios = SetKey(AM0.Usuarios,idUsuario \tupla{500,500})
 	}
 
 	% pred EsNuevoUsuarioReferido(AM,AM0,id){
@@ -187,16 +144,20 @@ FactorDePromocion \textbf{ES}: $\mathbb{Z}$
 
 	\predLargo{ReferidorEsActualizado}{AM,AM0: \Tipo{AirMiles}, idReferidor: \Tipo{\Z}}{
 		\comentario{Actualiza el usuario referidor en Usuarios y chequea categoria nuevamente} \\
-		AM.Usuarios = SetKey(AM0.Usuarios,idUsuario,
-		\tupla{
-			\\
-			Millas: \tupla{MillasTotales(AM.usuarios,idReferidor) + 500, \\ MillasDisponibles(AM.usuarios,idReferidor) + 500, 0, 0},\\
-			VuelosRealizados: 0,
-			TransferenciasRealizadas: 0, \\
-			Categorias: DarCategoria(idUsuario, AM.Usuarios), \\
-			EsReferido: AM0.Usuarios.EsReferido
-		})
+		\lnot EsPlatino(idReferidor) \yLuego \\ 
+		AM.Usuarios = SetKey(AM0.Usuarios,idReferidor, \\
+		\tupla{MillasTotales(AM0.Usuarios, idReferidor) +500, \\
+		MillasDisponibles(AM0.Usuarios, idReferidor) + 500})
 	}
+
+	% // COMENTARIOS PARA HACER A LOS PROFES:
+	% El sistema debe permitir conocer la categor´ıa actual de cada usuario que se calcula seg´un el total de millas acumuladas.
+	% Los usuarios que llegan al mill´on de millas acumuladas alcanzan la categor´ıa Platino, que les otorga beneficios exclusivos,
+	% pero ya no acumulan m´as millas
+
+	% Esto no causa conflicto? No se supone que un usuario no puede tener +1.000.000 millas? Al momento de llegar al millon de millas deberia quedarse ahi ?
+
+	\comentario{RECORDAR IMPLEMENTAR ESPLATINO}
 
 	\auxLargo{DarCategoria}
 	{\In id: \Tipo{\Z}, \In Usuarios: \Diccionario{id}{PropiedadesUsuario}}
