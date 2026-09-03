@@ -72,7 +72,7 @@ Además, disponen de comandos para cuantificadores: $\paraTodo{x}{\mathbb{Z}}{x 
 
 
 
-	\obs{Usuarios}{\Diccionario{id}{\tupla{MillasTotales: \Tipo{\Z}, MillasDisponiles: \Tipo{\Z}}}}
+	\obs{Usuarios}{\Diccionario{id}{\tupla{MillasTotales: \Tipo{\Z}, MillasDisponibles: \Tipo{\Z}}}}
 
 	\noindent \obs{HistorialDeTransacciones}{\seq{Transacciones}}
 	\\
@@ -119,7 +119,53 @@ Además, disponen de comandos para cuantificadores: $\paraTodo{x}{\mathbb{Z}}{x 
 		}
 	\end{proc}
 
-	\predLargo{EsNuevaTransferencia}{AM,AM0,idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}}{AM.HistorialTransacciones = AM0.HistorialTransacciones ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
+	\begin{proc}{CanjearMillas}
+		{
+			\Inout AM: Airmiles,\\
+			\In millas: \Tipo{\R}
+		}
+		{}
+		\requiere{AM0 = AM}
+		\aseguraLargo{ EsNuevoUsuarioReferido(AM,AM0,idUsuario)\\ \land ReferidorEsActualizado(AM,AM0,idReferidor) \land \\
+		EsNuevaTransferencia(AM,AM0,idUsuario, idReferidor, 0, \\
+		500,
+		"NoPromo", 1) \land AM.Promociones = AM0.Promociones
+		}
+	\end{proc}
+
+	\begin{proc}{ConsultarSaldo}
+		{
+			\In AM: Airmiles,\\
+			\In idUsuario: \Tipo{\Z}
+		}
+		{\Tipo{\Z}}
+		\requiere{AM0 = AM \land idUsuario \in claves(AM.usuarios)}
+		\aseguraLargo{ res = AM.Usuarios[idUsuario][0]
+		}
+	\end{proc}
+
+	\begin{proc}{TransferirMillas}
+		{
+			\Inout AM: Airmiles,\\
+			\In idUsuarioPagador: \Tipo{\Z},
+			\In idUsuarioBeneficiario: \Tipo{\Z},
+			\In CantMillasTrans: \Tipo{\R}
+		}
+		{}
+		\requiere{AM0 = AM \land idUsuarioPagador \in claves(AM.usuarios)\\
+		 \land idUsuarioBeneficiario \in claves(AM.usuarios)\\
+		 \land idUsuarioPagador \neq idUsuarioBeneficiario\\
+		 \land TieneSuficientesMillas(AM, idUsuarioPagador)
+		}
+		\aseguraLargo{ActualizoMillas(AM, AM0, idUsuarioPagador, -CantMillasTrans) \land \\
+		ActualizoMillas(AM, AM0, idUsuarioBeneficiario, CantMillasTrans) \\
+		\land EsNuevaTransferencia(AM, AM0, idUsuarioPagador, idUsuarioBeneficiario,\\
+		 1, CantMillasTrans, 0 , NoPromo, 1) \land AM.Promociones = AM0.Promociones
+		}
+	\end{proc}
+
+
+	\predLargo{EsNuevaTransaccion}{AM,AM0,idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, Distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}}{AM.HistorialTransacciones = AM0.HistorialTransacciones ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}¿
 
 	% 
 	% Proc registrarUsuarioConReferidor(inout AM: AirMiles, in idReferidor: Z, in id:Z){
@@ -148,6 +194,11 @@ Además, disponen de comandos para cuantificadores: $\paraTodo{x}{\mathbb{Z}}{x 
 		AM.Usuarios = SetKey(AM0.Usuarios,idReferidor, \\
 		\tupla{MillasTotales(AM0.Usuarios, idReferidor) +500, \\
 		MillasDisponibles(AM0.Usuarios, idReferidor) + 500})
+	}
+
+	\predLargo{ActualizoMillas}{AM,AM0: \Tipo{AirMiles}, idUsuarioBeneficiario: \Tipo{\Z}, CantMillasTrans: \Tipo{\R}}{
+		AM.Usuarios = SetKey(AM0.Usuarios, idUsuarioBeneficiario, \\ (MillasTotales(AM0.Usuarios, idUsuarioBeneficiario) + CantMillasTrans),\\
+		(MillasDisponibles(AM0.Usuarios, idUsuarioBeneficiario) + CantMillasTrans))		
 	}
 
 	% // COMENTARIOS PARA HACER A LOS PROFES:
