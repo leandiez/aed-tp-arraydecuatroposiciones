@@ -116,9 +116,19 @@ Además, disponen de comandos para cuantificadores: $\paraTodo{x}{\mathbb{Z}}{x 
 			500,
 			"NoPromo", 1) \land AM.Promociones = AM0.Promociones
 		}
-	\end{proc}
-
-	\begin{proc}{acumularMillas}
+	\end{proc} \\
+	\begin{proc}{ConsultarCategoria}
+		% Devuelve la categoria del usuario 
+		{
+			\In AM: Airmiles,
+			\In idUsuario: \Tipo{\Z}, 
+			\Out Categoria
+		}
+		{}
+		\requiere{IdUsuario \in claves(AM.Usuarios)}
+		\asegura{res = DarCategoria(IdUsuario,AM.Usuarios)}
+	\end{proc} \\
+		\begin{proc}{acumularMillas}
 		{
 			\Inout AM: Airmiles,\\
 			\In idUsuario: \Tipo{\Z},
@@ -127,15 +137,14 @@ Además, disponen de comandos para cuantificadores: $\paraTodo{x}{\mathbb{Z}}{x 
 			\In TipoTransaccion: \Tipo{\Z},
 		}
 		{}
-		\requiere{AM0 = AM \land idUsuario \in claves(AM.Usuarios) \land nombrePromocion \in claves(AM.Promocion) \land distancia > 0 \land idUsuario > 0 \land noSuperaTopePromocion(AM0, distancia, idUsuario, nombrePromocion)}
+		\requiere{AM0 = AM \land idUsuario \in claves(AM.Usuarios) \land nombrePromocion \in claves(AM.Promocion) \land distancia > 0 \land idUsuario > 0 \land  \\ noSuperaTopePromocion(AM0, distancia, idUsuario, nombrePromocion)}
 		\aseguraLargo{usuarioEsActualizado(AM,AM0,idUsuario, distancia) \land \\
-			EsNuevaTransferencia(AM,AM0, idUsuario, 0, TipoTransaccion, distancia, nombrePromocion, \\ AM.Promocion[nombrePromocion][0]) \land  \\ promocionActualizada(AM,AM0,)
+			EsNuevaTransferencia(AM,AM0, idUsuario, 0, TipoTransaccion, \\ distancia, nombrePromocion, \\ AM.Promocion[nombrePromocion][0]) \land  \\ promocionActualizada(AM,AM0,)
 		}
-	\end{proc}
+	\end{proc} \\
+	
 
-	\predLargo{EsNuevaTransferencia}{AM,AM0,idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}}{AM.HistorialTransacciones = AM0.HistorialTransacciones ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
-
-
+	\predLargo{EsNuevaTransferencia}{AM,AM0,idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, \\ TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}}{AM.HistorialTransacciones = AM0.HistorialTransacciones ++ \lbrack \\ \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
 	% 
 	% Proc registrarUsuarioConReferidor(inout AM: AirMiles, in idReferidor: Z, in id:Z){
 	% Requiere{ AM0 = AM  ∧ idReferidor ∈ claves(AM.Usuarios) ∧ id ∉ claves(AM.Usuarios)}
