@@ -1,0 +1,216 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[left=2.5cm,top=3cm,right=2.5cm,bottom=3cm,bindingoffset=0.5cm]{geometry}
+\usepackage{AEDLogica, AEDEspecificacion, AEDTADs}
+\usepackage{caratula}
+\newlength{\miSangria}
+\setlength{\miSangria}{2em}
+
+\titulo{Trabajo práctico 1: Especificacion de Tads}
+\subtitulo{Tad AirMiles}
+
+\fecha{\today}
+
+\materia{Algoritmos y Estructuras de Datos}
+\grupo{Grupo: Arraydecuatroposiciones} 
+
+\integrante{Javier M. Ramos}{288/20}{ramosjavier276@gmail.com}
+\integrante{Nancy Ramos}{1206/24}{Ramosnancydaniela@outlook.com}
+\integrante{Elian Uba}{1420/23}{elianuba2004@gmail.com }
+\integrante{Leandro Amodey}{618/24}{leandroamodey@gmail.com}
+% \integrante{Apellido, Nombre2}{002/01}{email2@dominio.com} %
+
+
+% Declaramos donde van a estar las figuras
+% No es obligatorio, pero suele ser comodo
+\graphicspath{{../static/}} 
+
+% Asi pueden escribir nuevos comandos. 
+% Este por ejemplo asegura q los nombres 
+% que figuren con una tipografia diferenciada  
+\newcommand{\Tipo}[1]{\mathsf{#1}}
+% la sintaxis es \newcommand{\nombreDeLaMacro}[cantidadDeParametros]{Lo que va ser remplazado por el macro} 
+\newcommand{\norm}[1]{\vert#1\vert}
+
+
+
+\begin{document}
+
+\maketitle
+
+\section{Macros para escribir en LaTeX}
+
+Para facilitar la escritura del trabajo práctico en LaTeX, les proveemos de varias macros que les permitirán escribir especificaciones en lógica de primer orden. 1
+Por ejemplo, podrán hacer uso de comandos que definen los conectores lógicos: $\land, \lor, \implica$ y también los operadores de la lógica trivaluada $\yLuego$, $\oLuego$, $\implicaLuego$.
+
+Además, disponen de comandos para cuantificadores: $\paraTodo{x}{\mathbb{Z}}{x \geq 0 \lor x < 0}$, $\existe{x}{\mathbb{Z}}{x \geq 0}$. A estos comandos se les puede agregar un \texttt{Largo} al final para que ocupen múltiples renglones.
+
+\section{Renombres de Tipos y Estructuras}
+
+
+\noindent topeDePromocion \textbf{ES}: $\mathbb{R}$
+
+\noindent enum Categoría \textbf{ES} \{Bronce, Plata,Oro, Platino  \}
+
+\vspace{0.5cm}
+
+\noindent Transacciones \textbf{ES} Tuple $\tupla{
+		UsuarioOrigen: \Tipo{\Z}, \\
+		UsuarioDestino: \Tipo{\Z},
+		TipoDeTransaccion: \Tipo{\Z},
+		Millas: \Tipo{\R}, \\
+		NombrePromo: \Tipo{\str},
+		FactorPromo: \Tipo{\R}
+	}$
+
+\noindent \comentario{Tipo de transacciones es algo que yo pongo a mano creo, ejemplo 0:Transaccion por referidor, 1: Transferencia, 2: Canjeo de puntos}
+
+\vspace{2em}
+\begin{tad}{Airmiles}
+
+
+
+	\obs{Usuarios}{\Diccionario{id}{\tupla{MillasTotales: \Tipo{\R}, MillasDisponiles: \Tipo{\R}}}}
+
+	\noindent \obs{HistorialDeTransacciones}{\seq{Transacciones}}
+	\\
+	\texttt{obs} Promociones : dict \{ \\
+	\hspace*{1.5em} NombrePromocion: $\str$, \\
+	\hspace*{1.5em} $\seq{\Tipo{FactorDePromocion},\Tipo{topeDePromocion}}$ \\
+	\}
+
+
+	\begin{proc}{CrearSistema}
+		{}
+		{AirMiles}
+		\requiere{\Tipo{True}}
+		\aseguraLargo{ \norm{res.Usuarios} = 0 \land \norm{res.HistorialDeTransacciones} = 0 \land res.promociones = setKey(\dict{}{},"NoPromo",\seq{1,0}) }
+	\end{proc}
+
+	\begin{proc}{registrarUsuario}
+		{
+			\Inout AM: Airmiles,
+			\In id: \Tipo{\Z}
+		}
+		{}
+		\comentario{Actualiza el diccionario de usuarios con  nuevo usuario} \\
+		\requiere{AM = AM0 \land id \notin claves(AM.Usuarios)}
+		\aseguraLargo{ AM.Usuarios = SetKey(AM0.Usuarios, id,\tupla{0,0}) \land \\
+			AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \\
+			\land AM.Promociones = AM0.Promociones
+		}
+	\end{proc}
+
+
+	\begin{proc}{registrarUsuarioConReferidor}
+		{
+			\Inout AM: Airmiles,\\
+			\In idReferidor: \Tipo{\Z},
+			\In idUsuario: \Tipo{\Z}
+		}
+		{}
+		\requiere{AM0 = AM \land idReferidor \in claves(AM.Usuarios) \land idUsuario \notin claves(AM.Usuarios)}
+		\aseguraLargo{ EsNuevoUsuarioReferido(AM,AM0,idUsuario)\\ \land ReferidorEsActualizado(AM,AM0,idReferidor) \land \\
+			EsNuevaTransferencia(AM,AM0,idUsuario, idReferidor, 0, \\
+			500,
+			"NoPromo", 1) \land AM.Promociones = AM0.Promociones
+		}
+	\end{proc}
+
+	\begin{proc}{acumularMillas}
+		{
+			\Inout AM: Airmiles,\\
+			\In idUsuario: \Tipo{\Z},
+			\In distancia: \Tipo{\Z},
+			\In nombrePromocion: \Tipo{\str}
+			\In TipoTransaccion: \Tipo{\Z},
+		}
+		{}
+		\requiere{AM0 = AM \land idUsuario \in claves(AM.Usuarios) \land nombrePromocion \in claves(AM.Promocion) \land distancia > 0 \land idUsuario > 0 \land noSuperaTopePromocion(AM0, distancia, idUsuario, nombrePromocion)}
+		\aseguraLargo{usuarioEsActualizado(AM,AM0,idUsuario, distancia) \land \\
+			EsNuevaTransferencia(AM,AM0, idUsuario, 0, TipoTransaccion, distancia, nombrePromocion, \\ AM.Promocion[nombrePromocion][0]) \land  \\ promocionActualizada(AM,AM0,)
+		}
+	\end{proc}
+
+	\predLargo{EsNuevaTransferencia}{AM,AM0,idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}}{AM.HistorialTransacciones = AM0.HistorialTransacciones ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
+
+
+	% 
+	% Proc registrarUsuarioConReferidor(inout AM: AirMiles, in idReferidor: Z, in id:Z){
+	% Requiere{ AM0 = AM  ∧ idReferidor ∈ claves(AM.Usuarios) ∧ id ∉ claves(AM.Usuarios)}
+	% Asegura{ EsNuevoUsuarioReferido(AM,AM0,id) ∧ ReferidorEsActualizado(idReferidor,AM) }
+
+	\predLargo{EsNuevoUsuarioReferido}{AM, AM0: Airmiles, idUsuario: \Tipo{\Z}}{
+		\comentario{Crea un usuario Referido con 500 millas totales y disponibles} \\
+		AM.Usuarios = SetKey(AM0.Usuarios,idUsuario \tupla{500,500})
+	}
+
+	% pred EsNuevoUsuarioReferido(AM,AM0,id){
+	% AM.Usuarios = SetKey(AM0.Usuarios,id,⟨ 
+	% 	Millas: ⟨500,500,0,0⟩,
+	% 	VuelosRealizados: 0,
+	% 	TransferenciasRealizadas: 0,
+	% 	Categorias: Bronce,
+	% 	EsReferido: True, 
+	% ⟩)
+	% }
+
+
+	\predLargo{ReferidorEsActualizado}{AM,AM0: \Tipo{AirMiles}, idReferidor: \Tipo{\Z}}{
+		\comentario{Actualiza el usuario referidor en Usuarios y chequea categoria nuevamente} \\
+		DarCategoria(idReferidor, AM0.usuarios) \neq "Platino" \yLuego \\
+		AM.Usuarios = SetKey(AM0.Usuarios,idReferidor, \\
+		\tupla{MillasTotales(AM0.Usuarios, idReferidor) +500, \\
+			MillasDisponibles(AM0.Usuarios, idReferidor) + 500})
+	}
+	\\
+
+	\predLargo{usuarioEsActualizado}{AM,AM0: \Tipo{AirMiles}, idUsuario: \Tipo{\Z}, distancia: \Tipo{\R}}{
+		\comentario{Actualiza el usuario por millas totales y millas disponibles} \\
+		AM.Usuarios = SetKey(AM0.Usuarios,idUsuario, \\
+		\tupla{MillasTotales(AM0.Usuarios, idUsuario) +distancia, \\
+			MillasDisponibles(AM0.Usuarios, idUsuario) + distancia})
+	}
+	\\
+
+	% // COMENTARIOS PARA HACER A LOS PROFES:
+	% El sistema debe permitir conocer la categor´ıa actual de cada usuario que se calcula seg´un el total de millas acumuladas.
+	% Los usuarios que llegan al mill´on de millas acumuladas alcanzan la categor´ıa Platino, que les otorga beneficios exclusivos,
+	% pero ya no acumulan m´as millas
+
+	% Esto no causa conflicto? No se supone que un usuario no puede tener +1.000.000 millas? Al momento de llegar al millon de millas deberia quedarse ahi ?
+
+
+	\auxLargo{DarCategoria}
+	{\In id: \Tipo{\Z}, \In Usuarios: \Diccionario{id}{PropiedadesUsuario}}
+	{Categoria}
+	{
+		\IfThenElse{MillasTotales(\Tipo{Usuarios},\Tipo{id}) < 10000}{Bronce}{ \\
+			\IfThenElse{MillasTotales(\Tipo{Usuarios},\Tipo{id}) \leq 49999}{Plata}{ \\
+				\IfThenElse{MillasTotales(\Tipo{Usuarios},\Tipo{id}) < 1000000}{Oro}{Platino}
+			}
+		}
+	}
+
+
+	\vspace{1.0cm}
+
+	\auxLargo{MillasTotales}
+	{Usuarios: \Tipo{\Diccionario{\Tipo{Id}}{\Tipo{PropiedadesUsuario}}}, Id: \Tipo{\Z}}
+	{\Tipo{\Z}}
+	{Usuarios\lbrack Id\rbrack.millas \lbrack 0 \rbrack}
+
+	\vspace{1.0cm}
+	\auxLargo{MillasDisponibles}
+	{Usuarios: \Tipo{\Diccionario{\Tipo{Id}}{\Tipo{PropiedadesUsuario}}}, Id: \Tipo{\Z}}
+	{\Tipo{\Z}}
+	{Usuarios\lbrack Id\rbrack.millas \lbrack 1 \rbrack}
+
+
+\end{tad}
+
+
+
+
+\end{document}
