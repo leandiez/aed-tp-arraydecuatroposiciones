@@ -2,7 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage[left=2.5cm,top=3cm,right=2.5cm,bottom=3cm,bindingoffset=0.5cm]{geometry}
-\usepackage{AEDMacros}
+\usepackage{AEDLogica, AEDEspecificacion, AEDTADs}
 \usepackage{caratula}
 \newlength{\miSangria}
 \setlength{\miSangria}{2em}
@@ -17,9 +17,8 @@
 
 \begin{document}
 
-\section{Proc Canjear Millas}
+\section{Consultar Saldo}
 \vspace{1.0cm}
-
 \noindent Transacciones \textbf{ES} Tuple $\tupla{
 		UsuarioOrigen: \Tipo{\Z}, \\
 		UsuarioDestino: \Tipo{\Z},
@@ -45,27 +44,14 @@
 	\hspace*{1.5em} $\seq{\Tipo{FactorDePromocion},\Tipo{topeDePromocion}, \Tipo{millasRestantes}}$ \\
 	\}
 
-	\begin{proc}{CanjearMillas}
-		{\Inout AM: AirMiles, \In millasCanjeadas : \Tipo{\R}, \In idUsuario : \Tipo{\Z}}
+
+	\begin{proc}{ConsultarSaldo}
+		{\Inout EJ: Ejemplo, \In ejemplito : \Tipo{\Z}, \In ejemplote : \Tipo{\Z}}
 		{}
-		\comentario{No estoy seguro si usar millasDisponibles como metavariable vale, o deberia ser un auxiliar si o si.}
-		\\
-		\requiereLargo{ AM = AM_{0} \yLuego millasDisponibles = AM_{0}.Usuarios[idUsuario]_{1} \yLuego \\ millasCanjeadas > 0 \land idUsuario \in claves(AM.Usuarios) }
+		\requiereLargo{ }
 
 		\aseguraLargo{
-			\IfThenElse{ millasDisponibles \geq millasCanjeadas}
-			{ \\AM.Usuarios = setKey(AM_{0}.Usuarios,idUsuario, millasDisponibles - millasCanjeadas)}
-			{ \\AM.Usuarios =  AM_{0}.Usuarios}
-			\\ \land \tupla{idUsuario,-1,2,millasCanjeadas,'NoPromo',1.0} \in AM.HistorialDeTransacciones
-			\\
-			\comentario{No estoy seguro si es mejor esto, o usar el predicado que habia planteado abajo}
 		}
 	\end{proc}
-	\\ \\
-	\comentario{Predicado para transaccion de canje. \\ La idea es tener el agregado de la transaccion 'filtrado' porque en la tupla de transaccion \\hay campos que dependen del tipo de transaccion y creo que da claridad.}
-	\\
-	\predLargo{TransaccionCanje}{historialTransacciones: \seq{Transacciones},idUsuario : \Tipo{\Z}, millasCanjeadas : \Tipo{\R}}
-	{\tupla{idUsuario,-1,2,millasCanjeadas,'NoPromo',1.0} \in historialTransacciones}
-
 \end{tad}
 \end{document}
