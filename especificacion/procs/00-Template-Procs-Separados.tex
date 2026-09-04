@@ -18,15 +18,40 @@
 \begin{document}
 
 \section{Titulo del Proc ACA}
-	\vspace{1.0cm}
+\vspace{1.0cm}
+\noindent Transacciones \textbf{ES} Tuple $\tupla{
+		UsuarioOrigen: \Tipo{\Z}, \\
+		UsuarioDestino: \Tipo{\Z},
+		TipoDeTransaccion: \Tipo{\Z},
+		Millas: \Tipo{\R}, \\
+		NombrePromo: \Tipo{\str},
+		FactorPromo: \Tipo{\R}
+	}$
+
+\noindent \comentario{Tipo de transacciones es algo que yo pongo a mano creo, ejemplo 0:Transaccion por referidor, 1: Transferencia, 2: Canjeo de puntos}
+
+
+\begin{tad}{Airmiles}
+
+
+
+	\obs{Usuarios}{\Diccionario{id}{\tupla{MillasTotales: \Tipo{\Z}, MillasDisponiles: \Tipo{\Z}}}}
+
+	\noindent \obs{HistorialDeTransacciones}{\seq{Transacciones}}
+	\\
+	\texttt{obs} Promociones : dict \{ \\
+	\hspace*{1.5em} NombrePromocion: $\str$, \\
+	\hspace*{1.5em} $\seq{\Tipo{FactorDePromocion},\Tipo{topeDePromocion}, \Tipo{millasRestantes}}$ \\
+	\}
+
 
 	\begin{proc}{ejemplo}
 		{\Inout EJ: Ejemplo, \In ejemplito : \Tipo{\Z}, \In ejemplote : \Tipo{\Z}}
 		{}
 		\requiereLargo{ }
-		
-		\aseguraLargo{ 		
+
+		\aseguraLargo{
 		}
 	\end{proc}
-
+\end{tad}
 \end{document}

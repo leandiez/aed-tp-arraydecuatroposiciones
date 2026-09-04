@@ -67,8 +67,5 @@ dist/
 *.sav
 *.tex~
 
-# ==========================================
-# Opcional: Resultados finales de LaTeX
-# ==========================================
-# Descomenta la siguiente línea si NO quieres subir los PDFs generados
-*.pdf
+# Que NO se suban los PDFs compilados porque cambian a cada rato.
+especificacion/**/*.pdf
