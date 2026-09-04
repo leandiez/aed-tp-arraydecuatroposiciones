@@ -18,24 +18,54 @@
 \begin{document}
 
 \section{Proc Canjear Millas}
-	\vspace{1.0cm}
+\vspace{1.0cm}
+
+\noindent Transacciones \textbf{ES} Tuple $\tupla{
+		UsuarioOrigen: \Tipo{\Z}, \\
+		UsuarioDestino: \Tipo{\Z},
+		TipoDeTransaccion: \Tipo{\Z},
+		Millas: \Tipo{\R}, \\
+		NombrePromo: \Tipo{\str},
+		FactorPromo: \Tipo{\R}
+	}$
+
+\noindent \comentario{Tipo de transacciones es algo que yo pongo a mano creo, ejemplo 0:Transaccion por referidor, 1: Transferencia, 2: Canjeo de puntos}
+
+
+\begin{tad}{Airmiles}
+
+
+
+	\obs{Usuarios}{\Diccionario{id}{\tupla{MillasTotales: \Tipo{\Z}, MillasDisponiles: \Tipo{\Z}}}}
+
+	\noindent \obs{HistorialDeTransacciones}{\seq{Transacciones}}
+	\\
+	\texttt{obs} Promociones : dict \{ \\
+	\hspace*{1.5em} NombrePromocion: $\str$, \\
+	\hspace*{1.5em} $\seq{\Tipo{FactorDePromocion},\Tipo{topeDePromocion}, \Tipo{millasRestantes}}$ \\
+	\}
 
 	\begin{proc}{CanjearMillas}
-		{\Inout AM: AirMiles, \In millasCanjeadas : \Tipo{\Z}, \In idUsuario : \Tipo{\Z}}
+		{\Inout AM: AirMiles, \In millasCanjeadas : \Tipo{\R}, \In idUsuario : \Tipo{\Z}}
 		{}
-
+		\comentario{No estoy seguro si usar millasDisponibles como metavariable vale, o deberia ser un auxiliar si o si.}
+		\\
 		\requiereLargo{ AM = AM_{0} \yLuego millasDisponibles = AM_{0}.Usuarios[idUsuario]_{1} \yLuego \\ millasCanjeadas > 0 \land idUsuario \in claves(AM.Usuarios) }
 
 		\aseguraLargo{
-       		\IfThenElse{ millasDisponibles \geq millasCanjeadas}
-            { AM.Usuarios = setKey(AM_{0}.Usuarios,idUsuario, millasDisponibles - millasCanjeadas)}
-            { AM.Usuarios =  AM_{0}.Usuarios}
-            \yLuego todoLoDemasQuedaIgual.exe
-			% que si la cantidad de millas disponibles es mayor que
-			% las canjeadas, las millas disponibles van a ser las
-			% millas disponibles - las canjeadas. En caso de no cumplir,
-			% no se modifican las millas (quedan iguales). El resto queda igual
+			\IfThenElse{ millasDisponibles \geq millasCanjeadas}
+			{ \\AM.Usuarios = setKey(AM_{0}.Usuarios,idUsuario, millasDisponibles - millasCanjeadas)}
+			{ \\AM.Usuarios =  AM_{0}.Usuarios}
+			\\ \land \tupla{idUsuario,-1,2,millasCanjeadas,'NoPromo',1.0} \in AM.HistorialDeTransacciones
+			\\
+			\comentario{No estoy seguro si es mejor esto, o usar el predicado que habia planteado abajo}
 		}
 	\end{proc}
+	\\ \\
+	\comentario{Predicado para transaccion de canje. \\ La idea es tener el agregado de la transaccion 'filtrado' porque en la tupla de transaccion \\hay campos que dependen del tipo de transaccion y creo que da claridad.}
+	\\
+	\predLargo{TransaccionCanje}{historialTransacciones: \seq{Transacciones},idUsuario : \Tipo{\Z}, millasCanjeadas : \Tipo{\R}}
+	{\tupla{idUsuario,-1,2,millasCanjeadas,'NoPromo',1.0} \in historialTransacciones}
 
+\end{tad}
 \end{document}
