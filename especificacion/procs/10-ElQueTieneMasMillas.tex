@@ -1,0 +1,41 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[left=2.5cm,top=3cm,right=2.5cm,bottom=3cm,bindingoffset=0.5cm]{geometry}
+\usepackage{AEDLogica, AEDEspecificacion, AEDTADs}
+\usepackage{caratula}
+\newlength{\miSangria}
+\setlength{\miSangria}{2em}
+
+% Asi pueden escribir nuevos comandos. 
+% Este por ejemplo asegura q los nombres 
+% que figuren con una tipografia diferenciada  
+\newcommand{\Tipo}[1]{\mathsf{#1}}
+% la sintaxis es \newcommand{\nombreDeLaMacro}[cantidadDeParametros]{Lo que va ser remplazado por el macro} 
+\newcommand{\norm}[1]{\vert#1\vert}
+
+
+\begin{document}
+
+\section{ElQueTieneMasMillas}
+	\vspace{1.0cm}
+
+	\begin{proc}{ElQueTieneMasMillas}
+		{
+			\In AM: \Tipo{Airmiles},
+		}
+		{\Tipo{\Z}}
+		\requiere{ \lvert AM.Usuarios \rvert > 0}
+		\aseguraLargo{
+            \existe{i}{\Tipo{\Z}}{i \in claves(AM.Usuarios) \land MillasT otales(AM.Usuarios,i) = res} \land
+            \\
+            \paraTodo{j}{\Tipo{\Z}}{j \in claves(AM.Usuarios) \implica MillasT otales(AM.Usuarios,j) \leq res}
+		}
+	\end{proc}
+
+% Asegura{ AM.Usuarios = AM0.Usuarios  ∧ 
+% 		   AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones ∧
+% 		   AM.Promociones = SetKey(AM0.Promociones, nombrePromo, [factorPromo,0,0] 		
+% 		 }
+
+\end{document}
