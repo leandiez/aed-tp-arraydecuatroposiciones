@@ -18,24 +18,24 @@
 \begin{document}
 
 \section{Proc Canjear Millas}
-	\vspace{1.0cm}
+\vspace{1.0cm}
 
-	\begin{proc}{CanjearMillas}
-		{\Inout AM: AirMiles, \In millasCanjeadas : \Tipo{\Z}, \In idUsuario : \Tipo{\Z}}
-		{}
+\begin{proc}{CanjearMillas}
+	{\Inout AM: AirMiles, \In millasCanjeadas : \Tipo{\Z}, \In idUsuario : \Tipo{\Z}}
+	{}
 
-		\requiereLargo{ AM = AM_{0} \yLuego millasDisponibles = AM_{0}.Usuarios[idUsuario]_{1} \yLuego \\ millasCanjeadas > 0 \land idUsuario \in claves(AM.Usuarios) }
+	\requiereLargo{ AM = AM_{0} \yLuego millasDisponibles = AM_{0}.Usuarios[idUsuario]_{1} \yLuego \\ millasCanjeadas > 0 \land idUsuario \in claves(AM.Usuarios) }
 
-		\aseguraLargo{
-       		\IfThenElse{ millasDisponibles \geq millasCanjeadas}
-            { AM.Usuarios = setKey(AM_{0}.Usuarios,idUsuario, millasDisponibles - millasCanjeadas)}
-            { AM.Usuarios =  AM_{0}.Usuarios}
-            \yLuego todoLoDemasQuedaIgual.exe
-			% que si la cantidad de millas disponibles es mayor que
-			% las canjeadas, las millas disponibles van a ser las
-			% millas disponibles - las canjeadas. En caso de no cumplir,
-			% no se modifican las millas (quedan iguales). El resto queda igual
-		}
-	\end{proc}
+	\aseguraLargo{
+		\IfThenElse{ millasDisponibles \geq millasCanjeadas}
+		{ \\AM.Usuarios = setKey(AM_{0}.Usuarios,idUsuario, millasDisponibles - millasCanjeadas)}
+		{ \\AM.Usuarios =  AM_{0}.Usuarios}
+		\\ \land TransaccionCanje(AM.Transacciones, AM_{0}.Transacciones, idUsuario,2,millasCanjeadas)
+	}
+\end{proc}
+\\ \\
+\comentario{Predicado para transaccion de canje. \\ No reuso otro pred, porque creo que asi podemos dejar solo los parametros necesarios,\\ y podemos aclarar cuales campos del Observador seq<Transacciones> no se tocan.}
+\\
+\predLargo{TransaccionCanje}{transaccionVieja: Transacciones, transaccionNueva : Transacciones, \\ idUsuario : \Tipo{\Z}, idTransaccion:\Tipo{\Z}, millasCanjeadas : \Tipo{\R}}{algo}
 
 \end{document}

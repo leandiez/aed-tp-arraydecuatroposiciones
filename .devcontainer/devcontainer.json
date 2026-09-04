@@ -51,6 +51,7 @@
                     "en"
                 ],
                 "latex-workshop.latex.autoBuild.run": "onSave",
+                "latex-workshop.formatting.latex": "latexindent",
                 "latex-workshop.view.pdf.viewer": "tab",
                 "latex-workshop.view.pdf.internal.port": 49786,
                 "latex-workshop.intellisense.bibtexJSON.replace": {},
