@@ -50,20 +50,19 @@
 	\\
 	\texttt{obs} Promociones : dict \{ \\
 	\hspace*{1.5em} NombrePromocion: $\str$, \\
-	\hspace*{1.5em} $\conj{\Tipo{FactorDePromocion},\Tipo{topeDePromocion}, \Tipo{millasRestantes}}$ \\
+	\hspace*{1.5em} $\struct{FactorDePromocion:\Tipo{\R},TopeDePromocion:\Tipo{\R}, MillasRestantes:\Tipo{\R}}$ \\
 	\}
 	\vspace{0.5cm}
 
 	\begin{proc}{CanjearMillas}
-		{\Inout AM: AirMiles, \In millasCanjeadas : \Tipo{\R}, \In idUsuario : \Tipo{\Z}}
+		{\Inout AM: AirMiles, \In MillasCanjeadas : \Tipo{\R}, \In IdUsuario : \Tipo{\Z}}
 		{}
-		\requiereLargo{ AM = AM_{0} \yLuego millasDisponibles = AM_{0}.Usuarios[idUsuario]_{1} \yLuego \\ millasCanjeadas > 0 \land idUsuario \in claves(AM.Usuarios) }
+		\requiere{ AM=AM_{0} \yLuego MillasCanjeadas > 0 \land IdUsuario \in claves(AM.Usuarios)}
 
 		\aseguraLargo{
-			\IfThenElse{ millasDisponibles \geq millasCanjeadas}
-			{ \\AM.Usuarios = setKey(AM_{0}.Usuarios,idUsuario, millasDisponibles - millasCanjeadas)}
-			{ \\AM.Usuarios =  AM_{0}.Usuarios}
-			\\ \land \tupla{idUsuario,-1,2,millasCanjeadas,'NoPromo',1.0} \in AM.HistorialDeTransacciones
+			\IfThenElse{ MillasDisponibles(AM_{0}.Historial, IdUsuario) \geq millasCanjeadas}
+			{ \\TransaccionCanje(AM_{0}.Historial, IdUsuario, MillasCanjeadas)}
+			{ \\AM.Historial =  AM_{0}.Historial}
 			\\
 			\comentario{No estoy seguro si es mejor esto, o usar el predicado que habia planteado abajo}
 		}
@@ -75,8 +74,20 @@
 	{\tupla{idUsuario,-1,2,millasCanjeadas,'NoPromo',1.0} \in historialTransacciones}
 
 	\vspace{0.5cm}
+	\comentario{Auxiliar para obtener las millas disponibles de un usuario. \\ Recorre el historial de transacciones y de acuerdo al TipoDeTransaccion, al IdUsuario \\ y las Millas del registro, suma o resta con un acumulador}
+	\\
 
-	\auxLargo{MillasDisponibles}{IdUsuario : \Tipo{\Z}, Historial : \seq{Transacciones}}{\Tipo{\Z}}{algo}
+	\auxLargo{MillasDisponibles}
+	{IdUsuario : \Tipo{\Z}, Historial : \seq{Transacciones}}
+	{\Tipo{\Z}}
+	{\sum_{i=0}^{\lvert Historial \rvert - 1} \IfThenElse{EsTransaccionSumadora(Historial[i], IdUsuario)}{Historial.Millas}{-Historial.Millas}}
+
+	\comentario{Predicado saber si la transaccion debe sumarle al usuario o restarle en la cuenta de MillasDisponibles.\\}
+	\\
+	\predLargo{EsTransaccionSumadora}{Trans: Transacciones,idUsuario : \Tipo{\Z}}
+	{ (IdUsuario = UsuarioOrigen \land TipoDeTransaccion = 0) \lor (TipoDeTransaccion = 1 \land IdUsuario = UsuarioDestino) \lor negado(TipoDeTransaccion = 2) }
+	\comentario{ Falta transcribir los nombres de los campos, pero la idea es esa xD}
+
 
 \end{tad}
 \end{document}
