@@ -45,15 +45,11 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 
 \section{Renombres de Tipos y Estructuras}
 
-\noindent PromocionUtilizada \textbf{ES}: bool
-
-\noindent topeDePromocion \textbf{ES}: $\mathbb{R}$
-
 \noindent enum Categoría \textbf{ES} \{Bronce, Plata,Oro, Platino  \}
 
 \vspace{0.5cm}
 
-\noindent Transacciones \textbf{ES} Tuple $\tupla{
+\noindent Transacciones \textbf{ES} Struct $\tupla{
 	UsuarioOrigen: \Tipo{\Z}, \\
 	UsuarioDestino: \Tipo{\Z},
 	TipoDeTransaccion: \Tipo{\Z},
@@ -70,22 +66,38 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 \begin{tad}{Airmiles}
 
 
+	\comentario{Decidimos dejar en usuarios la categoria por mas que se pueda calcular por fuera, historial de transacciones cambio a un tipo Struct, y las promociones tambien cambiaron a un diccionario que adentro tiene un struct }
+	\\
+	\obs{Usuarios}{\dict{id:\Tipo{\Z}}{CategoriaActual : Categoria}}
 
-	\obs{Usuarios}{\Diccionario{id}{\tupla{MillasTotales: \Tipo{\Z}, MillasDisponiles: \Tipo{\Z}}}}
-
+	\noindent \comentario{La convencion utilizada para transacciones es:
+	\\
+	1) Si se hace un vuelo, el TipoDeTransaccion es 0 y el usuario de destino es -1
+	\\
+	2) Si se hace una transferencia el TipoDeTransaccion es 1
+	\\
+	3) Si se hace un canjeo el TipoDeTransaccion es 2 y el usuario de destino es -1, se modifica unicamente el usuario de origen
+	}
+	\\
 	\noindent \obs{HistorialDeTransacciones}{\seq{Transacciones}}
+	\\
+	\comentario{En caso de las promociones, si la promocion no tiene un tope, por convencion tomamos millasRestantes = -1}
 	\\
 	\texttt{obs} Promociones : dict \{ \\
 	\hspace*{1.5em} NombrePromocion: $\str$, \\
-	\hspace*{1.5em} $\seq{\Tipo{FactorDePromocion}, \Tipo{PromocionUtilizada},\Tipo{topeDePromocion}}$ \\
+	\hspace*{1.5em} $\struct{\Tipo{FactorDePromocion} : \R,\Tipo{topeDePromocion}: \R, \Tipo{millasRestantes}: \R}$ \\
 	\}
-
+	
 
 	\begin{proc}{crearSistema}
 		{}
 		{AirMiles}
 		\requiere{\Tipo{True}}
-		\aseguraLargo{ \norm{res.Usuarios} = 0 \land \norm{res.HistorialDeTransacciones} = 0 \land res.promociones = setKey(\dict{}{},"NoPromo",\seq{1,False,0}) }
+		\aseguraLargo{ \norm{res.Usuarios} = 0 \land 
+		\\
+		\norm{res.HistorialDeTransacciones} = 0 \land 
+		\\
+		res.promociones = setKey(\dict{}{},"NoPromo",\struct{1,0,-1}) }
 	\end{proc}
 
 	\begin{proc}{registrarUsuario}
@@ -96,7 +108,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		{}
 		\comentario{Actualiza el diccionario de usuarios con  nuevo usuario} \\
 		\requiere{AM = AM0 \land id \notin claves(AM.Usuarios)}
-		\aseguraLargo{ AM.Usuarios = SetKey(AM0.Usuarios, id,\tupla{0,0}) \land \\
+		\aseguraLargo{ AM.Usuarios = SetKey(AM0.Usuarios, id, Bronce) \land \\
 			AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \\
 			\land AM.Promociones = AM0.Promociones
 		}
@@ -111,77 +123,31 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		}
 		{}
 		\requiere{AM0 = AM \land idReferidor \in claves(AM.Usuarios) \land idUsuario \notin claves(AM.Usuarios)}
-		\aseguraLargo{ EsNuevoUsuarioReferido(AM,AM0,idUsuario)\\ \land ReferidorEsActualizado(AM,AM0,idReferidor) \land \\
-		EsNuevaTransferencia(AM,AM0,idUsuario, idReferidor, 0, \\
+		\aseguraLargo{ 
+		% Creo el usuario
+		AM.Usuarios = SetKey(AM0.Usuarios,idUsuario, Bronce) \land
+		\\
+		% Creo una transferencia para sumarle al usuario nuevo 500 millas 
+		EsNuevaTransaccion(AM,AM0,idUsuario, -1, 0, \\
+		500,"NoPromo",1)\land 
+		\\
+		AM.Promociones = AM0.Promociones \land
+		\\
+		% Creo una transferencia para sumarle al usuarioReferidor 500 millas
+		Categoria(AM0.Usuarios,idReferidor) \neq Platino  \implica
+		\\ 
+		EsNuevaTransaccion(AM,AM0,idReferidor, -1, 0, \\
 		500,
-		"NoPromo", 1) \land AM.Promociones = AM0.Promociones
+		"NoPromo", 1)  
 		}
 	\end{proc}
 
-	\predLargo{EsNuevaTransferencia}{AM,AM0,idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}}{AM.HistorialTransacciones = AM0.HistorialTransacciones ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
+	\vspace{0.5cm}
+	\predLargo{EsNuevaTransaccion}{AM,AM0,idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}}{AM.HistorialTransacciones = AM0.HistorialTransacciones ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
 
-	% 
-	% Proc registrarUsuarioConReferidor(inout AM: AirMiles, in idReferidor: Z, in id:Z){
-	% Requiere{ AM0 = AM  ∧ idReferidor ∈ claves(AM.Usuarios) ∧ id ∉ claves(AM.Usuarios)}
-	% Asegura{ EsNuevoUsuarioReferido(AM,AM0,id) ∧ ReferidorEsActualizado(idReferidor,AM) }
-
-	\predLargo{EsNuevoUsuarioReferido}{AM, AM0: Airmiles, idUsuario: \Tipo{\Z}}{
-		\comentario{Crea un usuario Referido con 500 millas totales y disponibles} \\
-		AM.Usuarios = SetKey(AM0.Usuarios,idUsuario \tupla{500,500})
-	}
-
-	% pred EsNuevoUsuarioReferido(AM,AM0,id){
-	% AM.Usuarios = SetKey(AM0.Usuarios,id,⟨ 
-	% 	Millas: ⟨500,500,0,0⟩,
-	% 	VuelosRealizados: 0,
-	% 	TransferenciasRealizadas: 0,
-	% 	Categorias: Bronce,
-	% 	EsReferido: True, 
-	% ⟩)
-	% }
-
-
-	\predLargo{ReferidorEsActualizado}{AM,AM0: \Tipo{AirMiles}, idReferidor: \Tipo{\Z}}{
-		\comentario{Actualiza el usuario referidor en Usuarios y chequea categoria nuevamente} \\
-		\lnot EsPlatino(idReferidor) \yLuego \\ 
-		AM.Usuarios = SetKey(AM0.Usuarios,idReferidor, \\
-		\tupla{MillasTotales(AM0.Usuarios, idReferidor) +500, \\
-		MillasDisponibles(AM0.Usuarios, idReferidor) + 500})
-	}
-
-	% // COMENTARIOS PARA HACER A LOS PROFES:
-	% El sistema debe permitir conocer la categor´ıa actual de cada usuario que se calcula seg´un el total de millas acumuladas.
-	% Los usuarios que llegan al mill´on de millas acumuladas alcanzan la categor´ıa Platino, que les otorga beneficios exclusivos,
-	% pero ya no acumulan m´as millas
-
-	% Esto no causa conflicto? No se supone que un usuario no puede tener +1.000.000 millas? Al momento de llegar al millon de millas deberia quedarse ahi ?
-
-	\comentario{RECORDAR IMPLEMENTAR ESPLATINO}
-
-	\auxLargo{DarCategoria}
-	{\In id: \Tipo{\Z}, \In Usuarios: \Diccionario{id}{PropiedadesUsuario}}
-	{Categoria}
-	{
-		\IfThenElse{MillasTotales(\Tipo{Usuarios},\Tipo{id}) < 10000}{Bronce}{ \\
-			\IfThenElse{MillasTotales(\Tipo{Usuarios},\Tipo{id}) \leq 49999}{Plata}{ \\
-				\IfThenElse{MillasTotales(\Tipo{Usuarios},\Tipo{id}) < 1000000}{Oro}{Platino}
-			}
-		}
-	}
-
-
-	\vspace{1.0cm}
-
-	\auxLargo{MillasTotales}
-	{Usuarios: \Tipo{\Diccionario{\Tipo{Id}}{\Tipo{PropiedadesUsuario}}}, Id: \Tipo{\Z}}
-	{\Tipo{\Z}}
-	{Usuarios\lbrack Id\rbrack.millas \lbrack 0 \rbrack}
-
-	\vspace{1.0cm}
-	\auxLargo{MillasDisponibles}
-	{Usuarios: \Tipo{\Diccionario{\Tipo{Id}}{\Tipo{PropiedadesUsuario}}}, Id: \Tipo{\Z}}
-	{\Tipo{\Z}}
-	{Usuarios\lbrack Id\rbrack.millas \lbrack 1 \rbrack}
+	\vspace{0.5cm}
+	\aux{Categoria}{Usuarios,idUsuario}{Categoria}{Usuarios[idUsuario]}
+	\\
 
 
 \end{tad}
