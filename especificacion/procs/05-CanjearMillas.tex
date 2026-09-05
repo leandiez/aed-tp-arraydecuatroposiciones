@@ -17,10 +17,17 @@
 
 \begin{document}
 
-\section{Proc Canjear Millas}
-\vspace{1.0cm}
+\section{Procedimiento Canjear Millas}
+\subsection{Renombres de Tipos}
 
-\noindent Transacciones \textbf{ES} Tuple $\tupla{
+\noindent topeDePromocion \textbf{ES}: $\mathbb{R}$
+\vspace{0.5cm}
+
+\noindent enum Categoría \textbf{ES} \{Bronce, Plata,Oro, Platino  \}
+
+\vspace{0.5cm}
+
+\noindent Transacciones \textbf{ES} Struct$\struct{
 		UsuarioOrigen: \Tipo{\Z}, \\
 		UsuarioDestino: \Tipo{\Z},
 		TipoDeTransaccion: \Tipo{\Z},
@@ -31,25 +38,25 @@
 
 \noindent \comentario{Tipo de transacciones es algo que yo pongo a mano creo, ejemplo 0:Transaccion por referidor, 1: Transferencia, 2: Canjeo de puntos}
 
+\subsection{TAD y Observadores}
 
 \begin{tad}{Airmiles}
 
 
 
-	\obs{Usuarios}{\Diccionario{id}{\tupla{MillasTotales: \Tipo{\Z}, MillasDisponiles: \Tipo{\Z}}}}
+	\obs{Usuarios}{\dict{id:\Tipo{\Z}}{CategoriaActual : Categoria}}
 
 	\noindent \obs{HistorialDeTransacciones}{\seq{Transacciones}}
 	\\
 	\texttt{obs} Promociones : dict \{ \\
 	\hspace*{1.5em} NombrePromocion: $\str$, \\
-	\hspace*{1.5em} $\seq{\Tipo{FactorDePromocion},\Tipo{topeDePromocion}, \Tipo{millasRestantes}}$ \\
+	\hspace*{1.5em} $\conj{\Tipo{FactorDePromocion},\Tipo{topeDePromocion}, \Tipo{millasRestantes}}$ \\
 	\}
+	\vspace{0.5cm}
 
 	\begin{proc}{CanjearMillas}
 		{\Inout AM: AirMiles, \In millasCanjeadas : \Tipo{\R}, \In idUsuario : \Tipo{\Z}}
 		{}
-		\comentario{No estoy seguro si usar millasDisponibles como metavariable vale, o deberia ser un auxiliar si o si.}
-		\\
 		\requiereLargo{ AM = AM_{0} \yLuego millasDisponibles = AM_{0}.Usuarios[idUsuario]_{1} \yLuego \\ millasCanjeadas > 0 \land idUsuario \in claves(AM.Usuarios) }
 
 		\aseguraLargo{
@@ -66,6 +73,10 @@
 	\\
 	\predLargo{TransaccionCanje}{historialTransacciones: \seq{Transacciones},idUsuario : \Tipo{\Z}, millasCanjeadas : \Tipo{\R}}
 	{\tupla{idUsuario,-1,2,millasCanjeadas,'NoPromo',1.0} \in historialTransacciones}
+
+	\vspace{0.5cm}
+
+	\auxLargo{MillasDisponibles}{IdUsuario : \Tipo{\Z}, Historial : \seq{Transacciones}}{\Tipo{\Z}}{algo}
 
 \end{tad}
 \end{document}
