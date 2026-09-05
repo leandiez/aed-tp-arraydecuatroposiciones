@@ -26,8 +26,10 @@
 			\In nombrePromo: \Tipo{\seq{char}}
 		}
 		{}
-		\requiere{
-        AM = AM0 \land nombrePromo \neq "NoPromo"
+		\requiereLargo{
+        AM = AM0 \land nombrePromo \neq "NoPromo" \land 
+		\\
+		nombrePromo \in claves(AM0.promociones)
         }
 		\aseguraLargo{
             AM.Usuarios = AM0.Usuarios \land

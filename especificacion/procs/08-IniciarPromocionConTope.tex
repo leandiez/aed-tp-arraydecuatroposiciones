@@ -23,14 +23,14 @@
 	\begin{proc}{IniciarPromocionConTope}
 		{
 			\Inout AM: \Tipo{Airmiles},
-			\In nombrePromo: \Tipo{\seq{char}},
+			\In nombrePromo: \Tipo{\str},
             \In factorPromo: \Tipo{\R},
-            \In TopePromo: 
+            \In TopePromo: \Tipo{\R}
 		}
 		{}
 		\requiereLargo{
         AM = AM0 \land factorPromo \geq 1 \land nombrePromo \notin 
-        claves(AM0.Promociones)
+        claves(AM0.Promociones) \land TopePromo > 0
         }
 		\aseguraLargo{
             AM.Usuarios = AM0.Usuarios \land
@@ -39,7 +39,7 @@
 			\\
 			AM.Promociones = SetKey(AM0.Promociones, nombrePromo,
             \\
-            \lbrack factorPromo,topePromo,topePromo \rbrack)
+            \struct{factorPromo,topePromo,topePromo})
 		}
 	\end{proc}
 

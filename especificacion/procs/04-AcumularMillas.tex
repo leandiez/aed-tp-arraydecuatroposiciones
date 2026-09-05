@@ -15,36 +15,38 @@
 
 \section{Renombres de Tipos y Estructuras}
 
+\obs{Usuarios}{\dict{id:\Tipo{\Z}}{CategoriaActual : Categoria}}
 
-\noindent topeDePromocion \textbf{ES}: $\mathbb{R}$
+	\noindent \comentario{La convencion utilizada para transacciones es:
+	\\
+	1) Si se hace un vuelo, el TipoDeTransaccion es 0 y el usuario de destino es -1
+	\\
+	2) Si se hace una transferencia el TipoDeTransaccion es 1
+	\\
+	3) Si se hace un canjeo el TipoDeTransaccion es 2 y el usuario de destino es -1, se modifica unicamente el usuario de origen
+	}
+	\\
+    \noindent Transacciones \textbf{ES} Struct $\tupla{
+	UsuarioOrigen: \Tipo{\Z}, \\
+	UsuarioDestino: \Tipo{\Z},
+	TipoDeTransaccion: \Tipo{\Z},
+	Millas: \Tipo{\R}, \\
+    Distancia: \Tipo{\Z}, 
+	NombrePromo: \Tipo{\str},
+	FactorPromo: \Tipo{\R}
+	}$
 
-\noindent enum Categoría \textbf{ES} \{Bronce, Plata,Oro, Platino  \}
-\vspace{0.5cm}
-
-\noindent Transacciones \textbf{ES} Tuple $\tupla{
-        UsuarioOrigen: \Tipo{\Z}, \\
-        UsuarioDestino: \Tipo{\Z},
-        TipoDeTransaccion: \Tipo{\Z},
-        Millas: \Tipo{\R}, \\
-        NombrePromo: \Tipo{\str},
-        FactorPromo: \Tipo{\R}
-    }$
-
-\noindent \comentario{Tipo de transacciones es algo que yo pongo a mano creo, ejemplo 0:Transaccion por referidor, 1: Transferencia, 2: Canjeo de puntos}
+	\noindent \obs{Historial}{\seq{Transacciones}}
+	\\
+	\comentario{En caso de las promociones, si la promocion no tiene un tope, por convencion tomamos millasRestantes = -1}
+	\\
+	\texttt{obs} Promociones : dict \{ \\
+	\hspace*{1.5em} NombrePromocion: $\str$, \\
+	\hspace*{1.5em} $\struct{\Tipo{FactorDePromocion} : \R,\Tipo{topeDePromocion}: \R, \Tipo{millasRestantes}: \R}$ \\
+	\}
 
 
 \begin{tad}{Airmiles}
-
-
-
-    \obs{Usuarios}{\Diccionario{id}{\tupla{MillasTotales: \Tipo{\Z}, MillasDisponiles: \Tipo{\Z}}}}
-
-    \noindent \obs{HistorialDeTransacciones}{\seq{Transacciones}}
-    \\
-    \texttt{obs} Promociones : dict \{ \\
-    \hspace*{1.5em} NombrePromocion: $\str$, \\
-    \hspace*{1.5em} $\seq{\Tipo{FactorDePromocion},\Tipo{topeDePromocion}, \Tipo{millasRestantes}}$ \\
-    \}
 
     % ===============Aca comienza la funcion de acumular millas===============
 
@@ -57,186 +59,231 @@
             \In nombrePromo: \Tipo{\str},
         }
         {}
+
         \requiere{AM = AM0 \land idUsuario \in claves(AM.Usuarios) \land nombrePromo \in claves(AM.Promociones) \land distancia > 0 }
         \aseguraLargo{
-            ActualizaMillasUsuario(idUsuario,AM.Usuarios,AM0.Usuarios,\\ distancia, DarFactorCategoria(idUsuario,AM0.Usuarios), \\ DarFactorPromo(nombrePromo,AM0.Promociones)) \yLuego \\
+            \comentario{Solo le aplica la promocion si tengo millas restantes en la promo, si no no. ¿ Y si no ?}
             \\
-            EsNuevaTransaccion(AM,AM0,idUsuario,0,0,CalcularMillas(distancia,\\DarFactorCategoria(idUsuario,AM0.Usuarios),\\
-            DarFactorPromo(nombrePromo,AM0.Promociones))) \yLuego \\
+            AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes \geq distancia \implica
+            \\
+            EsNuevaTransaccion(AM,AM0,idUsuario,-1,0,
+            \\
+            millasCalculadas(distancia,DarFactorCategoria(AM0.Historial
+            \\
+            ,idUsuario),
+            AM0.Promociones[nombrePromo].FactorDePromocion),distancia, \\ 
+            nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \land
+            \\
+            % Luego de hacer la transaccion tengo que verificar si se modifico la categoría del usuario
+            \\
+            \comentario{Se puede indefinir si no le pasamos un usuario que este en el sistema}
+            \\
+            SubioCategoria(idUsuario,AM.Historial,AM0.Historial) \implicaLuego
+            \\
+            AM.Usuarios = SetKey(AM0.Usuarios,idUsuario,
+            \\
+            DarCategoria(AM.Historial, idUsuario)) \land
+            \\
             \\
             SeConsumioLaPromocion(nombrePromo,AM0.Promociones)
         }
     \end{proc}
 
-    \auxLargo{CalcularMillas}
-    {\In distancia: \Tipo{\Z}, \In FactorCategoria: \Tipo{\R}, \In FactorPromo: \Tipo{\R}, idUsuario: \Tipo{\Z}, Usuarios: \Tipo{\Diccionario{id}{\tupla{MillasTotales,MillasDisponibles}}}}
-    {\Tipo{\Z}}
-    {MillasQueGanariaElUsuario(idUsuario, Usuarios, distancia, \\DarCategoria(idUsuario, Usuarios), nombrePromo,
-        Promociones)}
-
-    \vspace{1cm}
-    \auxLargo{MillasRestantesDePromocionConTope}
-    {\In NombrePromo, \In Promociones}
+    \auxLargo{MillasObtenidasPorVuelo}
+    {Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}}
     {\Tipo{\R}}
-    {Promociones \lbrack nombrePromo \rbrack \lbrack 2 \rbrack}
-
-    \vspace{1cm}
-    \auxLargo{DarMillasPreviasMasAcumular}
     {
-        \In distancia,
-        \In FactorCategoria,
-        \In FactorPromo,\\
-        \In idUsuario,
-        \In Usuarios
-    }
-    {\tupla{\Tipo{\Z},\Tipo{\Z}}}
-    {
-        \tupla{MillasTotales(Usuarios,idUsuario) + \\
-            CalcularMillas(distancia,FactorCategoria,FactorPromo,idUsuario,Usuarios), \\
-            MillasDisponibles(Usuarios,idUsuario) + \\
-            CalcularMillas(distancia,FactorCategoria,FactorPromo,idUsuario,Usuarios),
+        \sum\limits_{i=0}^{\norm{Historial} - 1}
+        \IfThenElse{
+            EsVuelo(Historial[i],
+            idOrigen)
+        }{
+            Historial[i].Millas
+        }{
+            0
         }
     }
 
     \vspace{1cm}
+
+    \auxLargo{MillasTransferidas}
+        {Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
+        {\Tipo{\R}}
+        {
+            \sum\limits_{i=0}^{\norm{Historial} - 1}
+            \IfThenElse{
+                EsTransferencia(Historial[i], 
+                \\
+                idOrigen, idDestino)
+            }{
+                Historial[i].Millas
+            }{
+                0
+            }
+        }
+
+    \vspace{1cm}
+    \auxLargo{MillasDescontadasPorCanjeo}
+        {Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}}
+        {\Tipo{\R}}
+        {
+            \sum\limits_{i=0}^{\norm{Historial} - 1}
+            \IfThenElse{
+                EsCanjeo(Historial[i], 
+                idOrigen)
+            }{
+                Historial[i].Millas
+            }{
+                0
+            }
+        }
+
+    \vspace{1cm}
+
+    \auxLargo{EsVuelo}
+        {Transaccion: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}}
+        {\Tipo{bool}}
+        {
+            Transaccion.UsuarioOrigen = idOrigen \land
+            \\
+            Transaccion.TipoDeTransaccion = 0 \land
+            \\
+            Transaccion.UsuarioDestino = -1
+        }
+
+    \vspace{1cm}
+
+    \auxLargo{EsTransferencia}
+        {Transaccion: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
+        {\Tipo{bool}}
+        {
+            Transaccion.UsuarioOrigen = idOrigen \land
+            \\
+            Transaccion.TipoDeTransaccion = 1 \land
+            \\
+            Transaccion.UsuarioDestino = idDestino
+        }
+
+    \vspace{1cm}
+
+    \auxLargo{EsCanjeo}
+        {Transaccion: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}}
+        {\Tipo{bool}}
+        {
+            Transaccion.UsuarioOrigen = idOrigen \land
+            \\
+            Transaccion.TipoDeTransaccion = 2 \land
+            \\
+            Transaccion.UsuarioDestino = -1
+        }
+
+    \vspace{1cm}
+    \noindent \comentario{Recordar que aca tambien estan incluidos los referidos porque esta incluido en las "MillasObtenidasPorVuelo"}
+    \\
+    \auxLargo{MillasTotales}
+    {Historial: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
+    {\Tipo{\R}}
+    {
+        MillasObtenidasPorVuelo(Historial, idOrigen) +
+        \\
+        \comentario{en este orden son las que me transfirieron}
+        \\
+        MillasTransferidas(Historial, idDestino, idOrigen)
+    }
+    
+    \vspace{1cm}
+    \auxLargo{MillasDisponibles}
+    {Historial: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
+    {\Tipo{\R}}
+    {
+        MillasTotales(Historial, idOrigen) -
+        \\ 
+        MillasDescontadasPorCanjeo(Historial,idOrigen) -
+        \\ 
+        \comentario{en este orden son las que transferi (descontadas)}
+        \\
+        MillasTransferidas(Historial, idOrigen, idDestino)
+    }
+
+    \vspace{1cm}
+    \auxLargo{DarCategoria}
+    {Historial: \Tipo{\seq{Transacciones}}, idUsuario: \Tipo{\Z}}
+    {\Tipo{Categoria}}
+    {
+        \IfThenElse{
+            MillasTotales(Historial, idUsuario) < 10000
+        }{
+            Bronce
+            \\
+        }{
+            \IfThenElse{
+                MillasTotales(Historial, idUsuario) < 50000
+            }{
+                Plata
+                \\
+            }{
+                \IfThenElse{
+                    MillasTotales(Historial, idUsuario) < 1000000
+                }{
+                    Oro
+                }{
+                    Platino
+                }
+            }
+        }
+    }
+
+    \vspace{1cm}
+    \auxLargo{DarFactorCategoria}
+    {Historial: \Tipo{\seq{Transacciones}}, idUsuario: \Tipo{\Z}}
+    {\Tipo{\R}}
+    {
+        \IfThenElse{
+            MillasTotales(Historial, idUsuario) < 10000
+        }{
+            1.0
+            \\
+        }{
+            \IfThenElse{
+                MillasTotales(Historial, idUsuario) < 50000
+            }{
+                1.5
+                \\
+            }{
+                \IfThenElse{
+                    MillasTotales(Historial, idUsuario) < 1000000
+                }{
+                    2.0
+                }{
+                    0.0
+                }
+            }
+        }
+    }
+
+    \vspace{1cm}
+    \auxLargo
+    {MillasCalculadas}
+    {distancia:\Tipo{\Z}, Factorcategoria: \Tipo{\R}, factorPromo: \Tipo{\R}}
+    {\R}
+    {distancia * Factorcategoria * factorPromo}
+
+    \vspace{1cm}
+    \noindent \comentario{Chequea si el usuario cambio de categoria con la lista de transacciones que se crearon hasta ese momento y con la nueva lista de transacciones}
+    \\
     \predLargo
-    {ActualizaMillasUsuario}
-    {
-        idUsuario,
-        Usuarios,
-        Usuarios0, \\
-        distancia,
-        FactorCategoria,
-        FactorPromo
-    }
-    {Usuarios = SetKey(
-            Usuarios0,
-            idUsuario, \\
-            \tupla{DarMillasPreviasMasAcumular(distancia,FactorCategoria,FactorPromo, \\ idUsuario,Usuarios)_{0}, \\
-        DarMillasPreviasMasAcumular(distancia,FactorCategoria,FactorPromo, \\ idUsuario,Usuarios)_{1}}
-        )
-    }
-
-
-    \vspace{1cm}
-    \auxLargo
-    {DarFactorPromo}
-    {nombrePromo, Promociones}
-    {\Tipo{\R}}
-    {
-        Promociones[nombrePromo][0]
-    }
-
-    \vspace{1cm}
-    \auxLargo
-    {topeDePromocion}
-    {nombrePromo, Promociones}
-    {\Tipo{\R}}
-    {Promociones[nombrePromo][1]}
-
-    \vspace{1cm}
-    \auxLargo
-    {MillasRestantesDePromo}
-    {nombrePromo, Promociones}
-    {\Tipo{\R}}
-    {
-        Promociones[nombrePromo][2]
-    }
-
-
-
-    \vspace{1cm}
-    \auxLargo
-    {MillasQueGanariaElUsuario}
-    {idUsuario, Usuarios, distancia, categoria, \\ nombrePromo, Promociones}
-    {\Tipo{\R}}
-    {
-        distancia * DarCategoria(idUsuario,Usuarios) \\
-        * DarFactorPromo(nombrePromo,Promociones)
-    }
-
-    \vspace{1cm}
-
-    \comentarioLargo{
-        Chequea si la promocion se consumio,en caso de que no se haya consumido
-        actualiza en el observador la cantidad de millas restantes de la promocion
-    }
+    {SubioCategoria}
+    {idUsuario: \Tipo{\Z},Historial: \Tipo{Transaccion},Historial0: \Tipo{Transaccion}}
+    {DarCategoria(Historial0,idUsuario) \neq DarCategoria(Historial,idUsuario)}
 
     \predLargo
     {SeConsumioLaPromocion}
     {
-        idUsuario,
-        Usuarios,
-        distancia,
-        categoria,
-        nombrePromo, \\
-        Promociones,
-        Promociones0
-    }
-    {
-        MillasRestantesDePromo(nombrePromo, Promociones0) \leq \\
-        MillasQueGanariaElUsuario(idUsuario, Usuarios, distancia, categoria, \\ nombrePromo, Promociones)
-        \implica
-        Promociones = DelKey(Promociones0, nombrePromo)
-        \land
-        MillasRestantesDePromo(nombrePromo, Promociones0) > \\
-        MillasQueGanariaElUsuario(idUsuario, Usuarios, distancia, categoria, \\
-        nombrePromo, Promociones)
-        \implica \\
-        Promociones = SetKey(
-        Promociones0,
-        nombrePromo, \\
-        \lbrack
-        DarFactorPromo(nombrePromo,Promociones0), \\
-        topeDePromocion(nombrePromo,Promociones0), \\
-        MillasRestantesDePromo(nombrePromo,Promociones0)- \\
-        CalcularMillas(
-        distancia,
-        DarFactorCategoria(idUsuario, Usuarios), \\
-        DarFactorPromo(nombrePromo, Promociones),
-        idUsuario,
-        Usuarios
-        )
-        \rbrack
-        )
-    }
-
-    % MillasRestantesDePromo(nombrePromo,Promociones0) > MillasQueGanariaElUsuario(idUsuario, Usuarios, distancia,categoria, \\ nombrePromo, Promociones)  -> Promociones = SetKey(Promociones0,nombrePromo, [Promociones0[nombrePromo][0],Promociones0[nombrePromo][1],Promociones0[nombrePromo][2] - CalcularMillas(distancia :  DarFactorCategoria(idUsuario,Usuarios),DarFactorPromo(nombrePromo, Promociones) , idUsuario, Usuarios)])
-
-
-    % pred SeConsumioLaPromocion(idUsuario,Usuarios, distancia, categoria nombrePromo,Promociones,Promociones0){
-    % 	topeDePromocion(Promocion,NombrePromocion) <= MillasQueGanariaElUsuario(idUsuario, Usuarios, distancia,categoria,nombrePromo, Promociones)  => Promociones = DelKey(Promociones0,nombrePromocion) 
-    % }
-
-
-    % Aux MillasRestanteDePromo(nombrePromo,Promociones) = Promociones[nombrePromo][2] 
-
-    % Aux MillasQueGanariaElUsuario(idUsuario, Usuarios, distancia,categoria,nombrePromo, Promociones) = distancia* DarCategoria(idUsuario,Usuarios) * darFactorPromo(nombrePromo,Promociones) 
-
-    % Aux topeDePromocion(Promocion,NombrePromocion) = Promociones[NombrePromocion][1] 
-
-    % pred SubioCategoria(idUsuario,Usuarios,Usuarios0){
-    % 	DarCategoria(idUsuario, Usuarios) != DarCategoria(idUsuario, Usuarios0)
-    % }
-
-    % pred ActualizaMillasUsuario(idUsuario, Usuarios, Usuarios0,distancia,FactorCategoria,FactorPromo){
-    % 	Usuarios[idUsuario] = SetKey(AM0.Usuarios,idUsuario,⟨DarMillasPreviasMasAcumular(distancia,FactorCategoria,FactorPromo,idUsuario, 	Usuarios:dict{})[0],DarMillasPreviasMasAcumular(distancia,FactorCategoria,FactorPromo,idUsuario, Usuarios:dict{})[1]⟩)
-    % }
-
-    % Aux DarMillasPreviasMasAcumular(distancia,FactorCategoria,FactorPromo,idUsuario, Usuarios:dict{}): Tupla = ⟨MillasTotales(Usuarios, idUsuario) + CalcularMillas(distancia,FactorCategoria,FactorPromo,idUsuario, Usuarios),
-    %  MillasDisponibles(Usuarios, idUsuario) + CalcularMillas(distancia,FactorCategoria,FactorPromo,idUsuario, Usuarios)⟩ 
-
-    % aux ExistePromoYTieneTope(nombrePromo,Promociones): bool = (nombrePromo ∈ Promociones) ∧L topeDePromocion(Promocion,NombrePromocion) != 0
-
-
-    % aux MillasRestantesDePromocionConTope(nombrePromo,Promociones) = Promociones[nombrePromo][2]
-    % aux darFactorPromo(nombrePromo,Promociones) = IfThenElse(ExistePromoYTieneTope(nombrePromo,Promociones), topeDePromocion(Promocion,NombrePromocion), 1 ) // Si existe la promo su valor es, lo que vale la promo, si no exsite es por default 1 "NoPromo" que esta siempre en el sistema cuando se crea. Capaz hay que revisar si no necesita otro bucle anidado!
-
-    % Aux CalcularMillas(distancia,FactorCategoria,FactorPromo,idUsuario, Usuarios) = IfThenElse(MillasRestantesDePromocionConTope(nombrePromo,Promociones) >= MillasQueGanariaElUsuario(idUsuario, Usuarios, distancia,categoria,nombrePromo, Promociones),MillasQueGanariaElUsuario(idUsuario, Usuarios, distancia,categoria,nombrePromo, Promociones),
-    % MillasQueGanariaElUsuario(idUsuario, Usuarios, DistanciaRestanteDePromo(nombrePromo,Promociones),categoria,nombrePromo, Promociones) + MillasQueGanariaElUsuario(idUsuario, Usuarios, distancia - DistanciaRestanteDePromo(nombrePromo,Promociones) ,categoria,"NoPromo", Promociones)
-    % ) 
-
-
+        nombrePromo: \Tipo{\str},
+        Promociones: \Tipo{\Diccionario{\str}{struct}},
+        \\
+        Promociones0: \Tipo{\Diccionario{\str}{struct}}}
+    {AM.Promociones = DelKey(AM.Promociones0,nombrePromo)}
 
 \end{tad}
 

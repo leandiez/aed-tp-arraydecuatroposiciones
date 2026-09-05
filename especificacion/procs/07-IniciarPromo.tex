@@ -30,13 +30,16 @@
 		\comentario{Discutir el tercer elemento de la lista [factorPromo,0,0].
 		NoPromo esta siempre en el sistema, no se puede pisar. Discutir si seria != noPromo o si directamente no tiene que pertenecer (podria existir y pisarse el valor?)}
 		\\
-		\requiere{AM = AM0 \land factorPromo \geq 1 \land nombrePromo \neq "NoPromo"}
+		\requiereLargo{
+			AM = AM0 \land 
+			factorPromo \geq 1 \land 
+			nombrePromo \notin claves(AM0.Promociones)}
 		\aseguraLargo{
             AM.Usuarios = AM0.Usuarios \land
 			\\
 			AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \land
 			\\
-			AM.Promociones = SetKey(AM0.Promociones, nombrePromo, \lbrack factorPromo,0,-1 \rbrack)
+			AM.Promociones = SetKey(AM0.Promociones, nombrePromo, \struct{factorPromo,0,-1})
 		}
 	\end{proc}
 
