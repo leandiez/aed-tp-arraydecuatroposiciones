@@ -27,21 +27,16 @@
 		{\Tipo{\Z}}
 		\requiere{ AM = AM0 \land \lvert AM.Usuarios \rvert > 0}
 		\aseguraLargo{
-            \existe{i}{\Tipo{\Z}}{i \in claves(AM.Usuarios) \land MillasT otales(AM.Usuarios,i) = res} \land
+            \existe{i}{\Tipo{\Z}}{i \in claves(AM.Usuarios) \yLuego MillasTotales(AM.Historial,i) = res} \land
             \\
-            \paraTodo{j}{\Tipo{\Z}}{j \in claves(AM.Usuarios) \implica MillasT otales(AM.Usuarios,j) \leq res} \land
+            \paraTodo{j}{\Tipo{\Z}}{j \in claves(AM.Usuarios) \implicaLuego MillasTotales(AM.Historial,j) \leq res} \land
             \\
             AM.Usuarios = AM0.Usuarios \land 
             \\
-            AM.HistorialTransacciones = AM0.HistorialTransacciones \land
+            AM.Historial = AM0.Historial\land
             \\
-            AM.Promociones = AM.Promociones0
+            AM.Promociones = AM0.Promociones
 		}
 	\end{proc}
-
-% Asegura{ AM.Usuarios = AM0.Usuarios  ∧ 
-% 		   AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones ∧
-% 		   AM.Promociones = SetKey(AM0.Promociones, nombrePromo, [factorPromo,0,0] 		
-% 		 }
 
 \end{document}
