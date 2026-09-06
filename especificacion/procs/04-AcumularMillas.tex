@@ -15,7 +15,7 @@
 
 \section{Renombres de Tipos y Estructuras}
 
-\obs{Usuarios}{\dict{id:\Tipo{\Z}}{CategoriaActual : Categoria}}
+\obs{Usuarios}{\dict{id:\Tipo{\Z}}{Categoria}}
 
 	\noindent \comentario{La convencion utilizada para transacciones es:
 	\\
@@ -60,7 +60,8 @@
         }
         {}
 
-        \requiere{AM = AM0 \land idUsuario \in claves(AM.Usuarios) \land nombrePromo \in claves(AM.Promociones) \land distancia > 0 }
+        \requiere{AM = AM0 \land idUsuario \in claves(AM.Usuarios) \land nombrePromo \in claves(AM.Promociones) \land distancia > 0 \land 
+        AM.Usuarios[idUsuario].categoria \ne Platino}
         \aseguraLargo{
             \comentario{Solo le aplica la promocion si tengo millas restantes en la promo, si no no. ¿ Y si no ?}
             \\
@@ -140,48 +141,57 @@
 
     \vspace{1cm}
 
-    \auxLargo{EsVuelo}
-        {Transaccion: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}}
-        {\Tipo{bool}}
+    \predLargo{EsVuelo}
+        {Transaccion: \Tipo{Struct}, idOrigen: \Tipo{\Z}}
         {
             Transaccion.UsuarioOrigen = idOrigen \land
             \\
             Transaccion.TipoDeTransaccion = 0 \land
             \\
-            Transaccion.UsuarioDestino = -1
+            Transaccion.UsuarioDestino = -1 \land
+            \\
+            \comentario{Deberia verificar los otros campos? Se complica...}
         }
 
     \vspace{1cm}
 
-    \auxLargo{EsTransferencia}
-        {Transaccion: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
-        {\Tipo{bool}}
+    \predLargo{EsTransferencia}
+        {Transaccion: \Tipo{struct}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
         {
             Transaccion.UsuarioOrigen = idOrigen \land
             \\
             Transaccion.TipoDeTransaccion = 1 \land
             \\
-            Transaccion.UsuarioDestino = idDestino
+            Transaccion.UsuarioDestino = idDestino \land
+            \\
+            Transaccion.millas > 0
+            \\
+            \comentario{Deberia verificar los otros campos? Se complica...}
         }
 
     \vspace{1cm}
 
-    \auxLargo{EsCanjeo}
-        {Transaccion: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}}
-        {\Tipo{bool}}
+    
+
+    \predLargo{EsCanjeo}
+        {Transaccion: \Tipo{struct}, idOrigen: \Tipo{\Z}}
         {
             Transaccion.UsuarioOrigen = idOrigen \land
             \\
             Transaccion.TipoDeTransaccion = 2 \land
             \\
-            Transaccion.UsuarioDestino = -1
+            Transaccion.UsuarioDestino = -1 \land
+            \\
+            Transaccion.distancia > 0
+            \\
+            \comentario{Deberia verificar los otros campos? Se complica...}
         }
 
     \vspace{1cm}
     \noindent \comentario{Recordar que aca tambien estan incluidos los referidos porque esta incluido en las "MillasObtenidasPorVuelo"}
     \\
     \auxLargo{MillasTotales}
-    {Historial: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
+    {Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
     {\Tipo{\R}}
     {
         MillasObtenidasPorVuelo(Historial, idOrigen) +
@@ -193,7 +203,7 @@
     
     \vspace{1cm}
     \auxLargo{MillasDisponibles}
-    {Historial: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
+    {Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
     {\Tipo{\R}}
     {
         MillasTotales(Historial, idOrigen) -

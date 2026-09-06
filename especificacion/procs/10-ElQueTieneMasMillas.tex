@@ -22,20 +22,14 @@
 
 	\begin{proc}{ElQueTieneMasMillas}
 		{
-			\Inout AM: \Tipo{Airmiles},
+			\In AM: \Tipo{Airmiles},
 		}
 		{\Tipo{\Z}}
-		\requiere{ AM = AM0 \land \lvert AM.Usuarios \rvert > 0}
+		\requiere{ \norm{AM.Usuarios} > 0}
 		\aseguraLargo{
             \existe{i}{\Tipo{\Z}}{i \in claves(AM.Usuarios) \yLuego MillasTotales(AM.Historial,i) = res} \land
             \\
             \paraTodo{j}{\Tipo{\Z}}{j \in claves(AM.Usuarios) \implicaLuego MillasTotales(AM.Historial,j) \leq res} \land
-            \\
-            AM.Usuarios = AM0.Usuarios \land 
-            \\
-            AM.Historial = AM0.Historial\land
-            \\
-            AM.Promociones = AM0.Promociones
 		}
 	\end{proc}
 
