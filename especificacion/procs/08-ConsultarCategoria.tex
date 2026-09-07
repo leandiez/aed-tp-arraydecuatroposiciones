@@ -1,0 +1,36 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[left=2.5cm,top=3cm,right=2.5cm,bottom=3cm,bindingoffset=0.5cm]{geometry}
+\usepackage{AEDMacros}
+\usepackage{caratula}
+\newlength{\miSangria}
+\setlength{\miSangria}{2em}
+
+% Asi pueden escribir nuevos comandos. 
+% Este por ejemplo asegura q los nombres 
+% que figuren con una tipografia diferenciada  
+\newcommand{\Tipo}[1]{\mathsf{#1}}
+% la sintaxis es \newcommand{\nombreDeLaMacro}[cantidadDeParametros]{Lo que va ser remplazado por el macro} 
+\newcommand{\norm}[1]{\vert#1\vert}
+
+
+\begin{document}
+
+\section{Procedimiento Consultar Categoria}
+
+	\begin{proc}{ConsultarCategoria}
+		{
+			\In AM: Airmiles,\\
+			\In idUsuario: \Tipo{\Z},
+		}
+		{\Tipo{\R}}
+		\requiere{idUsuario \in claves(AM.usuarios)\\
+		}
+		\aseguraLargo{res = AM.Usuarios[idUsuario]
+		}
+
+	\end{proc}
+
+
+\end{document}
