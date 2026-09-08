@@ -57,20 +57,19 @@
 	\begin{proc}{CanjearMillas}
 		{\Inout AM: AirMiles, \In MillasCanjeadas : \Tipo{\R}, \In IdUsuario : \Tipo{\Z}}
 		{}
-		\requiere{ AM=AM_{0} \yLuego MillasCanjeadas > 0 \land IdUsuario \in claves(AM.Usuarios)}
-
+		\requiereLargo{ AM=AM_{0} \yLuego MillasCanjeadas > 0 \land IdUsuario \in claves(AM.Usuarios)}
 		\aseguraLargo{
 			\IfThenElse{ MillasDisponibles(AM_{0}.Historial, IdUsuario) \geq millasCanjeadas}
 			{ \\TransaccionCanje(AM_{0}.Historial, IdUsuario, MillasCanjeadas)}
-			{ \\AM.Historial =  AM_{0}.Historial}
-			\\
-			\comentario{No estoy seguro si es mejor esto, o usar el predicado que habia planteado abajo}
+			{ \\AM.Historial =  AM_{0}.Historial} \\
+			\yLuego AM.Usuarios = AM_{0}.Usuarios \\
+			\yLuego AM.Promociones = AM_{0}.Promociones
 		}
 	\end{proc}
 	\\ \\
 	\comentario{Predicado para transaccion de canje. \\ La idea es tener el agregado de la transaccion 'filtrado' porque en la tupla de transaccion \\hay campos que dependen del tipo de transaccion y creo que da claridad.}
 	\\
-	\predLargo{TransaccionCanje}{historialTransacciones: \seq{Transacciones},idUsuario : \Tipo{\Z}, millasCanjeadas : \Tipo{\R}}
+	\predLargo{TransaccionCanje}{historialTransacciones: \seq{Transacciones},idUsuario : \Tipo{\Z},\\ millasCanjeadas : \Tipo{\R}}
 	{\tupla{idUsuario,-1,2,millasCanjeadas,'NoPromo',1.0} \in historialTransacciones}
 
 	\vspace{0.5cm}
@@ -80,13 +79,18 @@
 	\auxLargo{MillasDisponibles}
 	{IdUsuario : \Tipo{\Z}, Historial : \seq{Transacciones}}
 	{\Tipo{\Z}}
-	{\sum_{i=0}^{\lvert Historial \rvert - 1} \IfThenElse{EsTransaccionSumadora(Historial[i], IdUsuario)}{Historial.Millas}{-Historial.Millas}}
+	{res = \sum_{i=0}^{\lvert Historial \rvert - 1} \IfThenElse{EsTransaccionDelUsuario(Historial[i], IdUsuario)}{\\\IfThenElse{EsTransaccionSumadora(Historial[i], IdUsuario)\\}{Historial[i].Millas}{-Historial[i].Millas}}{0}}
 
-	\comentario{Predicado saber si la transaccion debe sumarle al usuario o restarle en la cuenta de MillasDisponibles.\\}
-	\\
+	\vspace{1.0cm}
 	\predLargo{EsTransaccionSumadora}{Trans: Transacciones,idUsuario : \Tipo{\Z}}
-	{ (IdUsuario = UsuarioOrigen \land TipoDeTransaccion = 0) \lor (TipoDeTransaccion = 1 \land IdUsuario = UsuarioDestino) \lor negado(TipoDeTransaccion = 2) }
-	\comentario{ Falta transcribir los nombres de los campos, pero la idea es esa xD}
+	{ (Trans.TipoDeTransaccion = 0) \lor \\(IdUsuario = Trans.UsuarioDestino \land Trans.TipoDeTransaccion = 1)}
+
+	\comentario{En la primer condicion no valido el IdUsuario porque se supone que si no es una transferencia nunca deberia venir en el campo UsuarioDestino, y ya valide que al menos esta en uno de los 2.}
+
+	\vspace{1.0cm}
+	\pred{EsTransaccionDelUsuario}{Trans: Transacciones,idUsuario : \Tipo{\Z}}{\\Trans.UsuarioOrigen = idUsuario \oLuego Trans.UsuarioDestino = idUsuario}
+
+	\comentario{Valido que el IdUsuario este en alguno de los 2 campos. Si no esta en ninguno, entonces no debo sumar ni restar nada.}
 
 
 \end{tad}
