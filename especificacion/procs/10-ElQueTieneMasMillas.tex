@@ -29,7 +29,7 @@
 		\aseguraLargo{
             \existe{i}{\Tipo{\Z}}{i \in claves(AM.Usuarios) \yLuego MillasTotales(AM.Historial,i) = res} \land
             \\
-            \paraTodo{j}{\Tipo{\Z}}{j \in claves(AM.Usuarios) \implicaLuego MillasTotales(AM.Historial,j) \leq res} \land
+            \paraTodo{j}{\Tipo{\Z}}{j \in claves(AM.Usuarios) \implicaLuego MillasTotales(AM.Historial,j) \leq res}
 		}
 	\end{proc}
 
