@@ -20,7 +20,6 @@
 \section{Consultas y correcciones internas}
 \vspace{1.0cm}
 
-\textbf{AcumularMillas}
 \begin{enumerate}
     \item AcumularMillas:
     \begin{enumerate}
@@ -28,12 +27,35 @@
         \item Consultar los entoncesluego y los yluego
         \item Consultar para las funciones EsVuelo, EsTransferencia, EsTransferenciaEnviada, principalmente si tengo que verificar todos los campos de antes o no (actualizacion creo que no porque es un pred?)
         \item Consultar anidacion de ifthenelse que en el grupo hablaron que era medio dudoso. Para mi era valido
+        \item Consultar que pasa si la categoria es platino. Deberia estar como condicion en el requiere? Creo que si eso no esta entonces se registrarian transacciones con valor 0? 
     \end{enumerate}
     \item CanjearMillas.
     \begin{enumerate}
-        \item En la practica nunca usamos una metavarialbe asignada en el requiere para hacer esto de millasDisponibles = algo, para eso esta la funcion millasDisponibles que es un pred que esta creado en la funcion acumular millas.
+        \item EsTransaccionSumadora quizas esta bien, el nombre es un poco confuso, en AcumularMillas hice algo similar creo que mas separado
+        \item Transaccion por referidor no existe, habiamos comentado que transaccion por referidor es lo mismo que hacer un vuelo de 500 millas creo no? Esto lo podemos discutir que es lo que se hace en ese caso.
+        \item Aca el yLuego de las promociones creo que no se necesita, no es algo que cambie precisamente si lo anterior cambio
     \end{enumerate}
-    \item Tercer elemento.
+    \item TransferirMillas.
+    \begin{enumerate}
+        \item Lo que se llama transaccion aca seria la funcion EsNuevaTransaccion, esta bien, hay que cambiarle el nombre.
+        \item Creo que aca no se necesita el Yluego, esto estaria bien, no importa el orden.
+        \item Respuesta a ¿Debo poner dos transacciones en el historial? Si.
+        \item TieneSuficientesMillas se podria utilizar la funcion auxiliar MillasDisponibles implementada en el punto 4.
+        \item Que quiere decir en el enunciado "No se aplica comisión"? Esta muy confusa la ultima parte, como es que se "conservan las millas disponibles"?
+        \item \textbf{Para mi la resolucion hace lo correcto, pero el enunciado no tiene mucho sentido, hay que consultarlo}
+        \item \textbf{Faltaria una condicion en el asegura que es fijarse si el usuario subio de categoria al recibir transferencia. Revisar el ultimo asegura de AcumularMillas}
+    \end{enumerate}
+    \item ConsultarSaldo.
+    \begin{enumerate}
+        \item \textbf{Falta implementacion}
+    \end{enumerate}
+    \item IniciarPromo.
+    \begin{enumerate}
+        \item Discutir el tercer elemento de la lista [factorPromo,0,0]. NoPromo esta siempre en el sistema, no se puede pisar. Discutir si seria != noPromo o si directamente no tiene que
+        pertenecer (podria existir y pisarse el valor?)
+        \item Consultar si es lo mismo seq[char] o String 
+    \end{enumerate}
+    
 \end{enumerate}
 
 \end{document}
