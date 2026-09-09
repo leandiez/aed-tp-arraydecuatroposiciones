@@ -1,0 +1,162 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[left=2.5cm,top=3cm,right=2.5cm,bottom=3cm,bindingoffset=0.5cm]{geometry}
+\usepackage{AEDLogica, AEDEspecificacion, AEDTADs}
+\usepackage{caratula}
+\newlength{\miSangria}
+\setlength{\miSangria}{2em}
+
+% Asi pueden escribir nuevos comandos. 
+% Este por ejemplo asegura q los nombres 
+% que figuren con una tipografia diferenciada  
+\newcommand{\Tipo}[1]{\mathsf{#1}}
+% la sintaxis es \newcommand{\nombreDeLaMacro}[cantidadDeParametros]{Lo que va ser remplazado por el macro} 
+\newcommand{\norm}[1]{\vert#1\vert}
+
+
+\begin{document}
+
+\section{Titulo del Proc ACA}
+
+\noindent topeDePromocion \textbf{ES}: $\mathbb{R}$
+\vspace{0.5cm}
+
+\noindent enum Categoría \textbf{ES} \{Bronce, Plata,Oro, Platino  \}
+
+\vspace{0.5cm}
+
+\noindent Transacciones \textbf{ES} Struct$\struct{
+		UsuarioOrigen: \Tipo{\Z}, \\
+		UsuarioDestino: \Tipo{\Z},
+		TipoDeTransaccion: \Tipo{\Z},
+		Millas: \Tipo{\R}, \\
+		NombrePromo: \Tipo{\str},
+		FactorPromo: \Tipo{\R}
+	}$
+
+\begin{tad}{Airmiles}
+
+
+	\obs{Usuarios}{\dict{id:\Tipo{\Z}}{CategoriaActual : Categoria}}
+
+	\noindent \obs{HistorialDeTransacciones}{\seq{Transacciones}}
+	\\
+	\texttt{obs} Promociones : dict \{ \\
+	\hspace*{1.5em} NombrePromocion: $\str$, \\
+	\hspace*{1.5em} $\struct{FactorDePromocion:\Tipo{\R},TopeDePromocion:\Tipo{\R}, MillasRestantes:\Tipo{\R}}$ \\
+	\}
+	\vspace{0.5cm}
+
+
+	\begin{proc}{ResumenTransacciones}
+		{\In AM: Airmillas, \In id : \Tipo{\Z}}
+		{\Tipo{\seq{\Tipo{\Z}}}}
+		\requiereLargo{ id \in claves(AM.Usuarios)}
+
+		\aseguraLargo{ \tupla{res}[0] = MillasObtenidasPorVuelo(AM.Transacciones, id) \\
+			\land_L \tupla{res}[1] = MillasDescontadasPorCanjeo(AM.Transacciones, id) \\
+			\land_L \tupla{res}[2] = MillasTransferidas(AM.Transacciones, id, id)
+		}
+	\end{proc}
+
+
+	\auxLargo{MillasObtenidasPorVuelo}
+	{Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}}
+	{\Tipo{\R}}
+	{
+		\sum\limits_{i=0}^{\norm{Historial} - 1}
+		\IfThenElse{
+			EsVuelo(Historial[i],
+			idOrigen)
+		}{
+			Historial[i].Millas
+		}{
+			0
+		}
+	}
+
+	\vspace{1cm}
+
+	\auxLargo{MillasTransferidas}
+	{Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
+	{\Tipo{\R}}
+	{
+		\sum\limits_{i=0}^{\norm{Historial} - 1}
+		\IfThenElse{
+			EsTransferencia(Historial[i],
+			\\
+			idOrigen, idDestino)
+		}{
+			Historial[i].Millas
+		}{
+			0
+		}
+	}
+
+	\vspace{1cm}
+	\auxLargo{MillasDescontadasPorCanjeo}
+	{Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}}
+	{\Tipo{\R}}
+	{
+		\sum\limits_{i=0}^{\norm{Historial} - 1}
+		\IfThenElse{
+			EsCanjeo(Historial[i],
+			idOrigen)
+		}{
+			Historial[i].Millas
+		}{
+			0
+		}
+	}
+    \vspace{1cm}
+    \predLargo{EsVuelo}
+        {Transaccion: \Tipo{Struct}, idOrigen: \Tipo{\Z}}
+        {
+            Transaccion.UsuarioOrigen = idOrigen \land
+            \\
+            Transaccion.TipoDeTransaccion = 0 \land
+            \\
+            Transaccion.UsuarioDestino = -1 \land
+            \\
+            \comentario{Deberia verificar los otros campos? Se complica...}
+        }
+
+    \vspace{1cm}
+
+    \predLargo{EsTransferencia}
+        {Transaccion: \Tipo{struct}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
+        {
+            Transaccion.UsuarioOrigen = idOrigen \land
+            \\
+            Transaccion.TipoDeTransaccion = 1 \land
+            \\
+            Transaccion.UsuarioDestino = idDestino \land
+            \\
+            Transaccion.millas > 0
+            \\
+            \comentario{Deberia verificar los otros campos? Se complica...}
+        }
+
+    \vspace{1cm}
+
+    
+
+    \predLargo{EsCanjeo}
+        {Transaccion: \Tipo{struct}, idOrigen: \Tipo{\Z}}
+        {
+            Transaccion.UsuarioOrigen = idOrigen \land
+            \\
+            Transaccion.TipoDeTransaccion = 2 \land
+            \\
+            Transaccion.UsuarioDestino = -1 \land
+            \\
+            Transaccion.distancia > 0
+            \\
+            \comentario{Deberia verificar los otros campos? Se complica...}
+        }
+
+
+
+\end{tad}
+\end{document}
