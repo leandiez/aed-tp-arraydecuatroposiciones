@@ -46,12 +46,14 @@
 
 
 	\begin{proc}{ConsultarSaldo}
-		{\Inout EJ: Ejemplo, \In ejemplito : \Tipo{\Z}, \In ejemplote : \Tipo{\Z}}
-		{}
-		\requiereLargo{ }
+		{\In AM: AirMiles, \In IdUsuario : \Tipo{\Z}}
+		{\Tipo{\Z}}
+		\requiereLargo{IdUsuario \in claves(AM.Usuarios) }
 
 		\aseguraLargo{
+			res = MillasDisponibles(IdUsuario,AM.Historial)
 		}
 	\end{proc}
+	\comentario{El auxiliar MillasDisponibles es el que esta en CanjearMillas. Ver despues si reusamos ese para todo u algun otro, pero hay que unificar.}
 \end{tad}
 \end{document}
