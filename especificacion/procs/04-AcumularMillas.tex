@@ -63,7 +63,7 @@
         \requiere{AM = AM0 \land idUsuario \in claves(AM.Usuarios) \land nombrePromo \in claves(AM.Promociones) \land distancia > 0 \land 
         AM.Usuarios[idUsuario].categoria \ne Platino}
         \aseguraLargo{
-            \comentario{Solo le aplica la promocion si tengo millas restantes en la promo, si no no. ¿ Y si no ?}
+            \comentario{Si el tope de las millas de la promo supera la distancia se hace una sola transaccion}
             \\
             AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes \geq distancia \implica
             \\
@@ -75,6 +75,14 @@
             AM0.Promociones[nombrePromo].FactorDePromocion),distancia, \\ 
             nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \land
             \\
+            \comentario{En caso de no llegar a las millas del usuario, completo con NoPromo las millas restantes}
+            \\
+            AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes < distancia \implica 
+            \\
+            EsNuevaTransaccion(AM,AM0,idUsuario,-1,1,
+            \\
+            millasACompletar(AM0.Promociones,nombrePromo,distancia,
+            \\DarFactorCategoria(AM0.Historial,idUsuario), FactorPromo), distancia, "NoPromo", 1)
             % Luego de hacer la transaccion tengo que verificar si se modifico la categoría del usuario
             \\
             \comentario{Se puede indefinir si no le pasamos un usuario que este en el sistema}
@@ -85,6 +93,7 @@
             \\
             DarCategoria(AM.Historial, idUsuario)) \land
             \\
+            \comentario{Despues de completar el viaje se verifica si la promocion termino}
             \\
             SeConsumioLaPromocion(nombrePromo,AM0.Promociones)
         }
@@ -121,6 +130,19 @@
             }{
                 0
             }
+        }
+
+    \vspace{1cm}
+    \noindent \comentario{En caso de que el usuario haga parte del viaje con promo y otra parte sin promo esta funcion busca esa diferencia}
+    \\
+    \auxLargo{MillasACompletar}
+        {Promociones: \Tipo{\Diccionario{\str}{struct}},
+        \\nombrePromo: \Tipo{\str}, distancia: \Tipo{\Z}, FactorCategoria: \Tipo{\R}, FactorPromo: \Tipo{\R}}
+        {\R}
+        {
+            MillasCalculadas(distancia,factorCategoria,factorPromo)-
+            \\
+            Promociones[nombrePromo].millasRestantes
         }
 
     \vspace{1cm}
