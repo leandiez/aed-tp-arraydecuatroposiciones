@@ -51,12 +51,14 @@
 
 	\begin{proc}{ResumenTransacciones}
 		{\In AM: Airmillas, \In id : \Tipo{\Z}}
-		{\Tipo{\seq{\Tipo{\Z}}}}
+		{\tupla{\Tipo{\R}, \Tipo{\R}, \Tipo{\R}}}
 		\requiereLargo{ id \in claves(AM.Usuarios)}
 
-		\aseguraLargo{ \tupla{res}[0] = MillasObtenidasPorVuelo(AM.Transacciones, id) \\
-			\land_L \tupla{res}[1] = MillasDescontadasPorCanjeo(AM.Transacciones, id) \\
-			\land_L \tupla{res}[2] = MillasTransferidas(AM.Transacciones, id, id)
+		\aseguraLargo{ res_{0} = MillasObtenidasPorVuelo(AM.Transacciones, id) \yLuego
+		\\
+		res_{1} = MillasDescontadasPorCanjeo(AM.Transacciones, id) \yLuego
+		\\
+		res_{2} = MillasTransferidas(AM.Transacciones, id, id)
 		}
 	\end{proc}
 

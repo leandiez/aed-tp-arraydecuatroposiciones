@@ -43,7 +43,7 @@
         \item TieneSuficientesMillas se podria utilizar la funcion auxiliar MillasDisponibles implementada en el punto 4.
         \item Que quiere decir en el enunciado "No se aplica comisión"? Esta muy confusa la ultima parte, como es que se "conservan las millas disponibles"?
         \item \textbf{Para mi la resolucion hace lo correcto, pero el enunciado no tiene mucho sentido, hay que consultarlo}
-        \item \textbf{Faltaria una condicion en el asegura que es fijarse si el usuario subio de categoria al recibir transferencia. Revisar el ultimo asegura de AcumularMillas}
+        \item \textbf{Faltaria una condicion en el asegura que es fijarse si el usuario subio de categoria al recibir transferencia. Revisar el anteultimo asegura de AcumularMillas}
     \end{enumerate}
     \item ConsultarSaldo.
     \begin{enumerate}
@@ -55,7 +55,38 @@
         pertenecer (podria existir y pisarse el valor?)
         \item Consultar si es lo mismo seq[char] o String 
     \end{enumerate}
-    
+    \item ConsultarSaldo \textbf{NO IMPLEMENTADO}
+    \item ConsultarCategoria
+    ¿Quedo muy corto? Pero creo que esta bien
+    \item IniciarPromoConTope
+    \begin{enumerate}
+        \item Aca consideramos que IniciarPromoConTope NO PISA la promo en caso de que exista, es una interpretacion.
+    \end{enumerate}
+    \item FinalizarPromocion
+    \begin{enumerate}
+        \item Consultar solo por el Yluego del requiere
+    \end{enumerate}
+    \item ElQueTieneMasMillas
+    \begin{enumerate}
+        \item Quedo clean 
+    \end{enumerate}
+    \item rankingMillas
+    \begin{enumerate}
+        \item MillasDisponibles esta repetido, asi como esta implementado me resulta un poco confuso. En AcumularMillas implemente MillasDisponibles y esta bastante claro lo que se hace (ademas se evita repetir!)
+        \item No termino de entender que hace el existencial de LosMejoresCandidatos 
+    \end{enumerate}
+    \item ResumenTransacciones
+    \begin{enumerate}
+        \item res MillasTransferidas creo que solo toma "una direccion" solo las enviadas, no las recibidas. Esto habria que revisarlo.
+        \item MillasTransferidas(AM.Transacciones, id, id) es incorrecto, no se le puede pasar el como parametros dos veces el id. Habra que hacer otro enunciado mas para esto porque esa funcion no se puede hacer me parece
+        \item No hay que definir que tambien que la longitud de res es 3? o sea la tupla "[1,2,3,4]" seria una respuesta valida... eso no seria correcto creo.
+        \item Ahora en MillasObtenidasPorVuelo esta incluido tambien los referidos. El enunciado no pide eso... estamos en problemas ahi :P 
+    \end{enumerate}
+    \item ParesTransferidoresExclusivos
+    \begin{enumerate}
+        \item consultar si NoHayPermutacion esta escrito de forma correcta, yo creo que si 
+    \end{enumerate}
+
 \end{enumerate}
 
 \end{document}
