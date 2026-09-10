@@ -65,20 +65,37 @@
         \paraTodo{i}{\Tipo{\Z}}{0 \le i < \norm{res} \implicaLuego \paraTodo{j}{\Tipo{\Z}}{0 \le j < \norm{res} \yLuego j \neq i} \implicaLuego (res[i]_{0} \neq res[j]_0) \land res[i]_{1} \neq res[j]_{1}}
     }
 
+    \predLargo{NoHayRepetidosv2}{res: \Tipo{\seq{\tupla{\Z,\Z}}}}
+    {
+        \paraTodo{t}{\tupla{\Tipo{\Z},\Tipo{\Z}}}{t \in res \implicaLuego cantApariciones(t,res)=1}
+    }
+
+    \auxLargo{cantApariciones}{t:\Tipo{\tupla{\Tipo{\Z,\Z}}},res: \Tipo{\seq{\Tipo{\Z},\Tipo{\Z}}}}{\Tipo{\Z}}{
+        \sum\limits_{0}^{\norm{res}} \IfThenElse{t \in res}{1}{0}
+    }
+
+
     \comentario{Cual es la forma correcta de hacer esto? algo asi pero tengo que indicar el orden en el que estoy poniendo las cosas?}
     \\
     \predLargo{NoHayPermutacion}{res}{
         \paraTodo{t}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{t \in res \implicaLuego \tupla{{t_1},t_{0}} \notin res}
     }
 
-    \vspace{0.5cm}
-    \predLargo{TieneReciprocoHistorial}{Historial,res}
-    {\paraTodo{x}{\tupla{\Tipo{\Z},\Tipo{\Z}}}{x \in res \implica HayReciproco(historial)}}
+    \predLargo{NoHayPermutacionV2}{res}{
+        \paraTodo{t}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{t \in res \implicaLuego Invertir(t) \notin res}
+    }
+
+    \aux{Invertir}{t: \Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{\tupla{t1,t0}}
 
     \vspace{0.5cm}
-    \predLargo{HayReciproco}{Historial,t}
+    \predLargo{TieneReciprocoHistorial}{Historial: \Tipo{\seq{Transacciones}},res: \seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}
+    {\paraTodo{x}{\tupla{\Tipo{\Z},\Tipo{\Z}}}{x \in res \implica HayReciproco(Historial,res)}}
+
+    \vspace{0.5cm}
+    \predLargo{HayReciproco}{Historial: \Tipo{\seq{Transacciones}},t: \Tipo{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}}
     {
-        \existe{i}{\Tipo{\Z}}{0 \le i < \norm{historial} \yLuego 
+        \existe{i}{\Tipo{\Z}}{0 \le i < \norm{Historial} \yLuego
+        Historial[i].TipoDeTransaccion = 1 \yLuego 
         \\
         (Historial[i].usuarioOrigen = t_{1} \land Historial[i].usuarioDestino = t_{0})}
     }
@@ -86,9 +103,9 @@
     \vspace{0.5cm}
     \noindent \comentario{Revisar}
     \\
-    \predLargo{SonParejaExclusiva}{Historial,res}
+    \predLargo{SonParejaExclusiva}{Historial: \Tipo{\seq{Transacciones}},res: \seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}
     {
-        \paraTodo{t}{\tupla{t_{0}: \Tipo{\Z},t_{1} :\Tipo{\Z}}}{ t \in res \implicaLuego
+        \paraTodo{t}{\tupla{\Tipo{\Z},\Tipo{\Z}}}{ t \in res \implicaLuego
         \neg (hayOtroUsuario(t0,t1,Historial) \lor 
         \\
         hayOtroUsuario(t1,t0,Historial))
@@ -101,6 +118,15 @@
         \paraTodo{i}{\Tipo{\Z}}{ 0 \le i < \norm{Historial} \implicaLuego (Historial[i].UsuarioOrigen = t0 \land
         \\ 
         Historial[i].UsuarioDestino \neq t1)}
+    }
+
+    \predLargo{HayOtroUsuariov2}{t:\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}},Historial: \Tipo{\seq{Transacciones}}}
+    {
+        \existe{i}{\Tipo{\Z}}{ 0 \le i < \norm{Historial} \yLuego Historial[i].TipoDeTransaccion = 1 \yLuego
+        \\
+        (Historial[i].UsuarioOrigen = t_{0} \land
+        \\ 
+        Historial[i].UsuarioDestino \neq t_{1})}
     }
 
 \end{tad}
