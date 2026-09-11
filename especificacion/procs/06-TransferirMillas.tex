@@ -33,12 +33,13 @@
 		\land idUsuarioPagador \neq idUsuarioBeneficiario\\
 		\land TieneSuficientesMillas(AM, idUsuarioPagador)
 	}
-	\aseguraLargo{Transaccion(AM, AM0, idUsuarioPagador, idUsuarioBeneficiario, -CantMillasTrans) \land
-		Transaccion(AM, AM0, idUsuarioBeneficiario,idUsuarioPagador,  CantMillasTrans)\\
+	\aseguraLargo{EsNuevaTransaccion( AM, AM0, idUsuarioPagador, idUsuarioBeneficiario,1, CantMillasTrans, NoPromo, 1) \land
 		\land AM.Promociones = AM0.Promociones \\
 		\land AM.Usuarios = AM0.Usuarios
+		\land SubioCategoria(idUsuarioBeneficiario)
 	}
-	\noindent \comentarioLargo{no hice el pred Transaccion por si ya estaba hecho, ni el TieneSuficientesMillas, ¿debo poner dos transacciones en el historial?}
+	\noindent \comentarioLargo{Revisado}
+
 \end{proc}
 
 
