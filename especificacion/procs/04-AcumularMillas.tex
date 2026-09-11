@@ -50,7 +50,7 @@
 
     % ===============Aca comienza la funcion de acumular millas===============
 
-    \vspace{1cm}
+    \noindent \comentarioLargo{Acumula millas al usuario si la categoria del mismo no es platino, en caso de que el nombre de la promo no alcance para completar el viaje del usuario, se crean dos transacciones, una con las millas restantes de la promo y otra con "NoPromo" para completar el viaje. }
     \begin{proc}{AcumularMillas}
         {
             \Inout AM: \Tipo{Airmiles},
@@ -65,24 +65,33 @@
         \aseguraLargo{
             \comentario{Si el tope de las millas de la promo supera la distancia se hace una sola transaccion}
             \\
-            AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes \geq distancia \implica
+            AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes \geq distancia \implicaLuego
             \\
             EsNuevaTransaccion(AM,AM0,idUsuario,-1,0,
             \\
-            millasCalculadas(distancia,DarFactorCategoria(AM0.Historial
+            AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes,distancia, \\ 
+            nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \lor
             \\
-            ,idUsuario),
-            AM0.Promociones[nombrePromo].FactorDePromocion),distancia, \\ 
-            nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \land
-            \\
-            \comentario{En caso de no llegar a las millas del usuario, completo con NoPromo las millas restantes}
             \\
             AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes < distancia \implica 
+            \\
+            \\
+            \comentario{Se hace 1 transaccion con las millas restantes de promo}
+            \\ 
+            EsNuevaTransaccion(AM,AM0,idUsuario,-1,1,
+            \\
+            AM0.Promociones[nombrePromo].millasRestantes, distancia,
+            \\ nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \yLuego
+            \\
+            \\
+            \comentario{Se hace otra transaccion con noPromo para completar}
             \\
             EsNuevaTransaccion(AM,AM0,idUsuario,-1,1,
             \\
             millasACompletar(AM0.Promociones,nombrePromo,distancia,
-            \\DarFactorCategoria(AM0.Historial,idUsuario), FactorPromo), distancia, "NoPromo", 1)
+            \\DarFactorCategoria(AM0.Historial,idUsuario), 
+            \\AM0.Promociones
+            [nombrePromo].FactorDePromocion), \\distancia, "NoPromo", 1) \yLuego
             % Luego de hacer la transaccion tengo que verificar si se modifico la categoría del usuario
             \\
             \comentario{Se puede indefinir si no le pasamos un usuario que este en el sistema}
@@ -131,6 +140,38 @@
                 0
             }
         }
+
+    \vspace{1cm}
+    \auxLargo{MillasRecibidas}
+        {AM: \Tipo{Airmiles}, idDestino: \Tipo{\Z}}
+        {\Tipo{\R}}
+        {
+            \sum\limits_{i=0}^{\norm{AM.Historial} - 1}
+            \IfThenElse{
+                EsTransferenciaRecibida(AM.Historial[i], 
+                \\
+                idDestino, AM.Usuarios)
+            }{
+                AM.Historial[i].Millas
+            }{
+                0
+            }
+        }
+
+    \vspace{1cm}
+    \predLargo{EsTransferenciaRecibida}
+    {Transaccion: \Tipo{Transaccion}, idDestino: \Tipo{\Z}, Usuarios: \Tipo{\dict{\Z}{Categoria}}}
+    {
+        Transaccion.UsuarioOrigen \in claves(Usuarios) \land
+        \\
+        Transaccion.UsuarioOrigen \neq idDestino
+        \\
+        Transaccion.TipoDeTransaccion = 1 \land
+        \\
+        Transaccion.UsuarioDestino = idDestino \land
+        \\
+        \comentario{Deberia verificar los otros campos? Se complica...}
+    }
 
     \vspace{1cm}
     \noindent \comentario{En caso de que el usuario haga parte del viaje con promo y otra parte sin promo esta funcion busca esa diferencia}
@@ -225,16 +266,18 @@
     
     \vspace{1cm}
     \auxLargo{MillasDisponibles}
-    {Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
+    {AM: \Tipo{Airmiles}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
     {\Tipo{\R}}
     {
-        MillasTotales(Historial, idOrigen) -
+        MillasTotales(AM.Historial, idOrigen) -
         \\ 
-        MillasDescontadasPorCanjeo(Historial,idOrigen) -
+        MillasDescontadasPorCanjeo(AM.Historial,idOrigen) -
         \\ 
         \comentario{en este orden son las que transferi (descontadas)}
         \\
-        MillasTransferidas(Historial, idOrigen, idDestino)
+        MillasTransferidas(AM.Historial, idOrigen, idDestino) +
+        \\
+        MillasRecibidas(AM.Historial,idOrigen, AM.Usuarios)
     }
 
     \vspace{1cm}
