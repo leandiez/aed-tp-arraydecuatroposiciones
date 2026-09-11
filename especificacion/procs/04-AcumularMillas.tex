@@ -65,11 +65,16 @@
         \aseguraLargo{
             \comentario{Si el tope de las millas de la promo supera la distancia se hace una sola transaccion}
             \\
-            AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes \geq distancia \implicaLuego
+            AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes \geq
+            \\
+            MillasCalculadas(distancia, DarFactorCategoria(AM.Historial,idUsuario),
+            \\ AM.Promociones[nombrePromo].factorDePromocion) \implicaLuego
+            \\
             \\
             EsNuevaTransaccion(AM,AM0,idUsuario,-1,0,
             \\
-            AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes,distancia, \\ 
+            MillasCalculadas(distancia, DarFactorCategoria(AM.Historial,idUsuario),
+            \\ AM.Promociones[nombrePromo].factorDePromocion) ,distancia, \\ 
             nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \lor
             \\
             \\
