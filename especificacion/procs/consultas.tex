@@ -24,7 +24,7 @@
 	\item \textbf{Revisar en todas las funciones que las definiciones tengan los tipados de las variables (solo en las definiciones)}
 	\item AcumularMillas:
 	      \begin{enumerate}
-		      \item Consultar que se hace cuando las millas restantes de la promocion son menores que la distancia. (La decision tomada fue no hacer nada, consultar resolucion).
+		      \item Consultar que se hace cuando las millas restantes de la promocion son menores que la distancia. (La decision tomada fue no hacer nada, consultar resolucion) \textbf{Revisado}.
 		      \item Consultar los entoncesluego y los yluego
 		      \item Consultar para las funciones EsVuelo, EsTransferencia, EsTransferenciaEnviada, principalmente si tengo que verificar todos los campos de antes o no (actualizacion creo que no porque es un pred?)
 		      \item Consultar anidacion de ifthenelse que en el grupo hablaron que era medio dudoso. Para mi era valido
@@ -40,15 +40,15 @@
 	      \begin{enumerate}
 		      \item Lo que se llama transaccion aca seria la funcion EsNuevaTransaccion, esta bien, hay que cambiarle el nombre.
 		      \item Creo que aca no se necesita el Yluego, esto estaria bien, no importa el orden.
-		      \item Respuesta a ¿Debo poner dos transacciones en el historial? Si.
+		      \item Respuesta a ¿Debo poner dos transacciones en el historial? NO.
 		      \item TieneSuficientesMillas se podria utilizar la funcion auxiliar MillasDisponibles implementada en el punto 4.
 		      \item Que quiere decir en el enunciado "No se aplica comisión"? Esta muy confusa la ultima parte, como es que se "conservan las millas disponibles"?
 		      \item \textbf{Para mi la resolucion hace lo correcto, pero el enunciado no tiene mucho sentido, hay que consultarlo}
-		      \item \textbf{Faltaria una condicion en el asegura que es fijarse si el usuario subio de categoria al recibir transferencia. Revisar el anteultimo asegura de AcumularMillas}
+		      \item \textbf{Faltaria una condicion en el asegura que es fijarse si el usuario subio de categoria al recibir transferencia. Revisar el anteultimo asegura de AcumularMillas} \comentarioLargo {Listo}
 	      \end{enumerate}
 	\item ConsultarSaldo.
 	      \begin{enumerate}
-		      \item \textbf{Falta implementacion}
+		      \item \textbf{Falta implementacion} \comentarioLargo {Listo}
 	      \end{enumerate}
 	\item IniciarPromo.
 	      \begin{enumerate}
@@ -82,27 +82,39 @@
 	      \begin{enumerate}
 		      \item res MillasTransferidas creo que solo toma "una direccion" solo las enviadas, no las recibidas. Esto habria que revisarlo.
 		      \item MillasTransferidas(AM.Transacciones, id, id) es incorrecto, no se le puede pasar el como parametros dos veces el id. Habra que hacer otro enunciado mas para esto porque esa funcion no se puede hacer me parece
-		       \comentarioLargo{Usar la funcion de ElMasCanjeados, para las tranferencias tanto de ida y vuela(Hay que usarlos 2 veces y sumarlo)}
+		            \comentarioLargo{Usar la funcion de ElMasCanjeados, para las tranferencias tanto de ida y vuela(Hay que usarlos 2 veces y sumarlo)}
 		      \item No hay que definir que tambien que la longitud de res es 3? o sea la tupla "[1,2,3,4]" seria una respuesta valida... eso no seria correcto creo.
-		      \comentarioLargo{NO}
+		            \comentarioLargo{NO}
 		      \item Ahora en MillasObtenidasPorVuelo esta incluido tambien los referidos. El enunciado no pide eso... estamos en problemas ahi :P
-		      \comentarioLargo{se puede sacar?? o hay q implementar otro}
+		            \comentarioLargo{Esta implementado o hay que hacer otra diferente? Problema: Referido esta puesto como vuelo}
 	      \end{enumerate}
 	\item ParesTransferidoresExclusivos
 	      \begin{enumerate}
 		      \item consultar si NoHayPermutacion esta escrito de forma correcta, yo creo que si
 		      \item Cambie la implementacion de NoHayRepetidos que estaba mal por NoHayRepetidosV2 (revisar) \\
-		      \comentarioLargo{Cambio Aceptado}
+		            \comentarioLargo{Cambio Aceptado}
 		      \item HayReciproco deberia tener un existencial? Creo que esto esta mal, en TieneReciprocoHistorial tomamos todas del historial, pero no me interesa que exista uno que cumpla la condicion, me interesa que todos cumplan la condicion...
-		      \comentarioLargo {En realidad te intersa buscar una relacion, con que exista una relacion ya sabes que existe una relacion reciproca.
-              \\Ejemplo:\\
-              TieneReciprocoHistoria: lo que hace es recorrer todo los elementos de tuplas de res: (res = [(A,B),(C,D)])\\
-              HayReciproco: busca en el historia que exista una relacion.
-              (HistorialTranfereridos = [(A,B), (C,D),(D,C), (B,A), (B,A)]) \\
-              No te interesa revisar todas la relacions reciprocas de (A,B), solo revisar que por lo menos una vez se haya dado la relacion reciproca. Esto es lo que hace HayReciprocas.
-              }
+		            \comentarioLargo {En realidad te intersa buscar una relacion, con que exista una relacion ya sabes que existe una relacion reciproca.
+			            \\Ejemplo:\\
+			            TieneReciprocoHistoria: lo que hace es recorrer todo los elementos de tuplas de res: (res = [(A,B),(C,D)])\\
+			            HayReciproco: busca en el historia que exista una relacion.
+			            (HistorialTranfereridos = [(A,B), (C,D),(D,C), (B,A), (B,A)]) \\
+			            No te interesa revisar todas la relacions reciprocas de (A,B), solo revisar que por lo menos una vez se haya dado la relacion reciproca. Esto es lo que hace HayReciprocas.
+		            }
 		      \item consultar el tipado t0,t1 de SonParejaExclusiva
 	      \end{enumerate}
+
+	\item MillasDisponibles - Auxiliar
+	      \begin{enumerate}
+           \item \comentarioLargo {
+                El auxiliar cambio estas proc son los afectados: revisarlos. La funcion nueva esta CanjearMillas
+            }
+		      \item RankingMillas
+		      \item MillasDescontadasPorCanjeo
+		      \item ConsultaSaldo
+	      \end{enumerate}
+
+
 
 \end{enumerate}
 
