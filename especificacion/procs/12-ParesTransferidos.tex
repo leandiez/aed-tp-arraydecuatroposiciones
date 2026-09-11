@@ -61,10 +61,6 @@
         }
 	\end{proc}
 
-    \predLargo{NoHayRepetidos}{res}{
-        \paraTodo{i}{\Tipo{\Z}}{0 \le i < \norm{res} \implicaLuego \paraTodo{j}{\Tipo{\Z}}{0 \le j < \norm{res} \yLuego j \neq i} \implicaLuego (res[i]_{0} \neq res[j]_0) \land res[i]_{1} \neq res[j]_{1}}
-    }
-
     \predLargo{NoHayRepetidosv2}{res: \Tipo{\seq{\tupla{\Z,\Z}}}}
     {
         \paraTodo{t}{\tupla{\Tipo{\Z},\Tipo{\Z}}}{t \in res \implicaLuego cantApariciones(t,res)=1}
