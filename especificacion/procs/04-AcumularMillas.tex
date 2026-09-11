@@ -17,33 +17,33 @@
 
 \obs{Usuarios}{\dict{id:\Tipo{\Z}}{Categoria}}
 
-	\noindent \comentario{La convencion utilizada para transacciones es:
-	\\
-	1) Si se hace un vuelo, el TipoDeTransaccion es 0 y el usuario de destino es -1
-	\\
-	2) Si se hace una transferencia el TipoDeTransaccion es 1
-	\\
-	3) Si se hace un canjeo el TipoDeTransaccion es 2 y el usuario de destino es -1, se modifica unicamente el usuario de origen
-	}
-	\\
-    \noindent Transacciones \textbf{ES} Struct $\tupla{
-	UsuarioOrigen: \Tipo{\Z}, \\
-	UsuarioDestino: \Tipo{\Z},
-	TipoDeTransaccion: \Tipo{\Z},
-	Millas: \Tipo{\R}, \\
-    Distancia: \Tipo{\Z}, 
-	NombrePromo: \Tipo{\str},
-	FactorPromo: \Tipo{\R}
-	}$
+\noindent \comentario{La convencion utilizada para transacciones es:
+    \\
+    1) Si se hace un vuelo, el TipoDeTransaccion es 0 y el usuario de destino es -1
+    \\
+    2) Si se hace una transferencia el TipoDeTransaccion es 1
+    \\
+    3) Si se hace un canjeo el TipoDeTransaccion es 2 y el usuario de destino es -1, se modifica unicamente el usuario de origen
+}
+\\
+\noindent Transacciones \textbf{ES} Struct $\tupla{
+        UsuarioOrigen: \Tipo{\Z}, \\
+        UsuarioDestino: \Tipo{\Z},
+        TipoDeTransaccion: \Tipo{\Z},
+        Millas: \Tipo{\R}, \\
+        Distancia: \Tipo{\Z},
+        NombrePromo: \Tipo{\str},
+        FactorPromo: \Tipo{\R}
+    }$
 
-	\noindent \obs{Historial}{\seq{Transacciones}}
-	\\
-	\comentario{En caso de las promociones, si la promocion no tiene un tope, por convencion tomamos millasRestantes = -1}
-	\\
-	\texttt{obs} Promociones : dict \{ \\
-	\hspace*{1.5em} NombrePromocion: $\str$, \\
-	\hspace*{1.5em} $\struct{\Tipo{FactorDePromocion} : \R,\Tipo{topeDePromocion}: \R, \Tipo{millasRestantes}: \R}$ \\
-	\}
+\noindent \obs{Historial}{\seq{Transacciones}}
+\\
+\comentario{En caso de las promociones, si la promocion no tiene un tope, por convencion tomamos millasRestantes = -1}
+\\
+\texttt{obs} Promociones : dict \{ \\
+\hspace*{1.5em} NombrePromocion: $\str$, \\
+\hspace*{1.5em} $\struct{\Tipo{FactorDePromocion} : \R,\Tipo{topeDePromocion}: \R, \Tipo{millasRestantes}: \R}$ \\
+\}
 
 
 \begin{tad}{Airmiles}
@@ -60,8 +60,8 @@
         }
         {}
 
-        \requiere{AM = AM0 \land idUsuario \in claves(AM.Usuarios) \land nombrePromo \in claves(AM.Promociones) \land distancia > 0 \land 
-        AM.Usuarios[idUsuario].categoria \ne Platino}
+        \requiere{AM = AM0 \land idUsuario \in claves(AM.Usuarios) \land nombrePromo \in claves(AM.Promociones) \land distancia > 0 \land
+            AM.Usuarios[idUsuario].categoria \ne Platino}
         \aseguraLargo{
             \comentario{Si el tope de las millas de la promo supera la distancia se hace una sola transaccion}
             \\
@@ -74,15 +74,15 @@
             EsNuevaTransaccion(AM,AM0,idUsuario,-1,0,
             \\
             MillasCalculadas(distancia, DarFactorCategoria(AM.Historial,idUsuario),
-            \\ AM.Promociones[nombrePromo].factorDePromocion) ,distancia, \\ 
+            \\ AM.Promociones[nombrePromo].factorDePromocion) ,distancia, \\
             nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \lor
             \\
             \\
-            AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes < distancia \implica 
+            AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes < distancia \implica
             \\
             \\
             \comentario{Se hace 1 transaccion con las millas restantes de promo}
-            \\ 
+            \\
             EsNuevaTransaccion(AM,AM0,idUsuario,-1,1,
             \\
             AM0.Promociones[nombrePromo].millasRestantes, distancia,
@@ -94,9 +94,9 @@
             EsNuevaTransaccion(AM,AM0,idUsuario,-1,1,
             \\
             millasACompletar(AM0.Promociones,nombrePromo,distancia,
-            \\DarFactorCategoria(AM0.Historial,idUsuario), 
+            \\DarFactorCategoria(AM0.Historial,idUsuario),
             \\AM0.Promociones
-            [nombrePromo].FactorDePromocion), \\distancia, "NoPromo", 1) \yLuego
+                [nombrePromo].FactorDePromocion), \\distancia, "NoPromo", 1) \yLuego
             % Luego de hacer la transaccion tengo que verificar si se modifico la categoría del usuario
             \\
             \comentario{Se puede indefinir si no le pasamos un usuario que este en el sistema}
@@ -131,37 +131,37 @@
     \vspace{1cm}
 
     \auxLargo{MillasTransferidas}
-        {Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
-        {\Tipo{\R}}
-        {
-            \sum\limits_{i=0}^{\norm{Historial} - 1}
-            \IfThenElse{
-                EsTransferencia(Historial[i], 
-                \\
-                idOrigen, idDestino)
-            }{
-                Historial[i].Millas
-            }{
-                0
-            }
+    {Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
+    {\Tipo{\R}}
+    {
+        \sum\limits_{i=0}^{\norm{Historial} - 1}
+        \IfThenElse{
+            EsTransferencia(Historial[i],
+            \\
+            idOrigen, idDestino)
+        }{
+            Historial[i].Millas
+        }{
+            0
         }
+    }
 
     \vspace{1cm}
     \auxLargo{MillasRecibidas}
-        {AM: \Tipo{Airmiles}, idDestino: \Tipo{\Z}}
-        {\Tipo{\R}}
-        {
-            \sum\limits_{i=0}^{\norm{AM.Historial} - 1}
-            \IfThenElse{
-                EsTransferenciaRecibida(AM.Historial[i], 
-                \\
-                idDestino, AM.Usuarios)
-            }{
-                AM.Historial[i].Millas
-            }{
-                0
-            }
+    {AM: \Tipo{Airmiles}, idDestino: \Tipo{\Z}}
+    {\Tipo{\R}}
+    {
+        \sum\limits_{i=0}^{\norm{AM.Historial} - 1}
+        \IfThenElse{
+            EsTransferenciaRecibida(AM.Historial[i],
+            \\
+            idDestino, AM.Usuarios)
+        }{
+            AM.Historial[i].Millas
+        }{
+            0
         }
+    }
 
     \vspace{1cm}
     \predLargo{EsTransferenciaRecibida}
@@ -182,78 +182,78 @@
     \noindent \comentario{En caso de que el usuario haga parte del viaje con promo y otra parte sin promo esta funcion busca esa diferencia}
     \\
     \auxLargo{MillasACompletar}
-        {Promociones: \Tipo{\Diccionario{\str}{struct}},
+    {Promociones: \Tipo{\Diccionario{\str}{struct}},
         \\nombrePromo: \Tipo{\str}, distancia: \Tipo{\Z}, FactorCategoria: \Tipo{\R}, FactorPromo: \Tipo{\R}}
-        {\R}
-        {
-            MillasCalculadas(distancia,factorCategoria,factorPromo)-
-            \\
-            Promociones[nombrePromo].millasRestantes
-        }
+    {\R}
+    {
+        MillasCalculadas(distancia,factorCategoria,factorPromo)-
+        \\
+        Promociones[nombrePromo].millasRestantes
+    }
 
     \vspace{1cm}
     \auxLargo{MillasDescontadasPorCanjeo}
-        {Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}}
-        {\Tipo{\R}}
-        {
-            \sum\limits_{i=0}^{\norm{Historial} - 1}
-            \IfThenElse{
-                EsCanjeo(Historial[i], 
-                idOrigen)
-            }{
-                Historial[i].Millas
-            }{
-                0
-            }
+    {Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}}
+    {\Tipo{\R}}
+    {
+        \sum\limits_{i=0}^{\norm{Historial} - 1}
+        \IfThenElse{
+            EsCanjeo(Historial[i],
+            idOrigen)
+        }{
+            Historial[i].Millas
+        }{
+            0
         }
+    }
 
     \vspace{1cm}
 
     \predLargo{EsVuelo}
-        {Transaccion: \Tipo{Struct}, idOrigen: \Tipo{\Z}}
-        {
-            Transaccion.UsuarioOrigen = idOrigen \land
-            \\
-            Transaccion.TipoDeTransaccion = 0 \land
-            \\
-            Transaccion.UsuarioDestino = -1 \land
-            \\
-            \comentario{Deberia verificar los otros campos? Se complica...}
-        }
+    {Transaccion: \Tipo{Struct}, idOrigen: \Tipo{\Z}}
+    {
+        Transaccion.UsuarioOrigen = idOrigen \land
+        \\
+        Transaccion.TipoDeTransaccion = 0 \land
+        \\
+        Transaccion.UsuarioDestino = -1 \land
+        \\
+        \comentario{Deberia verificar los otros campos? Se complica...}
+    }
 
     \vspace{1cm}
 
     \predLargo{EsTransferencia}
-        {Transaccion: \Tipo{struct}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
-        {
-            Transaccion.UsuarioOrigen = idOrigen \land
-            \\
-            Transaccion.TipoDeTransaccion = 1 \land
-            \\
-            Transaccion.UsuarioDestino = idDestino \land
-            \\
-            Transaccion.millas > 0
-            \\
-            \comentario{Deberia verificar los otros campos? Se complica...}
-        }
+    {Transaccion: \Tipo{struct}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
+    {
+        Transaccion.UsuarioOrigen = idOrigen \land
+        \\
+        Transaccion.TipoDeTransaccion = 1 \land
+        \\
+        Transaccion.UsuarioDestino = idDestino \land
+        \\
+        Transaccion.millas > 0
+        \\
+        \comentario{Deberia verificar los otros campos? Se complica...}
+    }
 
     \vspace{1cm}
 
-    
+
 
     \predLargo{EsCanjeo}
-        {Transaccion: \Tipo{struct}, idOrigen: \Tipo{\Z}}
-        {
-            Transaccion.UsuarioOrigen = idOrigen \land
-            \\
-            Transaccion.TipoDeTransaccion = 2 \land
-            \\
-            Transaccion.UsuarioDestino = -1 \land
-            \\
-            Transaccion.distancia > 0
-            \\
-            \comentario{Deberia verificar los otros campos? Se complica...}
-        }
+    {Transaccion: \Tipo{struct}, idOrigen: \Tipo{\Z}}
+    {
+        Transaccion.UsuarioOrigen = idOrigen \land
+        \\
+        Transaccion.TipoDeTransaccion = 2 \land
+        \\
+        Transaccion.UsuarioDestino = -1 \land
+        \\
+        Transaccion.distancia > 0
+        \\
+        \comentario{Deberia verificar los otros campos? Se complica...}
+    }
 
     \vspace{1cm}
     \noindent \comentario{Recordar que aca tambien estan incluidos los referidos porque esta incluido en las "MillasObtenidasPorVuelo"}
@@ -268,16 +268,16 @@
         \\
         MillasTransferidas(Historial, idDestino, idOrigen)
     }
-    
+
     \vspace{1cm}
     \auxLargo{MillasDisponibles}
     {AM: \Tipo{Airmiles}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
     {\Tipo{\R}}
     {
         MillasTotales(AM.Historial, idOrigen) -
-        \\ 
+        \\
         MillasDescontadasPorCanjeo(AM.Historial,idOrigen) -
-        \\ 
+        \\
         \comentario{en este orden son las que transferi (descontadas)}
         \\
         MillasTransferidas(AM.Historial, idOrigen, idDestino) +
