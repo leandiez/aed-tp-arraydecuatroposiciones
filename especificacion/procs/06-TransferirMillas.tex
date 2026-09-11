@@ -31,7 +31,7 @@
 	\requiere{AM0 = AM \land idUsuarioPagador \in claves(AM.usuarios)\\
 		\land idUsuarioBeneficiario \in claves(AM.usuarios)\\
 		\land idUsuarioPagador \neq idUsuarioBeneficiario\\
-		\land TieneSuficientesMillas(AM, idUsuarioPagador)
+		\land MillasDisponibles(AM, idUsuarioPagador) \geq CantMillasTrans
 	}
 	\aseguraLargo{EsNuevaTransaccion( AM, AM0, idUsuarioPagador, idUsuarioBeneficiario,1, CantMillasTrans, NoPromo, 1) \land
 		\land AM.Promociones = AM0.Promociones \\
