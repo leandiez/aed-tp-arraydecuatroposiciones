@@ -61,7 +61,7 @@
         }
 	\end{proc}
 
-    \predLargo{NoHayRepetidosv2}{res: \Tipo{\seq{\tupla{\Z,\Z}}}}
+    \predLargo{NoHayRepetidos}{res: \Tipo{\seq{\tupla{\Z,\Z}}}}
     {
         \paraTodo{t}{\tupla{\Tipo{\Z},\Tipo{\Z}}}{t \in res \implicaLuego cantApariciones(t,res)=1}
     }
@@ -76,12 +76,6 @@
     \predLargo{NoHayPermutacion}{res}{
         \paraTodo{t}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{t \in res \implicaLuego \tupla{{t_1},t_{0}} \notin res}
     }
-
-    \predLargo{NoHayPermutacionV2}{res}{
-        \paraTodo{t}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{t \in res \implicaLuego Invertir(t) \notin res}
-    }
-
-    \aux{Invertir}{t: \Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{\tupla{t1,t0}}
 
     \vspace{0.5cm}
     \predLargo{TieneReciprocoHistorial}{Historial: \Tipo{\seq{Transacciones}},res: \seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}

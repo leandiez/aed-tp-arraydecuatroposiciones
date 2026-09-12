@@ -66,423 +66,707 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 \begin{tad}{Airmiles}
 
 
-	\comentario{Decidimos dejar en usuarios la categoria por mas que se pueda calcular por fuera, historial de transacciones cambio a un tipo Struct, y las promociones tambien cambiaron a un diccionario que adentro tiene un struct }
-	\\
-	\obs{Usuarios}{\dict{id:\Tipo{\Z}}{CategoriaActual : Categoria}}
+\comentario{Decidimos dejar en usuarios la categoria por mas que se pueda calcular por fuera, historial de transacciones cambio a un tipo Struct, y las promociones tambien cambiaron a un diccionario que adentro tiene un struct }
+\\
+\obs{Usuarios}{\dict{id:\Tipo{\Z}}{CategoriaActual : Categoria}}
 
-	\noindent \comentario{La convencion utilizada para transacciones es:
+\noindent \comentario{La convencion utilizada para transacciones es:
+	\\
+	1) Si se hace un vuelo, el TipoDeTransaccion es 0 y el usuario de destino es -1
+	\\
+	2) Si se hace una transferencia el TipoDeTransaccion es 1
+	\\
+	3) Si se hace un canjeo el TipoDeTransaccion es 2 y el usuario de destino es -1, se modifica unicamente el usuario de origen
+}
+\\
+\noindent \obs{HistorialDeTransacciones}{\seq{Transacciones}}
+\\
+\comentario{En caso de las promociones, si la promocion no tiene un tope, por convencion tomamos millasRestantes = -1}
+\\
+\texttt{obs} Promociones : dict \{ \\
+\hspace*{1.5em} NombrePromocion: $\str$, \\
+\hspace*{1.5em} $\struct{\Tipo{FactorDePromocion} : \R,\Tipo{topeDePromocion}: \R, \Tipo{millasRestantes}: \R}$ \\
+\}
+
+
+\begin{proc}{crearSistema}
+	{}
+	{AirMiles}
+	\requiere{\Tipo{True}}
+	\aseguraLargo{ \norm{res.Usuarios} = 0 \land
 		\\
-		1) Si se hace un vuelo, el TipoDeTransaccion es 0 y el usuario de destino es -1
+		\norm{res.HistorialDeTransacciones} = 0 \land
 		\\
-		2) Si se hace una transferencia el TipoDeTransaccion es 1
-		\\
-		3) Si se hace un canjeo el TipoDeTransaccion es 2 y el usuario de destino es -1, se modifica unicamente el usuario de origen
+		res.promociones = setKey(\dict{}{},"NoPromo",\struct{1,0,-1}) }
+\end{proc}
+
+\begin{proc}{registrarUsuario}
+	{
+		\Inout AM: Airmiles,
+		\In id: \Tipo{\Z}
 	}
-	\\
-	\noindent \obs{HistorialDeTransacciones}{\seq{Transacciones}}
-	\\
-	\comentario{En caso de las promociones, si la promocion no tiene un tope, por convencion tomamos millasRestantes = -1}
-	\\
-	\texttt{obs} Promociones : dict \{ \\
-	\hspace*{1.5em} NombrePromocion: $\str$, \\
-	\hspace*{1.5em} $\struct{\Tipo{FactorDePromocion} : \R,\Tipo{topeDePromocion}: \R, \Tipo{millasRestantes}: \R}$ \\
-	\}
+	{}
+	\comentario{Actualiza el diccionario de usuarios con  nuevo usuario} \\
+	\requiere{AM = AM0 \land id \notin claves(AM.Usuarios) \land id > 0}
+	\aseguraLargo{ AM.Usuarios = SetKey(AM0.Usuarios, id, Bronce) \land \\
+		AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \\
+		\land AM.Promociones = AM0.Promociones
+	}
+\end{proc}
 
 
-	\begin{proc}{crearSistema}
-		{}
-		{AirMiles}
-		\requiere{\Tipo{True}}
-		\aseguraLargo{ \norm{res.Usuarios} = 0 \land
-			\\
-			\norm{res.HistorialDeTransacciones} = 0 \land
-			\\
-			res.promociones = setKey(\dict{}{},"NoPromo",\struct{1,0,-1}) }
-	\end{proc}
-
-	\begin{proc}{registrarUsuario}
-		{
-			\Inout AM: Airmiles,
-			\In id: \Tipo{\Z}
-		}
-		{}
-		\comentario{Actualiza el diccionario de usuarios con  nuevo usuario} \\
-		\requiere{AM = AM0 \land id \notin claves(AM.Usuarios) \land id > 0}
-		\aseguraLargo{ AM.Usuarios = SetKey(AM0.Usuarios, id, Bronce) \land \\
-			AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \\
-			\land AM.Promociones = AM0.Promociones
-		}
-	\end{proc}
-
-
-	\begin{proc}{registrarUsuarioConReferidor}
-		{
-			\Inout AM: Airmiles,\\
-			\In idReferidor: \Tipo{\Z},
-			\In idUsuario: \Tipo{\Z}
-		}
-		{}
-		\requiere{AM0 = AM \land idReferidor \in claves(AM.Usuarios) \land idUsuario \notin claves(AM.Usuarios) \land idUsuario > 0}
-		\aseguraLargo{
-			% Creo el usuario
-			AM.Usuarios = SetKey(AM0.Usuarios,idUsuario, Bronce) \land
-			\\
-			EsNuevaTransaccion(AM,AM0,idUsuario, -1, 0, \\
-			500,"NoPromo",1)\land
-			\\
-			AM.Promociones = AM0.Promociones
-		}
-	\end{proc}
-	% ===============Aca comienza la funcion de acumular millas===============
-
-	\noindent \comentarioLargo{Acumula millas al usuario si la categoria del mismo no es platino, en caso de que el nombre de la promo no alcance para completar el viaje del usuario, se crean dos transacciones, una con las millas restantes de la promo y otra con "NoPromo" para completar el viaje. }
-	\begin{proc}{AcumularMillas}
-		{
-			\Inout AM: \Tipo{Airmiles},
-			\In idUsuario: \Tipo{\Z},
-			\In distancia: \Tipo{\R},
-			\In nombrePromo: \Tipo{\str},
-		}
-		{}
-
-		\requiere{AM = AM0 \land idUsuario \in claves(AM.Usuarios) \land nombrePromo \in claves(AM.Promociones) \land distancia > 0 }
-		\aseguraLargo{
-			\comentario{Si el tope de las millas de la promo supera la distancia se hace una sola transaccion}
-			\\
-			AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes \geq
-			\\
-			MillasCalculadas(distancia, DarFactorCategoria(AM.Historial,idUsuario),
-			\\ AM.Promociones[nombrePromo].factorDePromocion) \implicaLuego
-			\\
-			\\
-			\comentario{AGREGAR EL CASO DE BAJAR EL TOPE CUANDO SE CONSUME LA PROMOCION}
-			\\
-			EsNuevaTransaccion(AM,AM0,idUsuario,-1,0,
-			\\
-			MillasCalculadas(distancia, DarFactorCategoria(AM.Historial,idUsuario),
-			\\ AM.Promociones[nombrePromo].factorDePromocion) ,distancia, \\
-			nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \land\\
-			\\
-			AM.Promociones = setKey(AMO.Promociones, nombrePromo,\\
-			AM0.Promociones[nombrePromo].millasRestantes - MillasCalculadas\\(distancia, DarFactorCategoria(AM.Historial, idUsuario), \\
-			AM.Promociones[nombrePromo].factorDePromocion)
-			\lor
-			\\
-			\\
-			AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes <
-			\\
-			MillasCalculadas(distancia, DarFactorCategoria(AM.Historial, idUsuario),\\
-			AM.Promociones[nombrePromo].factorDePromocion) \implica
-			\\
-			\\
-			\comentario{Se hace 1 transaccion con las millas restantes de promo}
-			\\
-			EsNuevaTransaccion(AM,AM0,idUsuario,-1,1,
-			\\
-			AM0.Promociones[nombrePromo].millasRestantes, distancia,
-			\\ nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \yLuego
-			\\
-			\\
-			\comentario{Se hace otra transaccion con noPromo para completar}
-			\\
-			EsNuevaTransaccion(AM,AM0,idUsuario,-1,1,
-			\\
-			millasACompletar(AM0.Promociones,nombrePromo,distancia,
-			\\DarFactorCategoria(AM0.Historial,idUsuario),
-			\\AM0.Promociones
-				[nombrePromo].FactorDePromocion), \\distancia, "NoPromo", 1) \yLuego
-			% Luego de hacer la transaccion tengo que verificar si se modifico la categoría del usuario
-			\\
-			\comentario{Se puede indefinir si no le pasamos un usuario que este en el sistema}
-			\\
-			SubioCategoria(idUsuario,AM.Historial,AM0.Historial) \implicaLuego
-			\\
-			AM.Usuarios = SetKey(AM0.Usuarios,idUsuario,
-			\\
-			DarCategoria(AM.Historial, idUsuario)) \land
-			\\
-			\comentario{Despues de completar el viaje se verifica si la promocion termino}
-			\\
-			SeConsumioLaPromocion(nombrePromo,AM0.Promociones)
-		}
-	\end{proc}
-
-	\vspace{1cm}
-	\begin{proc}{CanjearMillas}
-		{\Inout AM: AirMiles, \In MillasCanjeadas : \Tipo{\R}, \In IdUsuario : \Tipo{\Z}}
-		{}
-		\requiereLargo{ AM=AM_{0} \yLuego MillasCanjeadas > 0 \land IdUsuario \in claves(AM.Usuarios)}
-		\aseguraLargo{
-			\IfThenElse{ MillasDisponibles(AM_{0}.Historial, IdUsuario) \geq MillasCanjeadas}
-			\\{AM.HistorialDeTransacciones =TransaccionCanje(AM_{0}.Historial, IdUsuario,\\ MillasCanjeadas},
-				{ \\AM.Historial =  AM_{0}.Historial}) \\
-			\land AM.Usuarios = AM_{0}.Usuarios \\
-			\land AM.Promociones = AM_{0}.Promociones
-		}
-	\end{proc}
-
-	\vspace{1cm}
-	\begin{proc}{TransferirMillas}
-		{
-			\Inout AM: Airmiles,\\
-			\In idUsuarioPagador: \Tipo{\Z},
-			\In idUsuarioBeneficiario: \Tipo{\Z},
-			\In CantMillasTrans: \Tipo{\R}
-		}
-		{}
-		\requiere{AM0 = AM \land idUsuarioPagador \in claves(AM.usuarios)\\
-			\land idUsuarioBeneficiario \in claves(AM.usuarios)\\
-			\land idUsuarioPagador \neq idUsuarioBeneficiario\\
-			\land MillasDisponibles(AM, idUsuarioPagador) \geq CantMillasTrans
-		}
-		\aseguraLargo{EsNuevaTransaccion( AM, AM0, idUsuarioPagador, idUsuarioBeneficiario,1, CantMillasTrans, NoPromo, 1) \land
-			\land AM.Promociones = AM0.Promociones \\
-			\land AM.Usuarios = AM0.Usuarios
-			\land SubioCategoria(idUsuarioBeneficiario)
-		}
-		\noindent \comentarioLargo{Revisado}
-
-	\end{proc}
-
-	\vspace{2cm}
-	\begin{proc}{ConsultarSaldo}
-		{\In AM: AirMiles, \In IdUsuario : \Tipo{\Z}}
-		{\Tipo{\Z}}
-		\requiereLargo{IdUsuario \in claves(AM.Usuarios) }
-
-		\aseguraLargo{
-			res = MillasDisponibles(IdUsuario,AM.Historial)
-		}
-	\end{proc}
-	\comentario{El auxiliar MillasDisponibles es el que esta en CanjearMillas. Ver despues si reusamos ese para todo u algun otro, pero hay que unificar.}
-
-	\vspace{1cm}
-	\begin{proc}{ConsultarCategoria}
-		{
-			\In AM: Airmiles,
-			\In idUsuario: \Tipo{\Z},
-		}
-		{\Tipo{categoria}}
-		\requiere{idUsuario \in claves(AM.usuarios)}
-		\asegura{res = AM.Usuarios[idUsuario]}
-
-	\end{proc}
-
-	\vspace{1cm}
-	\begin{proc}{rankingMillas}
-		{\In AM: Airmillas, \In n : \Tipo{\Z}}
-		{\Tipo{\seq{\Tipo{\Z}}}}
-		\requiereLargo{ n > 0}
-
-		\aseguraLargo{ (|AM.Usuarios| > n  \land_L |res| = n) \\ \lor (|AM.Usuarios| \leq n  \land_L |res| = |AM.Usuarios|)
-			\\ \land_L perteneceUsuarios(AM.Usuarios, res)
-			\\ \land_L sinRepetidos(res)
-			\\ \land_L ordenDecreciente(AM.Usuarios, res)
-			\\ \land_L losMejoresCandidatos(AM.Usuarios, AM.
-			Historial, res)
-		}
-	\end{proc}
-
-	\vspace{1cm}
-	\begin{proc}{IniciarPromocion}
-		{
-			\Inout AM: \Tipo{Airmiles},
-			\In nombrePromo: \Tipo{\seq{char}},
-            \In factorPromo: \Tipo{\R},
-		}
-		{}
-		\comentario{Discutir el tercer elemento de la lista [factorPromo,0,0].
-		NoPromo esta siempre en el sistema, no se puede pisar. Discutir si seria != noPromo o si directamente no tiene que pertenecer (podria existir y pisarse el valor?)}
+\begin{proc}{registrarUsuarioConReferidor}
+	{
+		\Inout AM: Airmiles,\\
+		\In idReferidor: \Tipo{\Z},
+		\In idUsuario: \Tipo{\Z}
+	}
+	{}
+	\requiere{AM0 = AM \land idReferidor \in claves(AM.Usuarios) \land idUsuario \notin claves(AM.Usuarios) \land idUsuario > 0}
+	\aseguraLargo{
+		% Creo el usuario
+		AM.Usuarios = SetKey(AM0.Usuarios,idUsuario, Bronce) \land
 		\\
-		\requiereLargo{
-			AM = AM0 \land 
-			factorPromo \geq 1 \land 
-			nombrePromo \notin claves(AM0.Promociones)}
-		\aseguraLargo{
-            AM.Usuarios = AM0.Usuarios \land
-			\\
-			AM.Historial = AM0.Historial \land
-			\\
-			AM.Promociones = SetKey(AM0.Promociones, nombrePromo, \struct{factorPromo,0,-1})
-		}
-	\end{proc}
+		EsNuevaTransaccion(AM,AM0,idUsuario, -1, 0, \\
+		500,"NoPromo",1)\land
+		\\
+		AM.Promociones = AM0.Promociones
+	}
+\end{proc}
+% ===============Aca comienza la funcion de acumular millas===============
 
+\noindent \comentarioLargo{Acumula millas al usuario si la categoria del mismo no es platino, en caso de que el nombre de la promo no alcance para completar el viaje del usuario, se crean dos transacciones, una con las millas restantes de la promo y otra con "NoPromo" para completar el viaje. }
+\begin{proc}{AcumularMillas}
+	{
+		\Inout AM: \Tipo{Airmiles},
+		\In idUsuario: \Tipo{\Z},
+		\In distancia: \Tipo{\R},
+		\In nombrePromo: \Tipo{\str},
+	}
+	{}
+
+	\requiere{AM = AM0 \land idUsuario \in claves(AM.Usuarios) \land nombrePromo \in claves(AM.Promociones) \land distancia > 0 }
+	\aseguraLargo{
+		\comentario{Si el tope de las millas de la promo supera la distancia se hace una sola transaccion}
+		\\
+		AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes \geq
+		\\
+		MillasCalculadas(distancia, DarFactorCategoria(AM.Historial,idUsuario),
+		\\ AM.Promociones[nombrePromo].factorDePromocion) \implicaLuego
+		\\
+		\\
+		\comentario{AGREGAR EL CASO DE BAJAR EL TOPE CUANDO SE CONSUME LA PROMOCION}
+		\\
+		EsNuevaTransaccion(AM,AM0,idUsuario,-1,0,
+		\\
+		MillasCalculadas(distancia, DarFactorCategoria(AM.Historial,idUsuario),
+		\\ AM.Promociones[nombrePromo].factorDePromocion) ,distancia, \\
+		nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \land\\
+		\\
+		AM.Promociones = setKey(AMO.Promociones, nombrePromo,\\
+		AM0.Promociones[nombrePromo].millasRestantes - MillasCalculadas\\(distancia, DarFactorCategoria(AM.Historial, idUsuario), \\
+		AM.Promociones[nombrePromo].factorDePromocion)
+		\lor
+		\\
+		\\
+		AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes <
+		\\
+		MillasCalculadas(distancia, DarFactorCategoria(AM.Historial, idUsuario),\\
+		AM.Promociones[nombrePromo].factorDePromocion) \implica
+		\\
+		\\
+		\comentario{Se hace 1 transaccion con las millas restantes de promo}
+		\\
+		EsNuevaTransaccion(AM,AM0,idUsuario,-1,1,
+		\\
+		AM0.Promociones[nombrePromo].millasRestantes, distancia,
+		\\ nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \yLuego
+		\\
+		\\
+		\comentario{Se hace otra transaccion con noPromo para completar}
+		\\
+		EsNuevaTransaccion(AM,AM0,idUsuario,-1,1,
+		\\
+		millasACompletar(AM0.Promociones,nombrePromo,distancia,
+		\\DarFactorCategoria(AM0.Historial,idUsuario),
+		\\AM0.Promociones
+			[nombrePromo].FactorDePromocion), \\distancia, "NoPromo", 1) \yLuego
+		% Luego de hacer la transaccion tengo que verificar si se modifico la categoría del usuario
+		\\
+		\comentario{Se puede indefinir si no le pasamos un usuario que este en el sistema}
+		\\
+		SubioCategoria(idUsuario,AM.Historial,AM0.Historial) \implicaLuego
+		\\
+		AM.Usuarios = SetKey(AM0.Usuarios,idUsuario,
+		\\
+		DarCategoria(AM.Historial, idUsuario)) \land
+		\\
+		\comentario{Despues de completar el viaje se verifica si la promocion termino}
+		\\
+		SeConsumioLaPromocion(nombrePromo,AM0.Promociones)
+	}
+\end{proc}
+
+\vspace{1cm}
+\begin{proc}{CanjearMillas}
+	{\Inout AM: AirMiles, \In MillasCanjeadas : \Tipo{\R}, \In IdUsuario : \Tipo{\Z}}
+	{}
+	\requiereLargo{ AM=AM_{0} \yLuego MillasCanjeadas > 0 \land IdUsuario \in claves(AM.Usuarios)}
+	\aseguraLargo{
+		\IfThenElse{ MillasDisponibles(AM_{0}.Historial, IdUsuario) \geq MillasCanjeadas}
+		\\{AM.HistorialDeTransacciones =TransaccionCanje(AM_{0}.Historial, IdUsuario,\\ MillasCanjeadas},
+			{ \\AM.Historial =  AM_{0}.Historial}) \\
+		\land AM.Usuarios = AM_{0}.Usuarios \\
+		\land AM.Promociones = AM_{0}.Promociones
+	}
+\end{proc}
+
+\vspace{1cm}
+\begin{proc}{TransferirMillas}
+	{
+		\Inout AM: Airmiles,\\
+		\In idUsuarioPagador: \Tipo{\Z},
+		\In idUsuarioBeneficiario: \Tipo{\Z},
+		\In CantMillasTrans: \Tipo{\R}
+	}
+	{}
+	\requiere{AM0 = AM \land idUsuarioPagador \in claves(AM.usuarios)\\
+		\land idUsuarioBeneficiario \in claves(AM.usuarios)\\
+		\land idUsuarioPagador \neq idUsuarioBeneficiario\\
+		\land MillasDisponibles(AM, idUsuarioPagador) \geq CantMillasTrans
+	}
+	\aseguraLargo{EsNuevaTransaccion( AM, AM0, idUsuarioPagador, idUsuarioBeneficiario,1, CantMillasTrans, NoPromo, 1) \land
+		\land AM.Promociones = AM0.Promociones \\
+		\land AM.Usuarios = AM0.Usuarios
+		\land SubioCategoria(idUsuarioBeneficiario)
+	}
+	\noindent \comentarioLargo{Revisado}
+
+\end{proc}
+
+\vspace{2cm}
+\begin{proc}{ConsultarSaldo}
+	{\In AM: AirMiles, \In IdUsuario : \Tipo{\Z}}
+	{\Tipo{\Z}}
+	\requiereLargo{IdUsuario \in claves(AM.Usuarios) }
+
+	\aseguraLargo{
+		res = MillasDisponibles(IdUsuario,AM.Historial)
+	}
+\end{proc}
+\comentario{El auxiliar MillasDisponibles es el que esta en CanjearMillas. Ver despues si reusamos ese para todo u algun otro, pero hay que unificar.}
+
+\vspace{1cm}
+\begin{proc}{ConsultarCategoria}
+	{
+		\In AM: Airmiles,
+		\In idUsuario: \Tipo{\Z},
+	}
+	{\Tipo{categoria}}
+	\requiere{idUsuario \in claves(AM.usuarios)}
+	\asegura{res = AM.Usuarios[idUsuario]}
+
+\end{proc}
+
+\vspace{1cm}
+\begin{proc}{RankingMillas}
+	{\In AM: Airmillas, \In n : \Tipo{\Z}}
+	{\Tipo{\seq{\Tipo{\Z}}}}
+	\requiereLargo{ n > 0}
+
+	\aseguraLargo{ (|AM.Usuarios| > n  \land_L |res| = n) \\ \lor (|AM.Usuarios| \leq n  \land_L |res| = |AM.Usuarios|)
+		\\ \land_L perteneceUsuarios(AM.Usuarios, res)
+		\\ \land_L sinRepetidos(res)
+		\\ \land_L ordenDecreciente(AM.Usuarios, res)
+		\\ \land_L losMejoresCandidatos(AM.Usuarios, AM.
+		Historial, res)
+	}
+\end{proc}
+
+\vspace{0.5cm}
+\begin{proc}{ResumenTransacciones}
+	{\In AM: Airmillas, \In id : \Tipo{\Z}}
+	{\tupla{\Tipo{\R}, \Tipo{\R}, \Tipo{\R}}}
+	\requiereLargo{ id \in claves(AM.Usuarios)}
+
+	\aseguraLargo{ res_{0} = MillasObtenidasPorVuelo(AM.Transacciones, id) \yLuego
+		\\
+		res_{1} = MillasDescontadasPorCanjeo(AM.Transacciones, id) \yLuego
+		\\
+		res_{2} = MillasTransferidas(AM.Transacciones, id, id)
+	}
+\end{proc}
+
+
+\vspace{1cm}
+\begin{proc}{IniciarPromocion}
+	{
+		\Inout AM: \Tipo{Airmiles},
+		\In nombrePromo: \Tipo{\seq{char}},
+		\In factorPromo: \Tipo{\R},
+	}
+	{}
+	\comentario{Discutir el tercer elemento de la lista [factorPromo,0,0].
+		NoPromo esta siempre en el sistema, no se puede pisar. Discutir si seria != noPromo o si directamente no tiene que pertenecer (podria existir y pisarse el valor?)}
+	\\
+	\requiereLargo{
+		AM = AM0 \land
+		factorPromo \geq 1 \land
+		nombrePromo \notin claves(AM0.Promociones)}
+	\aseguraLargo{
+		AM.Usuarios = AM0.Usuarios \land
+		\\
+		AM.Historial = AM0.Historial \land
+		\\
+		AM.Promociones = SetKey(AM0.Promociones, nombrePromo, \struct{factorPromo,0,-1})
+	}
+\end{proc}
+\vspace{5.0cm}
+
+\begin{proc}{IniciarPromocionConTope}
+{
+	\Inout AM: \Tipo{Airmiles},
+	\In nombrePromo: \Tipo{\str},
+	\In factorPromo: \Tipo{\R},
+	\In TopePromo: \Tipo{\R}
+}
+{}
+\requiereLargo{
+	AM = AM0 \land factorPromo \geq 1 \land nombrePromo \notin
+	claves(AM0.Promociones) \land TopePromo > 0
+}
+\aseguraLargo{
+	AM.Usuarios = AM0.Usuarios \land
+	\\
+	AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \land
+	\\
+	AM.Promociones = SetKey(AM0.Promociones, nombrePromo,
+	\\
+	\struct{factorPromo,topePromo,topePromo})
+}
+\end{proc}
 % Asegura{ AM.Usuarios = AM0.Usuarios  ∧ 
 % 		   AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones ∧
 % 		   AM.Promociones = SetKey(AM0.Promociones, nombrePromo, [factorPromo,0,0] 		
 % 		 }
 
+\vspace{1.0cm}
 
-	\predLargo{perteneceUsuarios}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, res: \seq{\Z}} {
-		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res} \implica_L res[i] \in claves(usuarios)}
-	}
-
-	\predLargo{sinRepetidos}{res: \seq{\Z}} {
-		\paraTodo{x}{\Tipo{\Z}}{x \in res\implica_L cantAparicion(res,x) = 1}
-	}
-
-	\auxLargo{cantAparicion}
-	{res: \Tipo{\seq{\Z}}, x: \Tipo{\Z}}
-	{\Tipo{\R}}
+\begin{proc}{FinalizarPromocion}
 	{
-		\sum\limits_{i=0}^{\norm{res} - 1}
-		\IfThenElse{
-			res[i] = x
-		}{
-			1
-		}{
-			0
-		}
+		\Inout AM: \Tipo{Airmiles},
+		\In nombrePromo: \Tipo{\seq{char}}
 	}
-
-	\predLargo{ordenDecreciente}{Historial:\seq{Transacciones}, res: \seq{\Z}} {
-		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res}-1 \implica_L \\ millasDisponibles(res[i], Historial) >= millasDisponibles(res[i + 1], Historial)}
-	}
-	\\
-	\predLargo{losMejoresCandidato}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}} {
-		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res} \land  res[i] \in claves(usuarios)  \implica_L  \\ elMejorCandidato(Usuarios, Historial, res, i) }
-	}
-	\\
-	\predLargo{elMejorCandidato}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}, i: \Tipo{\Z}} {
-		\paraTodo{x}{\Tipo{\Z}}{ (x \in claves(usuarios) \land \\ millasDisponibles(x,Historial) \leq millasDisponibles(res[i],Historial))\implica_L  \\ (\existe {j}{\Tipo{\Z}}{0 \leq j < i } \land_L res[j] = x) }
-	}
-
-	\vspace{1cm}
-	\predLargo
-	{SubioCategoria}
-	{idUsuario: \Tipo{\Z},Historial: \Tipo{Transaccion},Historial0: \Tipo{Transaccion}}
-	{DarCategoria(Historial0,idUsuario) \neq DarCategoria(Historial,idUsuario)}
-
-
-	\vspace{1cm}
-	\auxLargo
-	{MillasCalculadas}
-	{distancia:\Tipo{\Z}, Factorcategoria: \Tipo{\R}, factorPromo: \Tipo{\R}}
-	{\R}
-	{distancia * Factorcategoria * factorPromo}
-
-	\vspace{1cm}
-	\noindent \comentarioLargo{Con respecto a las transacciones, deberiamos limitar esto no? cuando el usuario es platino creo que no tendria sentido crearle transferencias para que gane millas, se supone que no podria. Por el contrario si puede crear transacciones que de millas}
-	\predLargo{EsNuevaTransaccion}{
-		AM,AM0 : \Tipo{AirMiles},idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}
-	}
-	{AM.HistorialTransacciones = AM0.HistorialTransacciones ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
 	{}
+	\requiereLargo{
+		AM = AM0 \land nombrePromo \neq "NoPromo" \yLuego
+		\\
+		nombrePromo \in claves(AM0.promociones)
+	}
+	\aseguraLargo{
+		AM.Usuarios = AM0.Usuarios \land
+		\\
+		AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \land
+		\\
+		AM.Promociones = DelKey(AM0.Promociones, nombrePromo)
+	}
+\end{proc}
 
-	\vspace{1cm}
-	\auxLargo{DarFactorCategoria}
-	{Historial: \Tipo{\seq{Transacciones}}, idUsuario: \Tipo{\Z}}
-	{\Tipo{\R}}
+\vspace{1.0cm}
+
+\begin{proc}{ElQueTieneMasMillas}
 	{
+		\In AM: \Tipo{Airmiles},
+	}
+	{\Tipo{\Z}}
+	\requiere{ \norm{AM.Usuarios} > 0}
+	\aseguraLargo{
+		\existe{i}{\Tipo{\Z}}{i \in claves(AM.Usuarios) \yLuego MillasTotales(AM.Historial,i) = res} \land
+		\\
+		\paraTodo{j}{\Tipo{\Z}}{j \in claves(AM.Usuarios) \implicaLuego MillasTotales(AM.Historial,j) \leq res}
+	}
+\end{proc}
+
+\vspace{1.0cm}
+
+\begin{proc}{ElMasCanjeador}
+	{
+		\In AM: \Tipo{Airmiles}
+	}
+	{\Tipo{\Z}}
+	\requiere{
+		\norm{AM.Usuarios} > 0 \land \norm{AM.Historial} > 0
+	}
+	\aseguraLargo{
+		\existe{id}{\Tipo{\Z}}{id \in claves(AM.Usuarios) \yLuego res = id
+			\\
+			\land \paraTodo{id2}{\Tipo{\Z}}{id2 \in claves(AM.Usuarios) \implicaLuego
+				\\
+				MillasPerdidas(AM.Historial,res,AM.Usuarios) \ge
+				\\
+				MillasPerdidas(AM.Historial,id2,AM.Usuarios)}}
+	}
+\end{proc}
+
+\vspace{1.cm}
+\begin{proc}{paresTransferidoresExclusivos}
+		{\In Am: Airmiles}
+		{\seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}
+		\requiere{True}
+
+		\aseguraLargo{
+            NoHayRepetidos(res) \land
+            \\
+            NoHayPermutacion(res) \land
+            \\
+            TieneReciprocoHistorial(AM.Historial,res) \land
+            \\
+            SonParejaExclusiva(AM.Historial,res)
+        }
+	\end{proc}
+
+
+\predLargo{perteneceUsuarios}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, res: \seq{\Z}} {
+	\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res} \implica_L res[i] \in claves(usuarios)}
+}
+
+\predLargo{sinRepetidos}{res: \seq{\Z}} {
+	\paraTodo{x}{\Tipo{\Z}}{x \in res\implica_L cantAparicion(res,x) = 1}
+}
+
+\auxLargo{cantAparicion}
+{res: \Tipo{\seq{\Z}}, x: \Tipo{\Z}}
+{\Tipo{\R}}
+{
+	\sum\limits_{i=0}^{\norm{res} - 1}
+	\IfThenElse{
+		res[i] = x
+	}{
+		1
+	}{
+		0
+	}
+}
+
+\predLargo{ordenDecreciente}{Historial:\seq{Transacciones}, res: \seq{\Z}} {
+	\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res}-1 \implica_L \\ millasDisponibles(res[i], Historial) >= millasDisponibles(res[i + 1], Historial)}
+}
+\\
+\predLargo{losMejoresCandidato}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}} {
+	\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res} \land  res[i] \in claves(usuarios)  \implica_L  \\ elMejorCandidato(Usuarios, Historial, res, i) }
+}
+\\
+\predLargo{elMejorCandidato}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}, i: \Tipo{\Z}} {
+	\paraTodo{x}{\Tipo{\Z}}{ (x \in claves(usuarios) \land \\ millasDisponibles(x,Historial) \leq millasDisponibles(res[i],Historial))\implica_L  \\ (\existe {j}{\Tipo{\Z}}{0 \leq j < i } \land_L res[j] = x) }
+}
+
+\vspace{1cm}
+\predLargo
+{SubioCategoria}
+{idUsuario: \Tipo{\Z},Historial: \Tipo{Transaccion},Historial0: \Tipo{Transaccion}}
+{DarCategoria(Historial0,idUsuario) \neq DarCategoria(Historial,idUsuario)}
+
+
+\vspace{1cm}
+\auxLargo
+{MillasCalculadas}
+{distancia:\Tipo{\Z}, Factorcategoria: \Tipo{\R}, factorPromo: \Tipo{\R}}
+{\R}
+{distancia * Factorcategoria * factorPromo}
+
+\vspace{1cm}
+\noindent \comentarioLargo{Con respecto a las transacciones, deberiamos limitar esto no? cuando el usuario es platino creo que no tendria sentido crearle transferencias para que gane millas, se supone que no podria. Por el contrario si puede crear transacciones que de millas}
+\predLargo{EsNuevaTransaccion}{
+	AM,AM0 : \Tipo{AirMiles},idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}
+}
+{AM.HistorialTransacciones = AM0.HistorialTransacciones ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
+{}
+
+\vspace{1cm}
+\auxLargo{DarFactorCategoria}
+{Historial: \Tipo{\seq{Transacciones}}, idUsuario: \Tipo{\Z}}
+{\Tipo{\R}}
+{
+	\IfThenElse{
+		MillasTotales(Historial, idUsuario) < 10000
+	}{
+		1.0
+		\\
+	}{
 		\IfThenElse{
-			MillasTotales(Historial, idUsuario) < 10000
+			MillasTotales(Historial, idUsuario) < 50000
 		}{
-			1.0
+			1.5
 			\\
 		}{
 			\IfThenElse{
-				MillasTotales(Historial, idUsuario) < 50000
+				MillasTotales(Historial, idUsuario) < 1000000
 			}{
-				1.5
-				\\
+				2.0
 			}{
-				\IfThenElse{
-					MillasTotales(Historial, idUsuario) < 1000000
-				}{
-					2.0
-				}{
-					0.0
-				}
+				0.0
 			}
 		}
 	}
+}
 
-	\vspace{0.5cm}
-	\auxLargo{DarCategoria}
-	{Historial: \Tipo{\seq{Transacciones}}, idUsuario: \Tipo{\Z}}
-	{\Tipo{Categoria}}
-	{
+\vspace{0.5cm}
+\auxLargo{DarCategoria}
+{Historial: \Tipo{\seq{Transacciones}}, idUsuario: \Tipo{\Z}}
+{\Tipo{Categoria}}
+{
+	\IfThenElse{
+		MillasTotales(Historial, idUsuario) < 10000
+	}{
+		Bronce
+		\\
+	}{
 		\IfThenElse{
-			MillasTotales(Historial, idUsuario) < 10000
+			MillasTotales(Historial, idUsuario) < 50000
 		}{
-			Bronce
+			Plata
 			\\
 		}{
 			\IfThenElse{
-				MillasTotales(Historial, idUsuario) < 50000
+				MillasTotales(Historial, idUsuario) < 1000000
 			}{
-				Plata
-				\\
+				Oro
 			}{
-				\IfThenElse{
-					MillasTotales(Historial, idUsuario) < 1000000
-				}{
-					Oro
-				}{
-					Platino
-				}
+				Platino
 			}
 		}
 	}
+}
 
 
-	\vspace{0.5cm}
-	\noindent \comentario{En caso de que el usuario haga parte del viaje con promo y otra parte sin promo esta funcion busca esa diferencia}
+\vspace{0.5cm}
+\noindent \comentario{En caso de que el usuario haga parte del viaje con promo y otra parte sin promo esta funcion busca esa diferencia}
+\\
+\auxLargo{MillasACompletar}
+{Promociones: \Tipo{\Diccionario{\str}{struct}},
+	\\nombrePromo: \Tipo{\str}, distancia: \Tipo{\Z}, FactorCategoria: \Tipo{\R}, FactorPromo: \Tipo{\R}}
+{\R}
+{
+	MillasCalculadas(distancia,factorCategoria,factorPromo)-
 	\\
-	\auxLargo{MillasACompletar}
-	{Promociones: \Tipo{\Diccionario{\str}{struct}},
-		\\nombrePromo: \Tipo{\str}, distancia: \Tipo{\Z}, FactorCategoria: \Tipo{\R}, FactorPromo: \Tipo{\R}}
-	{\R}
-	{
-		MillasCalculadas(distancia,factorCategoria,factorPromo)-
-		\\
-		Promociones[nombrePromo].millasRestantes
+	Promociones[nombrePromo].millasRestantes
+}
+
+
+\vspace{0.5cm}
+\comentario{¿puedo chequear como va la sumatoria mientras va recorriendo?}\\
+\auxLargo{MillasTotales}
+{IdUsuario : \Tipo{\Z}, Historial : \seq{Transacciones}}
+{\Tipo{\Z}}
+{res = \sum\limits_{i=0}^{\lvert Historial \rvert - 1} \IfThenElse{EsTransaccionDelUsuario(Historial[i], IdUsuario \land EsTransaccionSumadora(Historial[i], IdUsuario)) \\
+		\land 1000000 > res}{Historial[i].Millas}{0}}
+
+
+
+\vspace{0.5cm}
+\comentarioLargo{Auxiliar para obtener las millas disponibles de un usuario. Recorre el historial de transacciones y de acuerdo al TipoDeTransaccion, al IdUsuario y las Millas del registro, suma o resta con un acumulador.}
+\auxLargo{MillasDisponibles}
+{IdUsuario : \Tipo{\Z}, Historial : \seq{Transacciones}}
+{\Tipo{\Z}}
+{res = \sum\limits_{i=0}^{\lvert Historial \rvert - 1} \IfThenElse{EsTransaccionDelUsuario(Historial[i], IdUsuario)}{\\\IfThenElse{EsTransaccionSumadora(Historial[i], IdUsuario)\\}{Historial[i].Millas}{-Historial[i].Millas}}{0}}
+
+
+\vspace{1.0cm}
+\predLargo{EsTransaccionSumadora}{Trans: Transacciones,idUsuario : \Tipo{\Z}}
+{ (Trans.TipoDeTransaccion = 0) \lor \\(IdUsuario = Trans.UsuarioDestino \land Trans.TipoDeTransaccion = 1)}
+
+
+\vspace{1.0cm}
+\pred{EsTransaccionDelUsuario}{Trans: Transacciones,idUsuario : \Tipo{\Z}}{\\Trans.UsuarioOrigen = idUsuario \lor Trans.UsuarioDestino = idUsuario}
+
+\comentario{Valido que el IdUsuario este en alguno de los 2 campos. Si no esta en ninguno, entonces no debo sumar ni restar nada.}
+
+\vspace{0.5cm}
+\predLargo
+{SeConsumioLaPromocion}
+{
+	nombrePromo: \Tipo{\str},
+	Promociones: \Tipo{\Diccionario{\str}{struct}},
+	\\
+	Promociones0: \Tipo{\Diccionario{\str}{struct}}}
+{AM.Promociones = DelKey(AM.Promociones0,nombrePromo)}
+
+\vspace{0.5cm}
+
+\auxLargo{MillasObtenidasPorVuelo}
+{Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}}
+{\Tipo{\R}}
+{
+	\sum\limits_{i=0}^{\norm{Historial} - 1}
+	\IfThenElse{
+		EsVuelo(Historial[i],
+		idOrigen)
+	}{
+		Historial[i].Millas
+	}{
+		0
 	}
+}
 
+\vspace{1cm}
 
-	\vspace{0.5cm}
-	\comentario{¿puedo chequear como va la sumatoria mientras va recorriendo?}\\
-	\auxLargo{MillasTotales}
-	{IdUsuario : \Tipo{\Z}, Historial : \seq{Transacciones}}
-	{\Tipo{\Z}}
-	{res = \sum\limits_{i=0}^{\lvert Historial \rvert - 1} \IfThenElse{EsTransaccionDelUsuario(Historial[i], IdUsuario \land EsTransaccionSumadora(Historial[i], IdUsuario)) \\
-			\land 1000000 > res}{Historial[i].Millas}{0}}
-
-
-
-	\vspace{0.5cm}
-	\comentarioLargo{Auxiliar para obtener las millas disponibles de un usuario. Recorre el historial de transacciones y de acuerdo al TipoDeTransaccion, al IdUsuario y las Millas del registro, suma o resta con un acumulador.}
-	\auxLargo{MillasDisponibles}
-	{IdUsuario : \Tipo{\Z}, Historial : \seq{Transacciones}}
-	{\Tipo{\Z}}
-	{res = \sum\limits_{i=0}^{\lvert Historial \rvert - 1} \IfThenElse{EsTransaccionDelUsuario(Historial[i], IdUsuario)}{\\\IfThenElse{EsTransaccionSumadora(Historial[i], IdUsuario)\\}{Historial[i].Millas}{-Historial[i].Millas}}{0}}
-
-
-	\vspace{1.0cm}
-	\predLargo{EsTransaccionSumadora}{Trans: Transacciones,idUsuario : \Tipo{\Z}}
-	{ (Trans.TipoDeTransaccion = 0) \lor \\(IdUsuario = Trans.UsuarioDestino \land Trans.TipoDeTransaccion = 1)}
-
-
-	\vspace{1.0cm}
-	\pred{EsTransaccionDelUsuario}{Trans: Transacciones,idUsuario : \Tipo{\Z}}{\\Trans.UsuarioOrigen = idUsuario \lor Trans.UsuarioDestino = idUsuario}
-
-	\comentario{Valido que el IdUsuario este en alguno de los 2 campos. Si no esta en ninguno, entonces no debo sumar ni restar nada.}
-
-	\vspace{0.5cm}
-	\predLargo
-	{SeConsumioLaPromocion}
-	{
-		nombrePromo: \Tipo{\str},
-		Promociones: \Tipo{\Diccionario{\str}{struct}},
+\auxLargo{MillasTransferidas}
+{Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
+{\Tipo{\R}}
+{
+	\sum\limits_{i=0}^{\norm{Historial} - 1}
+	\IfThenElse{
+		EsTransferencia(Historial[i],
 		\\
-		Promociones0: \Tipo{\Diccionario{\str}{struct}}}
-	{AM.Promociones = DelKey(AM.Promociones0,nombrePromo)}
+		idOrigen, idDestino)
+	}{
+		Historial[i].Millas
+	}{
+		0
+	}
+}
 
-	\vspace{0.5cm}
+\vspace{1cm}
+\auxLargo{MillasDescontadasPorCanjeo}
+{Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}}
+{\Tipo{\R}}
+{
+	\sum\limits_{i=0}^{\norm{Historial} - 1}
+	\IfThenElse{
+		EsCanjeo(Historial[i],
+		idOrigen)
+	}{
+		Historial[i].Millas
+	}{
+		0
+	}
+}
+\vspace{1cm}
+\predLargo{EsVuelo}
+{Transaccion: \Tipo{Struct}, idOrigen: \Tipo{\Z}}
+{
+	Transaccion.UsuarioOrigen = idOrigen \land
+	\\
+	Transaccion.TipoDeTransaccion = 0 \land
+	\\
+	Transaccion.UsuarioDestino = -1 \land
+	\\
+	\comentario{Deberia verificar los otros campos? Se complica...}
+}
+
+\vspace{1cm}
+
+\predLargo{EsTransferencia}
+{Transaccion: \Tipo{struct}, idOrigen: \Tipo{\Z}, idDestino: \Tipo{\Z}}
+{
+	Transaccion.UsuarioOrigen = idOrigen \land
+	\\
+	Transaccion.TipoDeTransaccion = 1 \land
+	\\
+	Transaccion.UsuarioDestino = idDestino \land
+	\\
+	Transaccion.millas > 0
+	\\
+	\comentario{Deberia verificar los otros campos? Se complica...}
+}
+
+\vspace{1cm}
+
+
+
+\predLargo{EsCanjeo}
+{Transaccion: \Tipo{struct}, idOrigen: \Tipo{\Z}}
+{
+	Transaccion.UsuarioOrigen = idOrigen \land
+	\\
+	Transaccion.TipoDeTransaccion = 2 \land
+	\\
+	Transaccion.UsuarioDestino = -1 \land
+	\\
+	Transaccion.distancia > 0
+	\\
+	\comentario{Deberia verificar los otros campos? Se complica...}
+}
+
+\comentario{Es similar a EsTransferencia pero aca no importa el destino, unicamente chequeo que exista el usuario de origen.}
+\\
+\predLargo{EsTransferenciaEnviada}
+{Transaccion: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}, Usuarios: \Tipo{\dict{\Z}{Categoria}}}
+{
+	Transaccion.UsuarioOrigen = idOrigen \land
+	\\
+	Transaccion.TipoDeTransaccion = 1 \land
+	\\
+	Transaccion.UsuarioDestino \in claves(Usuarios) \land
+	\\
+	Transaccion.UsuarioDestino \neq idOrigen
+	\\
+	\comentario{Deberia verificar los otros campos? Se complica...}
+}
+
+\vspace{1cm}
+\auxLargo{MillasPerdidas}
+{Historial: \Tipo{\seq{Transacciones},idUsuario: \Tipo{\Z},Usuarios: \Diccionario{\Tipo{\Z}}{categoria}}}
+{\Tipo{\R}}
+{\sum\limits_{i=0}^{\norm{Historial}-1}
+	\IfThenElse
+	{EsTransferenciaEnviada(Historial[i],idUsuario,Usuarios) \lor
+		\\
+		EsCanjeo(Historial[i],idUsuario)}
+	{Historial[i].Millas}
+	{0}
+}
+
+\predLargo{NoHayRepetidos}{res: \Tipo{\seq{\tupla{\Z,\Z}}}}
+    {
+        \paraTodo{t}{\tupla{\Tipo{\Z},\Tipo{\Z}}}{t \in res \implicaLuego cantApariciones(t,res)=1}
+    }
+
+    \auxLargo{cantApariciones}{t:\Tipo{\tupla{\Tipo{\Z,\Z}}},res: \Tipo{\seq{\Tipo{\Z},\Tipo{\Z}}}}{\Tipo{\Z}}{
+        \sum\limits_{0}^{\norm{res}} \IfThenElse{t \in res}{1}{0}
+    }
+
+
+    \comentario{Cual es la forma correcta de hacer esto? algo asi pero tengo que indicar el orden en el que estoy poniendo las cosas?}
+    \\
+    \predLargo{NoHayPermutacion}{res}{
+        \paraTodo{t}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{t \in res \implicaLuego \tupla{{t_1},t_{0}} \notin res}
+    }
+
+    \vspace{0.5cm}
+    \predLargo{TieneReciprocoHistorial}{Historial: \Tipo{\seq{Transacciones}},res: \seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}
+    {\paraTodo{x}{\tupla{\Tipo{\Z},\Tipo{\Z}}}{x \in res \implica HayReciproco(Historial,res)}}
+
+    \vspace{0.5cm}
+    \predLargo{HayReciproco}{Historial: \Tipo{\seq{Transacciones}},t: \Tipo{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}}
+    {
+        \existe{i}{\Tipo{\Z}}{0 \le i < \norm{Historial} \yLuego
+        Historial[i].TipoDeTransaccion = 1 \yLuego 
+        \\
+        (Historial[i].usuarioOrigen = t_{1} \land Historial[i].usuarioDestino = t_{0})}
+    }
+
+    \vspace{0.5cm}
+    \noindent \comentario{Revisar}
+    \\
+    \predLargo{SonParejaExclusiva}{Historial: \Tipo{\seq{Transacciones}},res: \seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}
+    {
+        \paraTodo{t}{\tupla{\Tipo{\Z},\Tipo{\Z}}}{ t \in res \implicaLuego
+        \neg (hayOtroUsuario(t0,t1,Historial) \lor 
+        \\
+        hayOtroUsuario(t1,t0,Historial))
+        }
+    }
+
+    \vspace{0.5cm}
+    \predLargo{HayOtroUsuario}{t0,t1,Historial}
+    {
+        \paraTodo{i}{\Tipo{\Z}}{ 0 \le i < \norm{Historial} \implicaLuego (Historial[i].UsuarioOrigen = t0 \land
+        \\ 
+        Historial[i].UsuarioDestino \neq t1)}
+    }
+
 
 \end{tad}
-
-
-
 
 \end{document}
