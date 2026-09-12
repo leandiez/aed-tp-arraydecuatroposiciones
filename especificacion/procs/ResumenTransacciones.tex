@@ -158,6 +158,32 @@
             \comentario{Deberia verificar los otros campos? Se complica...}
         }
 
+	\auxLargo{MillasPorReferidos}
+	{Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}}
+	{\Tipo{\R}}
+	{
+		\sum\limits_{i=0}^{\norm{Historial} - 1}
+		\IfThenElse{
+			EsReferido(Historial[i],
+			idOrigen ) \\
+			\land Historial[i].idDestino \neq -1
+		}{
+			Historial[i].Millas
+		}{
+			0
+		}
+	}
+
+    \vspace{1cm}
+    \predLargo{EsReferido}
+        {Transaccion: \Tipo{Struct}, idOrigen: \Tipo{\Z}}
+        {
+            (Transaccion.UsuarioOrigen = idOrigen \lor \\
+			Transaccion.UsuarioDestino = idOrigen) \land
+            \\
+            Transaccion.TipoDeTransaccion = 0
+            \comentario{Deberia verificar los otros campos? Se complica...}
+        }
 
 
 \end{tad}
