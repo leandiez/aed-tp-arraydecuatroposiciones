@@ -49,7 +49,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 
 \vspace{0.5cm}
 
-\noindent Transacciones \textbf{ES} Struct $\tupla{				
+\noindent Transacciones \textbf{ES} Struct $\tupla{
 		UsuarioOrigen: \Tipo{\Z}, \\
 		UsuarioDestino: \Tipo{\Z},
 		TipoDeTransaccion: \Tipo{\Z},
@@ -64,12 +64,12 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 
 \section{Especificación del TAD AirMiles}
 \begin{tad}{Airmiles}
-	
-	
+
+
 	\comentario{Decidimos dejar en usuarios la categoria por mas que se pueda calcular por fuera, historial de transacciones cambio a un tipo Struct, y las promociones tambien cambiaron a un diccionario que adentro tiene un struct }
 	\\
 	\obs{Usuarios}{\dict{id:\Tipo{\Z}}{CategoriaActual : Categoria}}
-	
+
 	\noindent \comentario{La convencion utilizada para transacciones es:
 		\\
 		1) Si se hace un vuelo, el TipoDeTransaccion es 0 y el usuario de destino es -1
@@ -87,8 +87,8 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	\hspace*{1.5em} NombrePromocion: $\str$, \\
 	\hspace*{1.5em} $\struct{\Tipo{FactorDePromocion} : \R,\Tipo{topeDePromocion}: \R, \Tipo{millasRestantes}: \R}$ \\
 	\}
-	
-	
+
+
 	\begin{proc}{crearSistema}
 		{}
 		{AirMiles}
@@ -99,9 +99,9 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 			\\
 			res.promociones = setKey(\dict{}{},"NoPromo",\struct{1,0,-1}) }
 	\end{proc}
-	
+
 	\begin{proc}{registrarUsuario}
-		{				
+		{
 			\Inout AM: Airmiles,
 			\In id: \Tipo{\Z}
 		}
@@ -113,17 +113,17 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 			\land AM.Promociones = AM0.Promociones
 		}
 	\end{proc}
-	
-	
+
+
 	\begin{proc}{registrarUsuarioConReferidor}
-		{				
+		{
 			\Inout AM: Airmiles,\\
 			\In idReferidor: \Tipo{\Z},
 			\In idUsuario: \Tipo{\Z}
 		}
 		{}
 		\requiere{AM0 = AM \land idReferidor \in claves(AM.Usuarios) \land idUsuario \notin claves(AM.Usuarios) \land idUsuario > 0}
-		\aseguraLargo{				
+		\aseguraLargo{
 			% Creo el usuario
 			AM.Usuarios = SetKey(AM0.Usuarios,idUsuario, Bronce) \land
 			\\
@@ -134,19 +134,19 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		}
 	\end{proc}
 	% ===============Aca comienza la funcion de acumular millas===============
-	
+
 	\noindent \comentarioLargo{Acumula millas al usuario si la categoria del mismo no es platino, en caso de que el nombre de la promo no alcance para completar el viaje del usuario, se crean dos transacciones, una con las millas restantes de la promo y otra con "NoPromo" para completar el viaje. }
 	\begin{proc}{AcumularMillas}
-		{				
+		{
 			\Inout AM: \Tipo{Airmiles},
 			\In idUsuario: \Tipo{\Z},
 			\In distancia: \Tipo{\R},
 			\In nombrePromo: \Tipo{\str},
 		}
 		{}
-		
+
 		\requiere{AM = AM0 \land idUsuario \in claves(AM.Usuarios) \land nombrePromo \in claves(AM.Promociones) \land distancia > 0 }
-		\aseguraLargo{				
+		\aseguraLargo{
 			\comentario{Si el tope de las millas de la promo supera la distancia se hace una sola transaccion}
 			\\
 			AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes \geq
@@ -169,7 +169,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 			\lor
 			\\
 			\\
-			AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes < 
+			AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes <
 			\\
 			MillasCalculadas(distancia, DarFactorCategoria(AM.Historial, idUsuario),\\
 			AM.Promociones[nombrePromo].factorDePromocion) \implica
@@ -206,13 +206,13 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 			SeConsumioLaPromocion(nombrePromo,AM0.Promociones)
 		}
 	\end{proc}
-	
+
 	\vspace{1cm}
 	\begin{proc}{CanjearMillas}
 		{\Inout AM: AirMiles, \In MillasCanjeadas : \Tipo{\R}, \In IdUsuario : \Tipo{\Z}}
 		{}
 		\requiereLargo{ AM=AM_{0} \yLuego MillasCanjeadas > 0 \land IdUsuario \in claves(AM.Usuarios)}
-		\aseguraLargo{			
+		\aseguraLargo{
 			\IfThenElse{ MillasDisponibles(AM_{0}.Historial, IdUsuario) \geq MillasCanjeadas}
 			\\{AM.HistorialDeTransacciones =TransaccionCanje(AM_{0}.Historial, IdUsuario,\\ MillasCanjeadas},
 				{ \\AM.Historial =  AM_{0}.Historial}) \\
@@ -220,79 +220,205 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 			\land AM.Promociones = AM_{0}.Promociones
 		}
 	\end{proc}
-	
+
+	\vspace{1cm}
+	\begin{proc}{TransferirMillas}
+		{
+			\Inout AM: Airmiles,\\
+			\In idUsuarioPagador: \Tipo{\Z},
+			\In idUsuarioBeneficiario: \Tipo{\Z},
+			\In CantMillasTrans: \Tipo{\R}
+		}
+		{}
+		\requiere{AM0 = AM \land idUsuarioPagador \in claves(AM.usuarios)\\
+			\land idUsuarioBeneficiario \in claves(AM.usuarios)\\
+			\land idUsuarioPagador \neq idUsuarioBeneficiario\\
+			\land MillasDisponibles(AM, idUsuarioPagador) \geq CantMillasTrans
+		}
+		\aseguraLargo{EsNuevaTransaccion( AM, AM0, idUsuarioPagador, idUsuarioBeneficiario,1, CantMillasTrans, NoPromo, 1) \land
+			\land AM.Promociones = AM0.Promociones \\
+			\land AM.Usuarios = AM0.Usuarios
+			\land SubioCategoria(idUsuarioBeneficiario)
+		}
+		\noindent \comentarioLargo{Revisado}
+
+	\end{proc}
+
+	\vspace{2cm}
+	\begin{proc}{ConsultarSaldo}
+		{\In AM: AirMiles, \In IdUsuario : \Tipo{\Z}}
+		{\Tipo{\Z}}
+		\requiereLargo{IdUsuario \in claves(AM.Usuarios) }
+
+		\aseguraLargo{
+			res = MillasDisponibles(IdUsuario,AM.Historial)
+		}
+	\end{proc}
+	\comentario{El auxiliar MillasDisponibles es el que esta en CanjearMillas. Ver despues si reusamos ese para todo u algun otro, pero hay que unificar.}
+
+	\vspace{1cm}
+	\begin{proc}{ConsultarCategoria}
+		{
+			\In AM: Airmiles,
+			\In idUsuario: \Tipo{\Z},
+		}
+		{\Tipo{categoria}}
+		\requiere{idUsuario \in claves(AM.usuarios)}
+		\asegura{res = AM.Usuarios[idUsuario]}
+
+	\end{proc}
+
+	\vspace{1cm}
+	\begin{proc}{rankingMillas}
+		{\In AM: Airmillas, \In n : \Tipo{\Z}}
+		{\Tipo{\seq{\Tipo{\Z}}}}
+		\requiereLargo{ n > 0}
+
+		\aseguraLargo{ (|AM.Usuarios| > n  \land_L |res| = n) \\ \lor (|AM.Usuarios| \leq n  \land_L |res| = |AM.Usuarios|)
+			\\ \land_L perteneceUsuarios(AM.Usuarios, res)
+			\\ \land_L sinRepetidos(res)
+			\\ \land_L ordenDecreciente(AM.Usuarios, res)
+			\\ \land_L losMejoresCandidatos(AM.Usuarios, AM.
+			Historial, res)
+		}
+	\end{proc}
+
+	\vspace{1cm}
+	\begin{proc}{IniciarPromocion}
+		{
+			\Inout AM: \Tipo{Airmiles},
+			\In nombrePromo: \Tipo{\seq{char}},
+            \In factorPromo: \Tipo{\R},
+		}
+		{}
+		\comentario{Discutir el tercer elemento de la lista [factorPromo,0,0].
+		NoPromo esta siempre en el sistema, no se puede pisar. Discutir si seria != noPromo o si directamente no tiene que pertenecer (podria existir y pisarse el valor?)}
+		\\
+		\requiereLargo{
+			AM = AM0 \land 
+			factorPromo \geq 1 \land 
+			nombrePromo \notin claves(AM0.Promociones)}
+		\aseguraLargo{
+            AM.Usuarios = AM0.Usuarios \land
+			\\
+			AM.Historial = AM0.Historial \land
+			\\
+			AM.Promociones = SetKey(AM0.Promociones, nombrePromo, \struct{factorPromo,0,-1})
+		}
+	\end{proc}
+
+% Asegura{ AM.Usuarios = AM0.Usuarios  ∧ 
+% 		   AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones ∧
+% 		   AM.Promociones = SetKey(AM0.Promociones, nombrePromo, [factorPromo,0,0] 		
+% 		 }
+
+
+	\predLargo{perteneceUsuarios}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, res: \seq{\Z}} {
+		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res} \implica_L res[i] \in claves(usuarios)}
+	}
+
+	\predLargo{sinRepetidos}{res: \seq{\Z}} {
+		\paraTodo{x}{\Tipo{\Z}}{x \in res\implica_L cantAparicion(res,x) = 1}
+	}
+
+	\auxLargo{cantAparicion}
+	{res: \Tipo{\seq{\Z}}, x: \Tipo{\Z}}
+	{\Tipo{\R}}
+	{
+		\sum\limits_{i=0}^{\norm{res} - 1}
+		\IfThenElse{
+			res[i] = x
+		}{
+			1
+		}{
+			0
+		}
+	}
+
+	\predLargo{ordenDecreciente}{Historial:\seq{Transacciones}, res: \seq{\Z}} {
+		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res}-1 \implica_L \\ millasDisponibles(res[i], Historial) >= millasDisponibles(res[i + 1], Historial)}
+	}
+	\\
+	\predLargo{losMejoresCandidato}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}} {
+		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res} \land  res[i] \in claves(usuarios)  \implica_L  \\ elMejorCandidato(Usuarios, Historial, res, i) }
+	}
+	\\
+	\predLargo{elMejorCandidato}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}, i: \Tipo{\Z}} {
+		\paraTodo{x}{\Tipo{\Z}}{ (x \in claves(usuarios) \land \\ millasDisponibles(x,Historial) \leq millasDisponibles(res[i],Historial))\implica_L  \\ (\existe {j}{\Tipo{\Z}}{0 \leq j < i } \land_L res[j] = x) }
+	}
+
 	\vspace{1cm}
 	\predLargo
 	{SubioCategoria}
 	{idUsuario: \Tipo{\Z},Historial: \Tipo{Transaccion},Historial0: \Tipo{Transaccion}}
 	{DarCategoria(Historial0,idUsuario) \neq DarCategoria(Historial,idUsuario)}
-	
-	
+
+
 	\vspace{1cm}
 	\auxLargo
 	{MillasCalculadas}
 	{distancia:\Tipo{\Z}, Factorcategoria: \Tipo{\R}, factorPromo: \Tipo{\R}}
 	{\R}
 	{distancia * Factorcategoria * factorPromo}
-	
+
 	\vspace{1cm}
 	\noindent \comentarioLargo{Con respecto a las transacciones, deberiamos limitar esto no? cuando el usuario es platino creo que no tendria sentido crearle transferencias para que gane millas, se supone que no podria. Por el contrario si puede crear transacciones que de millas}
-	\predLargo{EsNuevaTransaccion}{				
+	\predLargo{EsNuevaTransaccion}{
 		AM,AM0 : \Tipo{AirMiles},idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}
 	}
 	{AM.HistorialTransacciones = AM0.HistorialTransacciones ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
 	{}
-	
+
 	\vspace{1cm}
 	\auxLargo{DarFactorCategoria}
 	{Historial: \Tipo{\seq{Transacciones}}, idUsuario: \Tipo{\Z}}
 	{\Tipo{\R}}
-	{				
-		\IfThenElse{				
+	{
+		\IfThenElse{
 			MillasTotales(Historial, idUsuario) < 10000
-		}{				
+		}{
 			1.0
 			\\
-		}{				
-			\IfThenElse{				
+		}{
+			\IfThenElse{
 				MillasTotales(Historial, idUsuario) < 50000
-			}{				
+			}{
 				1.5
 				\\
-			}{				
-				\IfThenElse{				
+			}{
+				\IfThenElse{
 					MillasTotales(Historial, idUsuario) < 1000000
-				}{				
+				}{
 					2.0
-				}{				
+				}{
 					0.0
 				}
 			}
 		}
 	}
-	
+
 	\vspace{0.5cm}
 	\auxLargo{DarCategoria}
 	{Historial: \Tipo{\seq{Transacciones}}, idUsuario: \Tipo{\Z}}
 	{\Tipo{Categoria}}
-	{				
-		\IfThenElse{				
+	{
+		\IfThenElse{
 			MillasTotales(Historial, idUsuario) < 10000
-		}{				
+		}{
 			Bronce
 			\\
-		}{				
-			\IfThenElse{				
+		}{
+			\IfThenElse{
 				MillasTotales(Historial, idUsuario) < 50000
-			}{				
+			}{
 				Plata
 				\\
-			}{				
-				\IfThenElse{				
+			}{
+				\IfThenElse{
 					MillasTotales(Historial, idUsuario) < 1000000
-				}{				
+				}{
 					Oro
-				}{				
+				}{
 					Platino
 				}
 			}
@@ -300,20 +426,20 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	}
 
 
-    \vspace{0.5cm}
-    \noindent \comentario{En caso de que el usuario haga parte del viaje con promo y otra parte sin promo esta funcion busca esa diferencia}
-    \\
-    \auxLargo{MillasACompletar}
-    {Promociones: \Tipo{\Diccionario{\str}{struct}},
-        \\nombrePromo: \Tipo{\str}, distancia: \Tipo{\Z}, FactorCategoria: \Tipo{\R}, FactorPromo: \Tipo{\R}}
-    {\R}
-    {
-        MillasCalculadas(distancia,factorCategoria,factorPromo)-
-        \\
-        Promociones[nombrePromo].millasRestantes
-    }
+	\vspace{0.5cm}
+	\noindent \comentario{En caso de que el usuario haga parte del viaje con promo y otra parte sin promo esta funcion busca esa diferencia}
+	\\
+	\auxLargo{MillasACompletar}
+	{Promociones: \Tipo{\Diccionario{\str}{struct}},
+		\\nombrePromo: \Tipo{\str}, distancia: \Tipo{\Z}, FactorCategoria: \Tipo{\R}, FactorPromo: \Tipo{\R}}
+	{\R}
+	{
+		MillasCalculadas(distancia,factorCategoria,factorPromo)-
+		\\
+		Promociones[nombrePromo].millasRestantes
+	}
 
-	
+
 	\vspace{0.5cm}
 	\comentario{¿puedo chequear como va la sumatoria mientras va recorriendo?}\\
 	\auxLargo{MillasTotales}
@@ -321,39 +447,39 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	{\Tipo{\Z}}
 	{res = \sum\limits_{i=0}^{\lvert Historial \rvert - 1} \IfThenElse{EsTransaccionDelUsuario(Historial[i], IdUsuario \land EsTransaccionSumadora(Historial[i], IdUsuario)) \\
 			\land 1000000 > res}{Historial[i].Millas}{0}}
-	
-	
-	
+
+
+
 	\vspace{0.5cm}
 	\comentarioLargo{Auxiliar para obtener las millas disponibles de un usuario. Recorre el historial de transacciones y de acuerdo al TipoDeTransaccion, al IdUsuario y las Millas del registro, suma o resta con un acumulador.}
 	\auxLargo{MillasDisponibles}
 	{IdUsuario : \Tipo{\Z}, Historial : \seq{Transacciones}}
 	{\Tipo{\Z}}
 	{res = \sum\limits_{i=0}^{\lvert Historial \rvert - 1} \IfThenElse{EsTransaccionDelUsuario(Historial[i], IdUsuario)}{\\\IfThenElse{EsTransaccionSumadora(Historial[i], IdUsuario)\\}{Historial[i].Millas}{-Historial[i].Millas}}{0}}
-	
-	
+
+
 	\vspace{1.0cm}
 	\predLargo{EsTransaccionSumadora}{Trans: Transacciones,idUsuario : \Tipo{\Z}}
 	{ (Trans.TipoDeTransaccion = 0) \lor \\(IdUsuario = Trans.UsuarioDestino \land Trans.TipoDeTransaccion = 1)}
-	
-	
+
+
 	\vspace{1.0cm}
 	\pred{EsTransaccionDelUsuario}{Trans: Transacciones,idUsuario : \Tipo{\Z}}{\\Trans.UsuarioOrigen = idUsuario \lor Trans.UsuarioDestino = idUsuario}
-	
+
 	\comentario{Valido que el IdUsuario este en alguno de los 2 campos. Si no esta en ninguno, entonces no debo sumar ni restar nada.}
-	
+
 	\vspace{0.5cm}
 	\predLargo
 	{SeConsumioLaPromocion}
-	{				
+	{
 		nombrePromo: \Tipo{\str},
 		Promociones: \Tipo{\Diccionario{\str}{struct}},
 		\\
 		Promociones0: \Tipo{\Diccionario{\str}{struct}}}
 	{AM.Promociones = DelKey(AM.Promociones0,nombrePromo)}
-	
+
 	\vspace{0.5cm}
-	
+
 \end{tad}
 
 

@@ -91,11 +91,11 @@
 		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res}-1 \implica_L \\ millasDisponibles(res[i], Historial) >= millasDisponibles(res[i + 1], Historial)}
 	}
 	\\
-	\predLargo{losMejoresUsuarios}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}} {
+	\predLargo{losMejoresCandidato}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}} {
 		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res} \land  res[i] \in claves(usuarios)  \implica_L  \\ elMejorCandidato(Usuarios, Historial, res, i) }
 	}
 	\\
-	\predLargo{losMejoresCandidato}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}, i: \Tipo{\Z}} {
+	\predLargo{elMejorCandidato}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}, i: \Tipo{\Z}} {
 		\paraTodo{x}{\Tipo{\Z}}{ (x \in claves(usuarios) \land \\ millasDisponibles(x,Historial) \leq millasDisponibles(res[i],Historial))\implica_L  \\ (\existe {j}{\Tipo{\Z}}{0 \leq j < i } \land_L res[j] = x) }
 	}
 	\\ 
