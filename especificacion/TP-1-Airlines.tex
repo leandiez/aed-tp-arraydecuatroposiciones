@@ -212,8 +212,8 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		{\Inout AM: AirMiles, \In MillasCanjeadas : \Tipo{\R}, \In IdUsuario : \Tipo{\Z}}
 		{}
 		\requiereLargo{ AM=AM_{0} \yLuego MillasCanjeadas > 0 \land IdUsuario \in claves(AM.Usuarios)}
-		\aseguraLargo{				
-			\IfThenElse{ MillasDisponibles(AM_{0}.Historial, IdUsuario) \geq millasCanjeadas}
+		\aseguraLargo{			
+			\IfThenElse{ MillasDisponibles(AM_{0}.Historial, IdUsuario) \geq MillasCanjeadas}
 			\\{AM.HistorialDeTransacciones =TransaccionCanje(AM_{0}.Historial, IdUsuario,\\ MillasCanjeadas},
 				{ \\AM.Historial =  AM_{0}.Historial}) \\
 			\land AM.Usuarios = AM_{0}.Usuarios \\
@@ -235,7 +235,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	{\R}
 	{distancia * Factorcategoria * factorPromo}
 	
-	\vspace{0.5cm}
+	\vspace{1cm}
 	\noindent \comentarioLargo{Con respecto a las transacciones, deberiamos limitar esto no? cuando el usuario es platino creo que no tendria sentido crearle transferencias para que gane millas, se supone que no podria. Por el contrario si puede crear transacciones que de millas}
 	\predLargo{EsNuevaTransaccion}{				
 		AM,AM0 : \Tipo{AirMiles},idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}
@@ -298,6 +298,21 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 			}
 		}
 	}
+
+
+    \vspace{0.5cm}
+    \noindent \comentario{En caso de que el usuario haga parte del viaje con promo y otra parte sin promo esta funcion busca esa diferencia}
+    \\
+    \auxLargo{MillasACompletar}
+    {Promociones: \Tipo{\Diccionario{\str}{struct}},
+        \\nombrePromo: \Tipo{\str}, distancia: \Tipo{\Z}, FactorCategoria: \Tipo{\R}, FactorPromo: \Tipo{\R}}
+    {\R}
+    {
+        MillasCalculadas(distancia,factorCategoria,factorPromo)-
+        \\
+        Promociones[nombrePromo].millasRestantes
+    }
+
 	
 	\vspace{0.5cm}
 	\comentario{¿puedo chequear como va la sumatoria mientras va recorriendo?}\\
@@ -337,6 +352,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		Promociones0: \Tipo{\Diccionario{\str}{struct}}}
 	{AM.Promociones = DelKey(AM.Promociones0,nombrePromo)}
 	
+	\vspace{0.5cm}
 	
 \end{tad}
 
