@@ -358,9 +358,6 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\In factorPromo: \Tipo{\R},
 	}
 	{}
-	\comentario{Discutir el tercer elemento de la lista [factorPromo,0,0].
-		NoPromo esta siempre en el sistema, no se puede pisar. Discutir si seria != noPromo o si directamente no tiene que pertenecer (podria existir y pisarse el valor?)}
-	\\
 	\requiereLargo{
 		AM = AM0 \land
 		factorPromo \geq 1 \land
@@ -379,7 +376,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 \begin{proc}{IniciarPromocionConTope}
 {
 	\Inout AM: \Tipo{Airmiles},
-	\In nombrePromo: \Tipo{\str},
+	\In nombrePromo: \Tipo{\str}, \\
 	\In factorPromo: \Tipo{\R},
 	\In TopePromo: \Tipo{\R}
 }
@@ -475,8 +472,6 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\requiere{True}
 
 		\aseguraLargo{
-            ParesDeUsuariosValidos(AM.Usuarios, res) \land_L
-            \\
             \hyperref[sec:sinRepetidos]{sinRepetidos}(res) \land_L
             \\
             \hyperref[sec:NoHayPermutacion]{NoHayPermutacion}(res) \land_L
@@ -486,7 +481,6 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
             \hyperref[sec:SonParejaExclusiva]{SonParejaExclusiva}(AM.Historial, res) \land_L
             \\
             EstanTodosLosParesExclusivos(
-                AM.Usuarios,
                 AM.Historial,
                 res
             )
