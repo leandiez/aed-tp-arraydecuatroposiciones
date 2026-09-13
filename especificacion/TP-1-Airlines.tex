@@ -464,7 +464,6 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 \end{proc}
 
 \vspace{1.cm}
-\comentario{Falta Implementar: ParesDeUsuariosValidos y EstanTodosLosParesExclusivos.}
 \phantomsection\hypertarget{sec:paresTransferidoresExclusivos}{}\label{sec:paresTransferidoresExclusivos}
 \begin{proc}{paresTransferidoresExclusivos}
 		{\In AM: Airmiles}
@@ -472,19 +471,16 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\requiere{True}
 
 		\aseguraLargo{
+			\hyperref[sec:EstanTodosLosPares]{EstanTodosLosPares}(AM.usuarios,res)
+			\\
             \hyperref[sec:sinRepetidos]{sinRepetidos}(res) \land_L
             \\
             \hyperref[sec:NoHayPermutacion]{NoHayPermutacion}(res) \land_L
             \\
             \hyperref[sec:TieneReciprocoHistorial]{TieneReciprocoHistorial}(AM.Historial, res) \land_L
             \\
-            \hyperref[sec:SonParejaExclusiva]{SonParejaExclusiva}(AM.Historial, res) \land_L
-            \\
-            EstanTodosLosParesExclusivos(
-                AM.Historial,
-                res
-            )
-        }
+            \hyperref[sec:SonParejaExclusiva]{SonParejaExclusiva}(AM.Historial, res) 
+		}
 	\end{proc}
 
 
@@ -782,7 +778,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
     \vspace{0.5cm}
     \phantomsection\hypertarget{sec:TieneReciprocoHistorial}{}\label{sec:TieneReciprocoHistorial}
     \predLargo{TieneReciprocoHistorial}{Historial: \Tipo{\seq{Transacciones}},res: \seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}
-    {\paraTodo{x}{\tupla{\Tipo{\Z},\Tipo{\Z}}}{x \in res \implica \hyperref[sec:HayReciproco]{HayReciproco}(Historial,res)}}
+    {\paraTodo{x}{\tupla{\Tipo{\Z},\Tipo{\Z}}}{x \in res \implica \hyperref[sec:HayReciproco]{HayReciproco}(Historial,x)}}
 
     \vspace{0.5cm}
     \phantomsection\hypertarget{sec:HayReciproco}{}\label{sec:HayReciproco}
@@ -806,6 +802,12 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
         \hyperref[sec:HayOtroUsuario]{HayOtroUsuario}(t1,t0,Historial))
         }
     }
+
+	\phantomsection\hypertarget{sec:EstanTodosLosPares}{}\label{sec:EstanTodosLosPares}
+	\predLargo{EstanTodosLosPares}{Usuarios: \Diccionario{id}{categoria},res}
+	{
+		\paraTodo{t}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{t0 \in claves(Usuarios) \land t1 \in claves(Usuarios) \implicaLuego t \in res }
+	}
 
     \vspace{0.5cm}
     \phantomsection\hypertarget{sec:HayOtroUsuario}{}\label{sec:HayOtroUsuario}
