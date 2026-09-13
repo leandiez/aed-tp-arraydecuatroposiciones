@@ -55,6 +55,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		UsuarioDestino: \Tipo{\Z},
 		TipoDeTransaccion: \Tipo{\Z},
 		Millas: \Tipo{\R}, \\
+		Distancia: \Tipo{\Z},
 		NombrePromo: \Tipo{\str},
 		FactorPromo: \Tipo{\R}
 	}$
@@ -67,23 +68,23 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 \begin{tad}{Airmiles}
 
 
-\comentario{Decidimos dejar en usuarios la categoria por mas que se pueda calcular por fuera, historial de transacciones cambio a un tipo Struct, y las promociones tambien cambiaron a un diccionario que adentro tiene un struct }
+\comentario{Decidimos dejar en usuarios la categoria por mas que se pueda calcular por fuera. Las promociones tienen a un diccionario que adentro tiene un struct }
 \\
-\obs{Usuarios}{\dict{id:\Tipo{\Z}}{CategoriaActual : Categoria}}
-
 \noindent \comentario{La convencion utilizada para transacciones es:
 	\\
 	1) Si se hace un vuelo, el TipoDeTransaccion es 0 y el usuario de destino es -1
 	\\
-	2) Si se hace una transferencia el TipoDeTransaccion es 1
+	2) Si se hace una transferencia el TipoDeTransaccion es 1. La distancia en este caso se pasa como 0.
 	\\
-	3) Si se hace un canjeo el TipoDeTransaccion es 2 y el usuario de destino es -1, se modifica unicamente el usuario de origen
+	3) Si se hace un canjeo el TipoDeTransaccion es 2 y el usuario de destino es -1, se modifica unicamente el usuario de origen, la distancia en este caso se pasa como 0.
 }
 \\
+\comentario{En caso de las promociones, si la promocion no tiene un tope, por convencion tomamos millasRestantes = -1.}
+\\
+\obs{Usuarios}{\dict{id:\Tipo{\Z}}{CategoriaActual : Categoria}}
+\\
 \noindent \obs{Historial}{\seq{Transacciones}}
-\\
-\comentario{En caso de las promociones, si la promocion no tiene un tope, por convencion tomamos millasRestantes = -1}
-\\
+
 \texttt{obs} Promociones : dict \{ \\
 \hspace*{1.5em} NombrePromocion: $\str$, \\
 \hspace*{1.5em} $\struct{\Tipo{FactorDePromocion} : \R,\Tipo{topeDePromocion}: \R, \Tipo{millasRestantes}: \R}$ \\
@@ -131,8 +132,8 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		% Creo el usuario
 		AM.Usuarios = SetKey(AM0.Usuarios,idUsuario, Bronce) \land
 		\\
-		\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idUsuario, -1, 0, \\
-		500,"NoPromo",1)\land
+		\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idReferidor, idUsuario, 0, \\
+		500,0,"NoPromo",1)\land
 		\\
 		AM.Promociones = AM0.Promociones
 	}
@@ -156,28 +157,38 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\\
 		AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes \geq
 		\\
-		\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM.Historial,idUsuario),
-		\\ AM.Promociones[nombrePromo].factorDePromocion) \implicaLuego
+		\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM0.Historial,idUsuario),
+		\\ AM0.Promociones[nombrePromo].factorDePromocion) 
+		\lor 
 		\\
 		\\
-		\comentario{AGREGAR EL CASO DE BAJAR EL TOPE CUANDO SE CONSUME LA PROMOCION}
+		\comentario{Si la promo no tiene tope lo manejamos a parte}
+		\\
+		AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes = -1
+		\implicaLuego
+		\\
+		\comentario{Se crea la transaccion}
 		\\
 		\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idUsuario,-1,0,
 		\\
-		\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM.Historial,idUsuario),
-		\\ AM.Promociones[nombrePromo].factorDePromocion) ,distancia, \\
+		\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM0.Historial,idUsuario),
+		\\ AM0.Promociones[nombrePromo].factorDePromocion) ,distancia, \\
 		nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \land\\
 		\\
-		AM.Promociones = setKey(AMO.Promociones, nombrePromo,\\
-		AM0.Promociones[nombrePromo].millasRestantes - \hyperref[sec:MillasCalculadas]{MillasCalculadas}\\(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM.Historial, idUsuario), \\
-		AM.Promociones[nombrePromo].factorDePromocion)
+		\comentario{Se restan las millas de la promocion unicamente para promos que no tiene tope}
+		\\
+		AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes > 0 \implicaLuego
+		\\ 
+		AM.Promociones = setKey(AM0.Promociones, nombrePromo,\\
+		AM0.Promociones[nombrePromo].millasRestantes - \hyperref[sec:MillasCalculadas]{MillasCalculadas}\\(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM0.Historial, idUsuario), \\
+		AM0.Promociones[nombrePromo].factorDePromocion)
 		\lor
 		\\
 		\\
 		AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes <
 		\\
-		\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM.Historial, idUsuario),\\
-		AM.Promociones[nombrePromo].factorDePromocion) \implica
+		\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM0.Historial, idUsuario),\\
+		AM0.Promociones[nombrePromo].factorDePromocion) \implica
 		\\
 		\\
 		\comentario{Se hace 1 transaccion con las millas restantes de promo}
@@ -192,8 +203,8 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\\
 		\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idUsuario,-1,1,
 		\\
-		millasACompletar(AM0.Promociones,nombrePromo,distancia,
-		\\\hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM0.Historial,idUsuario),
+		MillasACompletar(AM0.Promociones,"NoPromo",distancia,
+		\\\hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM0.Historial,idUsuario), 1)
 		\\distancia, "NoPromo", 1) \yLuego
 		% Luego de hacer la transaccion tengo que verificar si se modifico la categoría del usuario
 		\\
@@ -203,9 +214,11 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\\
 		AM.Usuarios = SetKey(AM0.Usuarios,idUsuario,
 		\\
-		\hyperref[sec:DarCategoria]{DarCategoria}(AM.Historial, idUsuario)) \land
+		\hyperref[sec:DarCategoria]{DarCategoria}(AM0.Historial, idUsuario)) \land
 		\\
 		\comentario{Despues de completar el viaje se verifica si la promocion termino}
+		\\
+		AM0.Promociones[nombrePromo].millasRestantes = 0 \implicaLuego
 		\\
 		\hyperref[sec:SeConsumioLaPromocion]{SeConsumioLaPromocion}(nombrePromo, AM, AM0)
 	}
@@ -242,7 +255,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\land \hyperref[sec:MillasDisponibles]{MillasDisponibles}(AM, idUsuarioPagador) \geq CantMillasTrans
 	}
 	\aseguraLargo{\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}( AM, AM0, idUsuarioPagador, idUsuarioBeneficiario
-	\\,1, CantMillasTrans, NoPromo, 1) \yLuego 
+	\\,1, CantMillasTrans,0, NoPromo, 1) \yLuego 
 		\\ \hyperref[sec:SubioCategoria]{SubioCategoria}(idUsuarioBeneficiario) \land 
 		\\
 		AM.Promociones = AM0.Promociones \land
