@@ -4,6 +4,7 @@
 \usepackage[left=2.5cm,top=3cm,right=2.5cm,bottom=3cm,bindingoffset=0.5cm]{geometry}
 \usepackage{AEDLogica, AEDEspecificacion, AEDTADs}
 \usepackage{caratula}
+\usepackage{hyperref}
 \newlength{\miSangria}
 \setlength{\miSangria}{2em}
 
@@ -269,30 +270,30 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 
 \vspace{1cm}
 \begin{proc}{RankingMillas}
-	{\In AM: Airmillas, \In n : \Tipo{\Z}}
+	{\In AM: Airmiles, \In n : \Tipo{\Z}}
 	{\Tipo{\seq{\Tipo{\Z}}}}
 	\requiereLargo{ n > 0}
 
 	\aseguraLargo{ (|AM.Usuarios| > n  \land_L |res| = n) \\ \lor (|AM.Usuarios| \leq n  \land_L |res| = |AM.Usuarios|)
 		\\ \land_L perteneceUsuarios(AM.Usuarios, res)
 		\\ \land_L sinRepetidos(res)
-		\\ \land_L ordenDecreciente(AM.Usuarios, res)
-		\\ \land_L losMejoresCandidatos(AM.Usuarios, AM.
-		Historial, res)
+		\\ \land_L ordenDecreciente(AM.HistorialDeTransacciones, res)
+		\\ \land_L losMejoresCandidato(AM.Usuarios, AM.
+		HistorialDeTransacciones, res)
 	}
 \end{proc}
 
 \vspace{0.5cm}
 \begin{proc}{ResumenTransacciones}
-	{\In AM: Airmillas, \In id : \Tipo{\Z}}
+	{\In AM: Airmiles, \In id : \Tipo{\Z}}
 	{\tupla{\Tipo{\R}, \Tipo{\R}, \Tipo{\R}}}
 	\requiereLargo{ id \in claves(AM.Usuarios)}
 
-	\aseguraLargo{ res_{0} = MillasObtenidasPorVuelo(AM.Transacciones, id) \yLuego
+	\aseguraLargo{ res_{0} = MillasObtenidasPorVuelo(AM.HistorialDeTransacciones, id) \yLuego
 		\\
-		res_{1} = MillasDescontadasPorCanjeo(AM.Transacciones, id) \yLuego
+		res_{1} = MillasDescontadasPorCanjeo(AM.HistorialDeTransacciones, id) \yLuego
 		\\
-		res_{2} = MillasTransferidas(AM.Transacciones, id, id)
+		res_{2} = MillasTransferidasDelUsuario(AM.HistorialDeTransacciones, id)
 	}
 \end{proc}
 
@@ -393,6 +394,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\In AM: \Tipo{Airmiles}
 	}
 	{\Tipo{\Z}}
+\label{sec:ElMasCanjeador}
 	\requiere{
 		\norm{AM.Usuarios} > 0 \land \norm{AM.Historial} > 0
 	}
@@ -401,26 +403,35 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 			\\
 			\land \paraTodo{id2}{\Tipo{\Z}}{id2 \in claves(AM.Usuarios) \implicaLuego
 				\\
-				MillasPerdidas(AM.Historial,res,AM.Usuarios) \ge
+				\hyperref[sec:MillasPerdidas]{MillasPerdidas}(AM.Historial,res,AM.Usuarios) \ge
 				\\
-				MillasPerdidas(AM.Historial,id2,AM.Usuarios)}}
+				\hyperref[sec:MillasPerdidas]{MillasPerdidas}(AM.Historial,id2,AM.Usuarios)}}
 	}
 \end{proc}
 
 \vspace{1.cm}
+\comentario{Falta Implementar: ParesDeUsuariosValidos y EstanTodosLosParesExclusivos.}
 \begin{proc}{paresTransferidoresExclusivos}
-		{\In Am: Airmiles}
+		{\In AM: Airmiles}
 		{\seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}
 		\requiere{True}
 
 		\aseguraLargo{
-            NoHayRepetidos(res) \land
+            ParesDeUsuariosValidos(AM.Usuarios, res) \land_L
             \\
-            NoHayPermutacion(res) \land
+            NoHayRepetidos(res) \land_L
             \\
-            TieneReciprocoHistorial(AM.Historial,res) \land
+            NoHayPermutacion(res) \land_L
             \\
-            SonParejaExclusiva(AM.Historial,res)
+            TieneReciprocoHistorial(AM.HistorialDeTransacciones, res) \land_L
+            \\
+            SonParejaExclusiva(AM.HistorialDeTransacciones, res) \land_L
+            \\
+            EstanTodosLosParesExclusivos(
+                AM.Usuarios,
+                AM.HistorialDeTransacciones,
+                res
+            )
         }
 	\end{proc}
 
@@ -687,6 +698,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	\\
 	\comentario{Deberia verificar los otros campos? Se complica...}
 }
+\label{sec:EsCanjeo}
 
 \comentario{Es similar a EsTransferencia pero aca no importa el destino, unicamente chequeo que exista el usuario de origen.}
 \\
@@ -703,6 +715,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	\\
 	\comentario{Deberia verificar los otros campos? Se complica...}
 }
+\label{sec:EsTransferenciaEnviada}
 
 \vspace{1cm}
 \auxLargo{MillasPerdidas}
@@ -710,12 +723,13 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 {\Tipo{\R}}
 {\sum\limits_{i=0}^{\norm{Historial}-1}
 	\IfThenElse
-	{EsTransferenciaEnviada(Historial[i],idUsuario,Usuarios) \lor
+	{\hyperref[sec:EsTransferenciaEnviada]{EsTransferenciaEnviada}(Historial[i],idUsuario,Usuarios) \lor
 		\\
-		EsCanjeo(Historial[i],idUsuario)}
+		\hyperref[sec:EsCanjeo]{EsCanjeo}(Historial[i],idUsuario)}
 	{Historial[i].Millas}
 	{0}
 }
+\label{sec:MillasPerdidas}
 
 \predLargo{NoHayRepetidos}{res: \Tipo{\seq{\tupla{\Z,\Z}}}}
     {
