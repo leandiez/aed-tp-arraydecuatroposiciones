@@ -133,9 +133,11 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 			AM.Promociones = AM0.Promociones
 		}
 	\end{proc}
+	\vspace{1cm}
+
 	% ===============Aca comienza la funcion de acumular millas===============
-	
-	\noindent \comentarioLargo{Acumula millas al usuario si la categoria del mismo no es platino, en caso de que el nombre de la promo no alcance para completar el viaje del usuario, se crean dos transacciones, una con las millas restantes de la promo y otra con "NoPromo" para completar el viaje. }
+	\noindent \comentario{Acumula millas al usuario si la categoria del mismo no es platino, en caso de que el nombre de la promo no alcance para completar el viaje del usuario, se crean dos transacciones, una con las millas restantes de la promo y otra con "NoPromo" para completar el viaje. }
+	\\
 	\begin{proc}{AcumularMillas}
 		{			
 			\Inout AM: \Tipo{Airmiles},
@@ -163,7 +165,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 			\\ AM.Promociones[nombrePromo].factorDePromocion) ,distancia, \\
 			nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \land\\
 			\\
-			AM.Promociones = setKey(AMO.Promociones, nombrePromo,\\
+			AM.Promociones = setKey(AM0.Promociones, nombrePromo,\\
 			AM0.Promociones[nombrePromo].millasRestantes - MillasCalculadas\\(distancia, DarFactorCategoria(AM.Historial, idUsuario), \\
 			AM.Promociones[nombrePromo].factorDePromocion)
 			\lor
@@ -234,10 +236,13 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 			\land idUsuarioPagador \neq idUsuarioBeneficiario\\
 			\land MillasDisponibles(idUsuarioPagador, AM.Historial) \geq CantMillasTrans
 		}
-		\aseguraLargo{EsNuevaTransaccion( AM, AM0, idUsuarioPagador, idUsuarioBeneficiario,1, CantMillasTrans, NoPromo, 1) \land
-			\land AM.Promociones = AM0.Promociones \\
-			\land AM.Usuarios = AM0.Usuarios
-			\land SubioCategoria(idUsuarioBeneficiario)
+		\aseguraLargo{EsNuevaTransaccion( AM, AM0, idUsuarioPagador, idUsuarioBeneficiario,1, 
+			\\CantMillasTrans, NoPromo, 1)
+			\\
+			\yLuego SubioCategoria(idUsuarioBeneficiario)
+			\\
+			AM.Promociones = AM0.Promociones\land 
+			\\ AM.Usuarios = AM0.Usuarios 
 		}
 		\noindent \comentarioLargo{Revisado}
 		
