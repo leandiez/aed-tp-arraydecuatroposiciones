@@ -262,7 +262,6 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\\
 		AM.Usuarios = AM0.Usuarios
 	}
-	\noindent \comentarioLargo{Revisado}
 
 \end{proc}
 
@@ -277,7 +276,6 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		res = \hyperref[sec:MillasDisponibles]{MillasDisponibles}(IdUsuario,AM.Historial)
 	}
 \end{proc}
-\comentario{El auxiliar MillasDisponibles es el que esta en CanjearMillas. Ver despues si reusamos ese para todo u algun otro, pero hay que unificar.}
 
 \vspace{1cm}
 \phantomsection\hypertarget{sec:ConsultarCategoria}{}\label{sec:ConsultarCategoria}
@@ -310,8 +308,6 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 
 \vspace{0.5cm}
 \phantomsection\hypertarget{sec:ResumenTransacciones}{}\label{sec:ResumenTransacciones}
-\comentario{Falta implementar el auxiliar MillasTransferidasDelUsuario.}
-\\
 \begin{proc}{ResumenTransacciones}
 	{\In AM: Airmiles, \In id : \Tipo{\Z}}
 	{\tupla{\Tipo{\R}, \Tipo{\R}, \Tipo{\R}}}
@@ -325,12 +321,14 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	}
 \end{proc}
 
+\vspace{1cm}
 \phantomsection\hypertarget{sec:MillasTransferidasYRecibidas}{}\label{sec:MillasTransferidasYRecibidas}
 \auxLargo{MillasTransferidasYRecibidas}{Historial:\Tipo{\seq{Transaccion}}, id: \Tipo{\Z}}{\Tipo{\R}}
 {
 	\sum\limits_{0}^{\norm{Historial}-1}\IfThenElse{EsTransferenciaEnviada}{-Historial[i].Millas}
 	\\{\IfThenElse{EsTransferenciaRecibida}{Historial[i].Millas}{0}}
 }
+\vspace{1cm}
 \predLargo{EsTransferenciaRecibida}
 {Transaccion: \Tipo{Transaccion}, idDestino: \Tipo{\Z}, Usuarios: \Tipo{\dict{\Z}{Categoria}}}
 {
