@@ -298,6 +298,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 \vspace{0.5cm}
 \phantomsection\hypertarget{sec:ResumenTransacciones}{}\label{sec:ResumenTransacciones}
 \comentario{Falta implementar el auxiliar MillasTransferidasDelUsuario.}
+\\
 \begin{proc}{ResumenTransacciones}
 	{\In AM: Airmiles, \In id : \Tipo{\Z}}
 	{\tupla{\Tipo{\R}, \Tipo{\R}, \Tipo{\R}}}
@@ -307,10 +308,33 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\\
 		res_{1} = \hyperref[sec:MillasDescontadasPorCanjeo]{MillasDescontadasPorCanjeo}(AM.Historial, id) \yLuego
 		\\
-		res_{2} = MillasTransferidasDelUsuario(AM.Historial, id)
+		res_{2} = MillasTransferidasYRecibidas(AM.Historial, id)
 	}
 \end{proc}
 
+\auxLargo{MillasTransferidasYRecibidas}{Historial:\Tipo{\seq{Transaccion}}, id: \Tipo{\Z}}{\Tipo{\R}}
+{
+	\IfThenElse{a}{b}{c}
+}
+\predLargo{EsTransferenciaRecibida}
+{Transaccion: \Tipo{Transaccion}, idDestino: \Tipo{\Z}, Usuarios: \Tipo{\dict{\Z}{Categoria}}}
+{
+	Transaccion.UsuarioOrigen \in claves(Usuarios) \land
+	\\
+	Transaccion.TipoDeTransaccion = 1 \land
+	\\
+	Transaccion.UsuarioDestino = idDestino
+}
+
+\predLargo{EsTransferenciaEnviada}
+	{Transaccion: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}, Usuarios: \Tipo{\dict{\Z}{Categoria}}}
+	{			
+		Transaccion.UsuarioOrigen = idOrigen \land
+		\\
+		Transaccion.TipoDeTransaccion = 1 \land
+		\\
+		Transaccion.UsuarioDestino \in claves(Usuarios) 
+	}
 
 \vspace{1cm}
 \phantomsection\hypertarget{sec:IniciarPromocion}{}\label{sec:IniciarPromocion}
@@ -406,6 +430,8 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 \end{proc}
 
 \vspace{1.0cm}
+
+
 
 \phantomsection\hypertarget{sec:ElMasCanjeador}{}\label{sec:ElMasCanjeador}
 \begin{proc}{ElMasCanjeador}
@@ -700,9 +726,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	\\
 	Transaccion.TipoDeTransaccion = 0 \land
 	\\
-	Transaccion.UsuarioDestino = -1 \land
-	\\
-	\comentario{Deberia verificar los otros campos? Se complica...}
+	Transaccion.UsuarioDestino = -1
 }
 
 \vspace{1cm}
@@ -715,11 +739,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	\\
 	Transaccion.TipoDeTransaccion = 1 \land
 	\\
-	Transaccion.UsuarioDestino = idDestino \land
-	\\
-	Transaccion.millas > 0
-	\\
-	\comentario{Deberia verificar los otros campos? Se complica...}
+	Transaccion.UsuarioDestino = idDestino
 }
 
 \vspace{1cm}
