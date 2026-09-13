@@ -95,7 +95,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\requiere{\Tipo{True}}
 		\aseguraLargo{ \norm{res.Usuarios} = 0 \land
 			\\
-			\norm{res.HistorialDeTransacciones} = 0 \land
+			\norm{res.Historial} = 0 \land
 			\\
 			res.promociones = setKey(\dict{}{},"NoPromo",\struct{1,0,-1}) }
 	\end{proc}
@@ -109,8 +109,8 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\comentario{Actualiza el diccionario de usuarios con  nuevo usuario} \\
 		\requiere{AM = AM0 \land id \notin claves(AM.Usuarios) \land id > 0}
 		\aseguraLargo{ AM.Usuarios = SetKey(AM0.Usuarios, id, Bronce) \land \\
-			AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \\
-			\land AM.Promociones = AM0.Promociones
+			AM.Historial= AM0.Historial \land \\
+			AM.Promociones = AM0.Promociones
 		}
 	\end{proc}
 	
@@ -480,7 +480,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	\predLargo{EsNuevaTransaccion}{			
 		AM,AM0 : \Tipo{AirMiles},idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}
 	}
-	{AM.HistorialTransacciones = AM0.HistorialTransacciones ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
+	{AM.Historial = AM0.Historial ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
 	{}
 	
 	\vspace{1cm}
