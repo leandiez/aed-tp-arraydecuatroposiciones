@@ -274,14 +274,14 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	
 	\vspace{1cm}
 	\begin{proc}{RankingMillas}
-		{\In AM: Airmillas, \In n : \Tipo{\Z}}
+		{\In AM: Airmiles, \In n : \Tipo{\Z}}
 		{\Tipo{\seq{\Tipo{\Z}}}}
-		\requiereLargo{ n > 0}
+		\requiere{ n > 0}
 		
 		\aseguraLargo{ (|AM.Usuarios| > n  \land_L |res| = n) \\ \lor (|AM.Usuarios| \leq n  \land_L |res| = |AM.Usuarios|)
 			\\ \land_L perteneceUsuarios(AM.Usuarios, res)
 			\\ \land_L sinRepetidos(res)
-			\\ \land_L ordenDecreciente(AM.Usuarios, res)
+			\\ \land_L ordenDecreciente(AM.Historial, res)
 			\\ \land_L losMejoresCandidatos(AM.Usuarios, AM.
 			Historial, res)
 		}
@@ -289,7 +289,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	
 	\vspace{0.5cm}
 	\begin{proc}{ResumenTransacciones}
-		{\In AM: Airmillas, \In id : \Tipo{\Z}}
+		{\In AM: Airmiles, \In id : \Tipo{\Z}}
 		{\tupla{\Tipo{\R}, \Tipo{\R}, \Tipo{\R}}}
 		\requiereLargo{ id \in claves(AM.Usuarios)}
 		
@@ -306,7 +306,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	\begin{proc}{IniciarPromocion}
 		{			
 			\Inout AM: \Tipo{Airmiles},
-			\In nombrePromo: \Tipo{\seq{char}},
+			\In nombrePromo: \Tipo{\str},
 			\In factorPromo: \Tipo{\R},
 		}
 		{}
@@ -458,7 +458,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res}-1 \implica_L \\ millasDisponibles(res[i], Historial) >= millasDisponibles(res[i + 1], Historial)}
 	}
 	\\
-	\predLargo{losMejoresCandidato}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}} {			
+	\predLargo{losMejoresCandidatos}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}} {			
 		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res} \land  res[i] \in claves(usuarios)  \implica_L  \\ elMejorCandidato(Usuarios, Historial, res, i) }
 	}
 	\\
