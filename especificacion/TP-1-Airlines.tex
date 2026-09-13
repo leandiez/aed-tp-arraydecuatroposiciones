@@ -349,7 +349,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 {}
 \requiereLargo{
 	AM = AM0 \land factorPromo \geq 1 \land nombrePromo \notin
-	claves(AM0.Promociones) \land TopePromo > 0
+	claves(AM.Promociones) \land TopePromo > 0
 }
 \aseguraLargo{
 	AM.Usuarios = AM0.Usuarios \land
@@ -378,7 +378,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	\requiereLargo{
 		AM = AM0 \land nombrePromo \neq "NoPromo" \yLuego
 		\\
-		nombrePromo \in claves(AM0.promociones)
+		nombrePromo \in claves(AM.Promociones)
 	}
 	\aseguraLargo{
 		AM.Usuarios = AM0.Usuarios \land
@@ -394,14 +394,14 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 \phantomsection\hypertarget{sec:ElQueTieneMasMillas}{}\label{sec:ElQueTieneMasMillas}
 \begin{proc}{ElQueTieneMasMillas}
 	{
-		\In AM: \Tipo{Airmiles},
+		\In AM: \Tipo{Airmiles}
 	}
 	{\Tipo{\Z}}
 	\requiere{ \norm{AM.Usuarios} > 0}
 	\aseguraLargo{
-		\existe{i}{\Tipo{\Z}}{i \in claves(AM.Usuarios) \yLuego \hyperref[sec:MillasTotales]{MillasTotales}(AM.Historial,i) = res} \land
+		\existe{i}{\Tipo{\Z}}{i \in claves(AM.Usuarios) \yLuego res = i } \land
 		\\
-		\paraTodo{j}{\Tipo{\Z}}{j \in claves(AM.Usuarios) \implicaLuego \hyperref[sec:MillasTotales]{MillasTotales}(AM.Historial,j) \leq res}
+		\paraTodo{j}{\Tipo{\Z}}{j \in claves(AM.Usuarios) \implicaLuego \hyperref[sec:MillasTotales]{MillasTotales}(res,AM.Usuarios) \geq \hyperref[sec:MillasTotales]{MillasTotales}(j,AM.Usuarios)}
 	}
 \end{proc}
 
@@ -438,7 +438,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\aseguraLargo{
             ParesDeUsuariosValidos(AM.Usuarios, res) \land_L
             \\
-            \hyperref[sec:NoHayRepetidos]{NoHayRepetidos}(res) \land_L
+            \hyperref[sec:sinRepetidos]{sinRepetidos}(res) \land_L
             \\
             \hyperref[sec:NoHayPermutacion]{NoHayPermutacion}(res) \land_L
             \\
@@ -515,7 +515,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 \noindent \comentarioLargo{Con respecto a las transacciones, deberiamos limitar esto no? cuando el usuario es platino creo que no tendria sentido crearle transferencias para que gane millas, se supone que no podria. Por el contrario si puede crear transacciones que de millas}
 \phantomsection\hypertarget{sec:EsNuevaTransaccion}{}\label{sec:EsNuevaTransaccion}
 \predLargo{EsNuevaTransaccion}{
-	AM,AM0 : \Tipo{AirMiles},idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}
+	AM,AM0 : \Tipo{AirMiles},idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, \\TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}
 }
 {AM.Historial = AM0.Historial ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
 {}
@@ -823,9 +823,9 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
     \phantomsection\hypertarget{sec:HayOtroUsuario}{}\label{sec:HayOtroUsuario}
     \predLargo{HayOtroUsuario}{t0,t1,Historial}
     {
-        \paraTodo{i}{\Tipo{\Z}}{ 0 \le i < \norm{Historial} \implicaLuego (Historial[i].UsuarioOrigen = t0 \land
+        \paraTodo{i}{\Tipo{\Z}}{ 0 \le i < \norm{Historial} \yLuego Historial[i].UsuarioOrigen = t0 \implicaLuego 
         \\ 
-        Historial[i].UsuarioDestino \neq t1)}
+        Historial[i].UsuarioDestino \neq t1}
     }
 
 
