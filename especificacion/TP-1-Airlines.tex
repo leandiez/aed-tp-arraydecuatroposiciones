@@ -80,7 +80,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	3) Si se hace un canjeo el TipoDeTransaccion es 2 y el usuario de destino es -1, se modifica unicamente el usuario de origen
 }
 \\
-\noindent \obs{HistorialDeTransacciones}{\seq{Transacciones}}
+\noindent \obs{Historial}{\seq{Transacciones}}
 \\
 \comentario{En caso de las promociones, si la promocion no tiene un tope, por convencion tomamos millasRestantes = -1}
 \\
@@ -97,7 +97,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	\requiere{\Tipo{True}}
 	\aseguraLargo{ \norm{res.Usuarios} = 0 \land
 		\\
-		\norm{res.HistorialDeTransacciones} = 0 \land
+		\norm{res.Historial} = 0 \land
 		\\
 		res.promociones = setKey(\dict{}{},"NoPromo",\struct{1,0,-1}) }
 \end{proc}
@@ -112,7 +112,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	\comentario{Actualiza el diccionario de usuarios con  nuevo usuario} \\
 	\requiere{AM = AM0 \land id \notin claves(AM.Usuarios) \land id > 0}
 	\aseguraLargo{ AM.Usuarios = SetKey(AM0.Usuarios, id, Bronce) \land \\
-		AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \\
+		AM.Historial = AM0.Historial \\
 		\land AM.Promociones = AM0.Promociones
 	}
 \end{proc}
@@ -213,17 +213,16 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 
 \vspace{1cm}
 \phantomsection\hypertarget{sec:CanjearMillas}{}\label{sec:CanjearMillas}
-\comentario{Falta implementar el predicado TransaccionCanje.}
 \begin{proc}{CanjearMillas}
 	{\Inout AM: AirMiles, \In MillasCanjeadas : \Tipo{\R}, \In IdUsuario : \Tipo{\Z}}
 	{}
-	\requiereLargo{ AM=AM_{0} \yLuego MillasCanjeadas > 0 \land IdUsuario \in claves(AM.Usuarios)}
+	\requiereLargo{ AM=AM0 \yLuego MillasCanjeadas > 0 \land IdUsuario \in claves(AM.Usuarios)}
 	\aseguraLargo{
-		\IfThenElse{ \hyperref[sec:MillasDisponibles]{MillasDisponibles}(AM_{0}.Historial, IdUsuario) \geq MillasCanjeadas}
-		\\{AM.HistorialDeTransacciones =TransaccionCanje(AM_{0}.Historial, IdUsuario,\\ MillasCanjeadas},
-			{ \\AM.Historial =  AM_{0}.Historial}) \\
-		\land AM.Usuarios = AM_{0}.Usuarios \\
-		\land AM.Promociones = AM_{0}.Promociones
+		\IfThenElse{ \hyperref[sec:MillasDisponibles]{MillasDisponibles}(IdUsuario, AM0.Historial) \geq MillasCanjeadas}
+		{\\EsNuevaTransaccion(AM,AM0,IdUsuario,-1,2,MillasCanjeadas,0,"NoPromo",1)}
+		{\\AM.Historial =  AM0.Historial} \\
+		\land AM.Usuarios = AM0.Usuarios \\
+		\land AM.Promociones = AM0.Promociones
 	}
 \end{proc}
 
@@ -242,10 +241,13 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\land idUsuarioPagador \neq idUsuarioBeneficiario\\
 		\land \hyperref[sec:MillasDisponibles]{MillasDisponibles}(AM, idUsuarioPagador) \geq CantMillasTrans
 	}
-	\aseguraLargo{\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}( AM, AM0, idUsuarioPagador, idUsuarioBeneficiario,1, CantMillasTrans, NoPromo, 1) \land
-		\land AM.Promociones = AM0.Promociones \\
-		\land AM.Usuarios = AM0.Usuarios
-		\land \hyperref[sec:SubioCategoria]{SubioCategoria}(idUsuarioBeneficiario)
+	\aseguraLargo{\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}( AM, AM0, idUsuarioPagador, idUsuarioBeneficiario
+	\\,1, CantMillasTrans, NoPromo, 1) \yLuego 
+		\\ \hyperref[sec:SubioCategoria]{SubioCategoria}(idUsuarioBeneficiario) \land 
+		\\
+		AM.Promociones = AM0.Promociones \land
+		\\
+		AM.Usuarios = AM0.Usuarios
 	}
 	\noindent \comentarioLargo{Revisado}
 
@@ -287,9 +289,9 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	\aseguraLargo{ (|AM.Usuarios| > n  \land_L |res| = n) \\ \lor (|AM.Usuarios| \leq n  \land_L |res| = |AM.Usuarios|)
 		\\ \land_L \hyperref[sec:perteneceUsuarios]{perteneceUsuarios}(AM.Usuarios, res)
 		\\ \land_L \hyperref[sec:sinRepetidos]{sinRepetidos}(res)
-		\\ \land_L \hyperref[sec:ordenDecreciente]{ordenDecreciente}(AM.HistorialDeTransacciones, res)
-		\\ \land_L \hyperref[sec:losMejoresCandidato]{losMejoresCandidato}(AM.Usuarios, AM.
-		HistorialDeTransacciones, res)
+		\\ \land_L \hyperref[sec:ordenDecreciente]{ordenDecreciente}(AM.Historial, res)
+		\\ \land_L \hyperref[sec:losMejoresCandidatos]{losMejoresCandidatos}(AM.Usuarios, AM.
+		Historial, res)
 	}
 \end{proc}
 
@@ -301,11 +303,11 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	{\tupla{\Tipo{\R}, \Tipo{\R}, \Tipo{\R}}}
 	\requiereLargo{ id \in claves(AM.Usuarios)}
 
-	\aseguraLargo{ res_{0} = \hyperref[sec:MillasObtenidasPorVuelo]{MillasObtenidasPorVuelo}(AM.HistorialDeTransacciones, id) \yLuego
+	\aseguraLargo{ res_{0} = \hyperref[sec:MillasObtenidasPorVuelo]{MillasObtenidasPorVuelo}(AM.Historial, id) \yLuego
 		\\
-		res_{1} = \hyperref[sec:MillasDescontadasPorCanjeo]{MillasDescontadasPorCanjeo}(AM.HistorialDeTransacciones, id) \yLuego
+		res_{1} = \hyperref[sec:MillasDescontadasPorCanjeo]{MillasDescontadasPorCanjeo}(AM.Historial, id) \yLuego
 		\\
-		res_{2} = MillasTransferidasDelUsuario(AM.HistorialDeTransacciones, id)
+		res_{2} = MillasTransferidasDelUsuario(AM.Historial, id)
 	}
 \end{proc}
 
@@ -352,7 +354,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 \aseguraLargo{
 	AM.Usuarios = AM0.Usuarios \land
 	\\
-	AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \land
+	AM.Historial = AM0.Historial \land
 	\\
 	AM.Promociones = SetKey(AM0.Promociones, nombrePromo,
 	\\
@@ -360,7 +362,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 }
 \end{proc}
 % Asegura{ AM.Usuarios = AM0.Usuarios  ∧ 
-% 		   AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones ∧
+% 		   AM.Historial = AM0.Historial ∧
 % 		   AM.Promociones = SetKey(AM0.Promociones, nombrePromo, [factorPromo,0,0] 		
 % 		 }
 
@@ -381,7 +383,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	\aseguraLargo{
 		AM.Usuarios = AM0.Usuarios \land
 		\\
-		AM.HistorialDeTransacciones = AM0.HistorialDeTransacciones \land
+		AM.Historial = AM0.Historial \land
 		\\
 		AM.Promociones = DelKey(AM0.Promociones, nombrePromo)
 	}
@@ -440,13 +442,13 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
             \\
             \hyperref[sec:NoHayPermutacion]{NoHayPermutacion}(res) \land_L
             \\
-            \hyperref[sec:TieneReciprocoHistorial]{TieneReciprocoHistorial}(AM.HistorialDeTransacciones, res) \land_L
+            \hyperref[sec:TieneReciprocoHistorial]{TieneReciprocoHistorial}(AM.Historial, res) \land_L
             \\
-            \hyperref[sec:SonParejaExclusiva]{SonParejaExclusiva}(AM.HistorialDeTransacciones, res) \land_L
+            \hyperref[sec:SonParejaExclusiva]{SonParejaExclusiva}(AM.Historial, res) \land_L
             \\
             EstanTodosLosParesExclusivos(
                 AM.Usuarios,
-                AM.HistorialDeTransacciones,
+                AM.Historial,
                 res
             )
         }
@@ -483,8 +485,8 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res}-1 \implica_L \\ millasDisponibles(res[i], Historial) >= millasDisponibles(res[i + 1], Historial)}
 }
 \\
-\phantomsection\hypertarget{sec:losMejoresCandidato}{}\label{sec:losMejoresCandidato}
-\predLargo{losMejoresCandidato}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}} {
+\phantomsection\hypertarget{sec:losMejoresCandidatos}{}\label{sec:losMejoresCandidatos}
+\predLargo{losMejoresCandidatos}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}} {
 	\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res} \land  res[i] \in claves(usuarios)  \implica_L  \\ \hyperref[sec:elMejorCandidato]{elMejorCandidato}(Usuarios, Historial, res, i) }
 }
 \\
@@ -515,7 +517,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 \predLargo{EsNuevaTransaccion}{
 	AM,AM0 : \Tipo{AirMiles},idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}
 }
-{AM.HistorialTransacciones = AM0.HistorialTransacciones ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
+{AM.Historial = AM0.Historial ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
 {}
 
 \vspace{1cm}
