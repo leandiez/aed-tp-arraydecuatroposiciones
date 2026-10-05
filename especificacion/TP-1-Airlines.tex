@@ -46,14 +46,16 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 
 \section{Renombres de Tipos y Estructuras}
 
-\noindent enum Categoría \textbf{ES} \{Bronce, Plata,Oro, Platino  \}
+\noindent enum Categoría \textbf{ES} \{Bronce, Plata,Oro, Platino  \} \\
+\comentario{Recordar que "Referido" se encuentra contemplado dentro de Vuelo} \\
+\noindent enum TipoTransaccion \textbf{ES} \{Vuelo, Transferencia, Canjeo\}
 
 \vspace{0.5cm}
 
 \noindent Transacciones \textbf{ES} Struct $\tupla{
 		UsuarioOrigen: \Tipo{\Z}, \\
 		UsuarioDestino: \Tipo{\Z},
-		TipoDeTransaccion: \Tipo{\Z},
+		TipoDeTransaccion: \Tipo{TipoTransaccion},
 		Millas: \Tipo{\R}, \\
 		Distancia: \Tipo{\Z},
 		NombrePromo: \Tipo{\str},
@@ -130,7 +132,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		% Creo el usuario
 		AM.Usuarios = SetKey(AM0.Usuarios,idUsuario, Bronce) \land
 		\\
-		\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idReferidor, idUsuario, 0, \\
+		\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idReferidor, idUsuario, Vuelo, \\
 		500,0,"NoPromo",1)\land
 		\\
 		AM.Promociones = AM0.Promociones
@@ -169,7 +171,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\\
 		\comentario{Se crea la transaccion}
 		\\
-		\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idUsuario,-1,0,
+		\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idUsuario,-1,Vuelo,
 		\\
 		\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM0.Historial,idUsuario),
 		\\ AM0.Promociones[nombrePromo].factorDePromocion) ,distancia, \\
@@ -193,7 +195,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\\
 		\comentario{Se hace 1 transaccion con las millas restantes de promo}
 		\\
-		\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idUsuario,-1,1,
+		\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idUsuario,-1,Vuelo,
 		\\
 		AM0.Promociones[nombrePromo].millasRestantes, distancia,
 		\\ nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \yLuego
@@ -201,7 +203,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\\
 		\comentario{Se hace otra transaccion con noPromo para completar}
 		\\
-		\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idUsuario,-1,1,
+		\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idUsuario,-1,Vuelo,
 		\\
 		MillasACompletar(AM0.Promociones,"NoPromo",distancia,
 		\\\hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM0.Historial,idUsuario), 1)
@@ -232,7 +234,8 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 	\requiereLargo{ AM=AM0 \yLuego MillasCanjeadas > 0 \land IdUsuario \in claves(AM.Usuarios)}
 	\aseguraLargo{
 		\IfThenElse{ \hyperref[sec:MillasDisponibles]{MillasDisponibles}(IdUsuario, AM0.Historial) \geq MillasCanjeadas}
-		{\\EsNuevaTransaccion(AM,AM0,IdUsuario,-1,2,MillasCanjeadas,0,"NoPromo",1)}
+		{\\EsNuevaTransaccion(AM,AM0,IdUsuario,-1,Canjeo,MillasCanjeadas \\
+		,0,"NoPromo",1)}
 		{\\AM.Historial =  AM0.Historial} \\ \land 
 		AM.Usuarios = AM0.Usuarios \\ \land 
 		AM.Promociones = AM0.Promociones
@@ -255,7 +258,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 		\hyperref[sec:MillasDisponibles]{MillasDisponibles}(AM, idUsuarioPagador) \geq CantMillasTrans
 	}
 	\aseguraLargo{\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}( AM, AM0, idUsuarioPagador, idUsuarioBeneficiario
-	\\,1, CantMillasTrans,0, NoPromo, 1) \yLuego 
+	\\,Transferencia, CantMillasTrans,0, NoPromo, 1) \yLuego 
 		\\ \hyperref[sec:SubioCategoria]{SubioCategoria}(idUsuarioBeneficiario) \land 
 		\\
 		AM.Promociones = AM0.Promociones \land
@@ -548,7 +551,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 \vspace{1cm}
 \phantomsection\hypertarget{sec:EsNuevaTransaccion}{}\label{sec:EsNuevaTransaccion}
 \predLargo{EsNuevaTransaccion}{
-	AM,AM0 : \Tipo{AirMiles},idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, \\TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}
+	AM,AM0 : \Tipo{AirMiles},idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, \\TipoDeTransaccion: \Tipo{TipoTransaccion}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, \\ FactorPromo: \Tipo{\R}
 }
 {AM.Historial = AM0.Historial ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
 {}
@@ -714,7 +717,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 {
 	Transaccion.UsuarioOrigen = idOrigen \land
 	\\
-	Transaccion.TipoDeTransaccion = 0 \land
+	Transaccion.TipoDeTransaccion = Vuelo \land
 	\\
 	Transaccion.UsuarioDestino = -1
 }
@@ -728,7 +731,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 {
 	Transaccion.UsuarioOrigen = idOrigen \land
 	\\
-	Transaccion.TipoDeTransaccion = 2 \land
+	Transaccion.TipoDeTransaccion = Canjeo \land
 	\\
 	Transaccion.UsuarioDestino = -1
 }
@@ -743,7 +746,7 @@ El presente trabajo practico es una especificacion formal para un sistema de rec
 {
 	Transaccion.UsuarioOrigen = idOrigen \land
 	\\
-	Transaccion.TipoDeTransaccion = 1 \land
+	Transaccion.TipoDeTransaccion = Transaccion \land
 	\\
 	Transaccion.UsuarioDestino \in claves(Usuarios)
 }
