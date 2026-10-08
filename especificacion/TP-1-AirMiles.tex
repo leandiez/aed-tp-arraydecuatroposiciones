@@ -64,14 +64,38 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 
 \vspace{0.5cm}
 
-\noindent Transacciones \textbf{ES} Struct $\tupla{
+\noindent TransaccionTransferencia \textbf{ES} Struct $\tupla{
 		UsuarioOrigen: \Tipo{\Z}, \\
 		UsuarioDestino: \Tipo{\Z},
+		TipoDeTransaccion: \Tipo{\Z},
+		Millas: \Tipo{\R}, \\
+		Distancia: \Tipo{\Z}
+	}$
+
+\vspace{1cm}
+\noindent TransaccionVuelo \textbf{ES} Struct $\tupla{
+		UsuarioOrigen: \Tipo{\Z},
 		TipoDeTransaccion: \Tipo{\Z},
 		Millas: \Tipo{\R}, \\
 		Distancia: \Tipo{\Z},
 		NombrePromo: \Tipo{\str},
 		FactorPromo: \Tipo{\R}
+	}$
+
+\vspace{1cm}
+\noindent TransaccionCanjeo  \textbf{ES} Struct $\tupla{
+		UsuarioOrigen: \Tipo{\Z},
+		TipoDeTransaccion: \Tipo{\Z},
+		Millas: \Tipo{\R}, \\
+		Distancia: \Tipo{\Z}
+	}$
+
+\vspace{1cm}
+\noindent TransaccionReferido  \textbf{ES} Struct $\tupla{
+		UsuarioReferidor: \Tipo{\Z},
+		UsuarioReferido: \Tipo{\Z},
+		TipoDeTransaccion: \Tipo{\Z},
+		Millas: \Tipo{\R},
 	}$
 
 \vspace{2em}
@@ -98,6 +122,8 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	\obs{Usuarios}{\dict{id:\Tipo{\Z}}{CategoriaActual : Categoria}}
 	\\
 	\noindent \obs{Historial}{\seq{Transacciones}}
+
+	\noindent \obs{HistorialNuevo}{\tupla{\seq{TransaccionTransferencia}, \seq{TransaccionVuelo},\\ \seq{TransaccionCanjeo}}}
 
 	\texttt{obs} Promociones : dict \{ \\
 	\hspace*{1.5em} NombrePromocion: $\str$, \\

@@ -133,7 +133,36 @@
 	      \end{enumerate}
 	      Corregir las transferencias enviadas que estan en acumular millas, el error es que solo se verifica 1a1 y deberia ser entre todos 
 
+	\item \textbf{Consultas/Comentarios Post Correccion}
+	\begin{enumerate}
+		\item Podemos optar por crear 4 historiales nuevos (esto no rompe la minimalidad porque la minimalidad corresponde a no observar cosas repetidas). Los historiales planteados tienen como tipo de dato una estructura que sea: \\ \\
+		obs Vuelos: Seq(TransaccionVuelo) \\
+		obs Transferencias: Seq(TransaccionTransferencia)\\
+		obs Canjeos: Seq(TransaccionCanjeo)\\
+		obs Referidos: Seq(TransaccionReferido)\\
 
+		Donde cada transaccion es un struct que tiene la informacion necesaria para cada tipo de transacción que se haga, evitando tener que poner campos con valores "hardcodeados".
+
+		obs Historial: Seq(Z)
+
+		para indicar el orden (es realmente necesario tenerlos ordenados? Porque despues de leer el tp nuevamente para mi no)
+
+		Disclaimers:
+		Para mi No se deberia modelar los observadores de arriba con un diccionario porque yo quizas si necesite tener valores repetidos (puedo repetir un mismo vuelo o transferencia) tampoco se puede unificar en un único diccionario , es por ello que no puede ser ni un conjunto ni un diccionario. Necesariamente tiene que ser una secuencia porque necesito asegurarme que pueda haber valores repetidos AUNQUE NO ME INTERESE EL ORDEN. No se elige por el orden, se elige por la multiplicidad.
+
+		Como el orden no importa, tampoco necesito un id que relacione los campos ni un observador de historial que se encargue de verificar esto. El historial como tal es una consecuencia que se observa de los anteriores 4 observadores. No da informacion nueva, se puede deducir de los anteriores observadores y no se utiliza particularmente en ningun procedimiento. Por ende para mi ponerlo es romper la minimalidad. "\textit{minimalidad no significa tener la mínima cantidad de observadores posibles sino no observar cosas redundantes."}
+	\end{enumerate}
+	\begin{enumerate}
+		\item Comentarios/Correcciones en Promociones
+		Para el observador de promociones, un único observador no basta. Modificamos el observador de promociones y lo dividimos en dos partes. Promociones con Tope y Promociones Sin Tope. Quedando entonces de esta forma: \\
+
+		obs PromocionesConTope: dict (NombrePromocion: str, struct: (FactorPromocion:R, TopeDePromocion: R, millasRestantes: R)) \\
+
+		obs PromocionesSinTope: dict(NombrePromocion: str, FactorPromocion: R)
+
+		De esta forma se evita utilizar campos "-1" cuando no es necesario y no se repite informacion.
+	\end{enumerate}
+	
 
 \end{enumerate}
 
