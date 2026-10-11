@@ -462,9 +462,8 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 				\\
 				\land \paraTodo{id2}{\Tipo{\Z}}{id2 \in claves(AM.Usuarios) \implicaLuego
 					\\
-					\hyperref[sec:MillasPerdidas]{MillasPerdidas}(AM.Historial,res,AM.Usuarios) \ge
-					\\
-					\hyperref[sec:MillasPerdidas]{MillasPerdidas}(AM.Historial,id2,AM.Usuarios)}}
+					\hyperref[sec:MillasPerdidas]{MillasPerdidas}(AM,res) \ge
+					\hyperref[sec:MillasPerdidas]{MillasPerdidas}(AM,id2)}}
 		}
 	\end{proc}
 
@@ -877,19 +876,15 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		Transaccion.UsuarioDestino \in claves(Usuarios)
 	}
 
-	\vspace{1cm}
+    \vspace{1cm}
 	\phantomsection\hypertarget{sec:MillasPerdidas}{}\label{sec:MillasPerdidas}
 	\auxLargo{MillasPerdidas}
-	{Historial: \Tipo{\seq{Transacciones},idUsuario: \Tipo{\Z},Usuarios: \Diccionario{\Tipo{\Z}}{categoria}}}
+	{AM: \Tipo{Airmiles},IdUsuario: \Tipo{\Z}}
 	{\Tipo{\R}}
-	{\sum\limits_{i=0}^{\norm{Historial}-1}
-		\IfThenElse
-		{\hyperref[sec:EsTransferenciaEnviada]{EsTransferenciaEnviada}(Historial[i],idUsuario,Usuarios) \lor
-			\\
-			\hyperref[sec:EsCanjeo]{EsCanjeo}(Historial[i],idUsuario)}
-		{Historial[i].Millas}
-		{0}
-	}
+	{
+        res = SumaTransferenciasEnviadas(AM.Transferencias,IdUsuario) +
+        \\ SumaCanjeos(AM.Canjeos,IdUsuario)
+    }
 
 	\vspace{1cm}
 	\phantomsection\hypertarget{sec:NoHayRepetidos}{}\label{sec:NoHayRepetidos}
