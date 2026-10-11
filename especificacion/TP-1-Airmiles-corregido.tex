@@ -277,6 +277,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	\end{proc}
 
 	\vspace{1cm}
+    \comentarioLargo{Aca al hacer la transferencia de millas al final entonces chequeamos la categoría o no? Porque en teoria las transferencias habiamos dicho que no modificaban las totales aunque eso no rompia la lógica, arreglamos/resolvemos eso y no chequeamos el ascenso de categoria o lo hacemos igualmente?}
 	\phantomsection\hypertarget{sec:TransferirMillas}{}\label{sec:TransferirMillas}
 	\begin{proc}{TransferirMillas}
 		{
@@ -291,13 +292,13 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			idUsuarioPagador \neq idUsuarioBeneficiario \land \\
 			\hyperref[sec:MillasDisponibles]{MillasDisponibles}(AM, idUsuarioPagador) \geq CantMillasTrans
 		}
-		\aseguraLargo{\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}( AM, AM_0, idUsuarioPagador, idUsuarioBeneficiario
-			\\,1, CantMillasTrans,0, NoPromo, 1) \yLuego
-			\\ \hyperref[sec:SubioCategoria]{SubioCategoria}(idUsuarioBeneficiario) \land
-			\\
-			AM.Promociones = AM_0.Promociones \land
-			\\
-			AM.Usuarios = AM_0.Usuarios
+		\aseguraLargo{\hyperref[sec:EsNuevaTransferencia]{EsNuevaTransferencia}( AM, AM_0, idUsuarioPagador, idUsuarioBeneficiario) \land 
+        AM.Usuarios = AM_0.Usuarios \land \\ 
+        AM.Vuelos = AM_0.Vuelos \land \\ 
+        AM.Canjeos = AM_0.Canjeos \land \\ 
+        AM.Referidos = AM_0.Referidos \land \\
+        AM.PromocionesConTope = AM_0.PromocionesConTope \land \\
+        AM.PromocionesSinTope = AM_0.PromocionesSinTope
 		}
 
 	\end{proc}
