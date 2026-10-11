@@ -62,35 +62,29 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 
 \noindent enum Categoría \textbf{ES} \{Bronce, Plata,Oro, Platino  \}
 
-\vspace{0.5cm}
-
 \noindent Transferencia \textbf{ES} Struct $\tupla{
-		UsuarioOrigen: \Tipo{\Z}, \\
+		UsuarioOrigen: \Tipo{\Z},
 		UsuarioDestino: \Tipo{\Z},
-		Millas: \Tipo{\R}, \\
+		Millas: \Tipo{\R}
 	}$
 
-\vspace{1cm}
 \noindent Vuelo \textbf{ES} Struct $\tupla{
-		UsuarioOrigen: \Tipo{\Z},
-		Millas: \Tipo{\R}, \\
+		Usuario: \Tipo{\Z},
+		Millas: \Tipo{\R},
 		Distancia: \Tipo{\Z},
-		NombrePromo: \Tipo{\str},
+		NombrePromo: \Tipo{\str}, \\
 		FactorPromo: \Tipo{\R}
 	}$
 
-\vspace{1cm}
 \noindent Canjeo  \textbf{ES} Struct $\tupla{
-		UsuarioOrigen: \Tipo{\Z},
-		Millas: \Tipo{\R}, \\
-		Distancia: \Tipo{\Z}
+		Usuario: \Tipo{\Z},
+		Millas: \Tipo{\R}
 	}$
 
-\vspace{1cm}
 \noindent Referido  \textbf{ES} Struct $\tupla{
 		UsuarioReferidor: \Tipo{\Z},
 		UsuarioReferido: \Tipo{\Z},
-		Millas: \Tipo{\R},
+		Millas: \Tipo{\R}
 	}$
 
 \vspace{2em}
@@ -140,14 +134,14 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		}
 		{}
 		\comentario{Actualiza el diccionario de usuarios con  nuevo usuario} \\
-		\requiere{AM = AM0 \land id \notin claves(AM.Usuarios) \land id > 0}
-		\aseguraLargo{ AM.Usuarios = SetKey(AM0.Usuarios, id, Bronce) \land \\
-			AM.Vuelos = AM0.Vuelos \land \\ 
-            AM.Transferencias = AM0.Transferencias \land \\
-            AM.Canjeos = AM0.Canjeos \land \\
-            AM.Referidos = AM0.Referidos \land \\
-			AM.PromocionesConTope = AM0.PromocionesConTope \land \\ 
-            AM.PromocionesSinnTope = AM0.PromocionesSinTope
+		\requiere{AM = AM_0 \land id \notin claves(AM.Usuarios) \land id > 0}
+		\aseguraLargo{ AM.Usuarios = SetKey(AM_0.Usuarios, id, Bronce) \land \\
+			AM.Vuelos = AM_0.Vuelos \land \\ 
+            AM.Transferencias = AM_0.Transferencias \land \\
+            AM.Canjeos = AM_0.Canjeos \land \\
+            AM.Referidos = AM_0.Referidos \land \\
+			AM.PromocionesConTope = AM_0.PromocionesConTope \land \\ 
+            AM.PromocionesSinnTope = AM_0.PromocionesSinTope
 		}
 	\end{proc}
 
@@ -160,15 +154,20 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			\In idUsuario: \Tipo{\Z}
 		}
 		{}
-		\requiere{AM0 = AM \land idReferidor \in claves(AM.Usuarios) \land idUsuario \notin claves(AM.Usuarios) \land idUsuario > 0}
+		\requiere{AM_0 = AM \land idReferidor \in claves(AM.Usuarios) \land idUsuario \notin claves(AM.Usuarios) \land idUsuario > 0}
 		\aseguraLargo{
 			% Creo el usuario
-			AM.Usuarios = SetKey(AM0.Usuarios,idUsuario, Bronce) \land
+			AM.Usuarios = SetKey(AM_0.Usuarios,idUsuario, Bronce) \land
 			\\
-			\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idReferidor, idUsuario, 0, \\
-			500,0,"NoPromo",1)\land
+			\hyperref[sec:EsNuevoReferido]{EsNuevoReferido}(AM,AM_0,idReferidor, idUsuario, 500) \yLuego
 			\\
-			AM.Promociones = AM0.Promociones
+            \comentario{Se chequea si despues de referir a alguien subio de Categoria} \\
+            AM.Usuarios[idReferidor] = \hyperref[sec:DarCategoria]{DarCategoria}(AM,idReferidor) \land \\
+			AM.PromocionesConTope = AM_0.PromocionesConTope \land \\ 
+            AM.PromocionesSinTope = AM_0.PromocionesSinTope \land \\
+            AM.Vuelos = AM_0.Vuelos \land \\
+            AM.Transferencias = AM_0.Transferencias \land \\
+            AM.Canjeos = AM_0.Canjeos \land \\ 
 		}
 	\end{proc}
 	% ===============Aca comienza la funcion de acumular millas===============
@@ -186,76 +185,76 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		}
 		{}
 
-		\requiere{AM = AM0 \land idUsuario \in claves(AM.Usuarios) \land nombrePromo \in claves(AM.Promociones) \land distancia > 0 }
+		\requiere{AM = AM_0 \land idUsuario \in claves(AM.Usuarios) \land nombrePromo \in claves(AM.Promociones) \land distancia > 0 }
 		\aseguraLargo{
 			\comentario{Si el tope de las millas de la promo supera la distancia se hace una sola transaccion}
 			\\
-			AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes \geq
+			AM_0.Promociones\lbrack nombrePromo \rbrack.millasRestantes \geq
 			\\
-			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM0.Historial,idUsuario),
-			\\ AM0.Promociones[nombrePromo].factorDePromocion)
+			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0.Historial,idUsuario),
+			\\ AM_0.Promociones[nombrePromo].factorDePromocion)
 			\lor
 			\\
 			\\
 			\comentario{Si la promo no tiene tope lo manejamos a parte}
 			\\
-			AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes = -1
+			AM_0.Promociones\lbrack nombrePromo \rbrack.millasRestantes = -1
 			\implicaLuego
 			\\
 			\comentario{Se crea la transaccion}
 			\\
-			\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idUsuario,-1,0,
+			\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM_0,idUsuario,-1,0,
 			\\
-			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM0.Historial,idUsuario),
-			\\ AM0.Promociones[nombrePromo].factorDePromocion) ,distancia, \\
-			nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \land\\
+			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0.Historial,idUsuario),
+			\\ AM_0.Promociones[nombrePromo].factorDePromocion) ,distancia, \\
+			nombrePromo, AM_0.Promociones[nombrePromo].FactorDePromocion) \land\\
 			\\
 			\comentario{Se restan las millas de la promocion unicamente para promos que no tiene tope}
 			\\
-			AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes > 0 \implicaLuego
+			AM_0.Promociones\lbrack nombrePromo \rbrack.millasRestantes > 0 \implicaLuego
 			\\
-			AM.Promociones = setKey(AM0.Promociones, nombrePromo,\\
-			AM0.Promociones[nombrePromo].millasRestantes - \hyperref[sec:MillasCalculadas]{MillasCalculadas}\\(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM0.Historial, idUsuario), \\
-			AM0.Promociones[nombrePromo].factorDePromocion)
+			AM.Promociones = setKey(AM_0.Promociones, nombrePromo,\\
+			AM_0.Promociones[nombrePromo].millasRestantes - \hyperref[sec:MillasCalculadas]{MillasCalculadas}\\(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0.Historial, idUsuario), \\
+			AM_0.Promociones[nombrePromo].factorDePromocion)
 			\lor
 			\\
 			\\
-			AM0.Promociones\lbrack nombrePromo \rbrack.millasRestantes <
+			AM_0.Promociones\lbrack nombrePromo \rbrack.millasRestantes <
 			\\
-			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM0.Historial, idUsuario),\\
-			AM0.Promociones[nombrePromo].factorDePromocion) \implica
+			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0.Historial, idUsuario),\\
+			AM_0.Promociones[nombrePromo].factorDePromocion) \implica
 			\\
 			\\
 			\comentario{Se hace 1 transaccion con las millas restantes de promo}
 			\\
-			\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idUsuario,-1,1,
+			\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM_0,idUsuario,-1,1,
 			\\
-			AM0.Promociones[nombrePromo].millasRestantes, distancia,
-			\\ nombrePromo, AM0.Promociones[nombrePromo].FactorDePromocion) \yLuego
+			AM_0.Promociones[nombrePromo].millasRestantes, distancia,
+			\\ nombrePromo, AM_0.Promociones[nombrePromo].FactorDePromocion) \yLuego
 			\\
 			\\
 			\comentario{Se hace otra transaccion con noPromo para completar}
 			\\
-			\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM0,idUsuario,-1,1,
+			\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM_0,idUsuario,-1,1,
 			\\
-			MillasACompletar(AM0.Promociones,"NoPromo",distancia,
-			\\\hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM0.Historial,idUsuario), 1)
+			MillasACompletar(AM_0.Promociones,"NoPromo",distancia,
+			\\\hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0.Historial,idUsuario), 1)
 			\\distancia, "NoPromo", 1) \yLuego
 			% Luego de hacer la transaccion tengo que verificar si se modifico la categoría del usuario
 			\\
 			\comentario{Se puede indefinir si no le pasamos un usuario que este en el sistema}
 			\\
-			\hyperref[sec:SubioCategoria]{SubioCategoria}(idUsuario,AM.Historial,AM0.Historial) \implicaLuego
+			\hyperref[sec:SubioCategoria]{SubioCategoria}(idUsuario,AM.Historial,AM_0.Historial) \implicaLuego
 			\\
-			AM.Usuarios = SetKey(AM0.Usuarios,idUsuario,
+			AM.Usuarios = SetKey(AM_0.Usuarios,idUsuario,
 			\\
-			\hyperref[sec:DarCategoria]{DarCategoria}(AM0.Historial, idUsuario)) \land
+			\hyperref[sec:DarCategoria]{DarCategoria}(AM_0.Historial, idUsuario)) \land
 			\\
 			\comentario{Despues de completar el viaje se verifica si la promocion termino}
 			\\
-			AM0.Promociones[nombrePromo].millasRestantes = 0 \implicaLuego
+			AM_0.Promociones[nombrePromo].millasRestantes = 0 \implicaLuego
 			\\
-			\hyperref[sec:SeConsumioLaPromocion]{SeConsumioLaPromocion}(nombrePromo, AM, AM0)
+			\hyperref[sec:SeConsumioLaPromocion]{SeConsumioLaPromocion}(nombrePromo, AM, AM_0)
 		}
 	\end{proc}
 
@@ -264,13 +263,13 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	\begin{proc}{CanjearMillas}
 		{\Inout AM: AirMiles, \In MillasCanjeadas : \Tipo{\R}, \In IdUsuario : \Tipo{\Z}}
 		{}
-		\requiereLargo{ AM=AM0 \yLuego MillasCanjeadas > 0 \land IdUsuario \in claves(AM.Usuarios)}
+		\requiereLargo{ AM=AM_0 \yLuego MillasCanjeadas > 0 \land IdUsuario \in claves(AM.Usuarios)}
 		\aseguraLargo{
-			\IfThenElse{ \hyperref[sec:MillasDisponibles]{MillasDisponibles}(IdUsuario, AM0.Historial) \geq MillasCanjeadas}
-			{\\EsNuevaTransaccion(AM,AM0,IdUsuario,-1,2,MillasCanjeadas,0,"NoPromo",1)}
-			{\\AM.Historial =  AM0.Historial} \\ \land
-			AM.Usuarios = AM0.Usuarios \\ \land
-			AM.Promociones = AM0.Promociones
+			\IfThenElse{ \hyperref[sec:MillasDisponibles]{MillasDisponibles}(IdUsuario, AM_0.Historial) \geq MillasCanjeadas}
+			{\\EsNuevaTransaccion(AM,AM_0,IdUsuario,-1,2,MillasCanjeadas,0,"NoPromo",1)}
+			{\\AM.Historial =  AM_0.Historial} \\ \land
+			AM.Usuarios = AM_0.Usuarios \\ \land
+			AM.Promociones = AM_0.Promociones
 		}
 	\end{proc}
 
@@ -284,18 +283,18 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			\In CantMillasTrans: \Tipo{\R}
 		}
 		{}
-		\requiereLargo{AM0 = AM \land idUsuarioPagador \in claves(AM.usuarios)\\
+		\requiereLargo{AM_0 = AM \land idUsuarioPagador \in claves(AM.usuarios)\\
 			idUsuarioBeneficiario \in claves(AM.usuarios) \land \\
 			idUsuarioPagador \neq idUsuarioBeneficiario \land \\
 			\hyperref[sec:MillasDisponibles]{MillasDisponibles}(AM, idUsuarioPagador) \geq CantMillasTrans
 		}
-		\aseguraLargo{\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}( AM, AM0, idUsuarioPagador, idUsuarioBeneficiario
+		\aseguraLargo{\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}( AM, AM_0, idUsuarioPagador, idUsuarioBeneficiario
 			\\,1, CantMillasTrans,0, NoPromo, 1) \yLuego
 			\\ \hyperref[sec:SubioCategoria]{SubioCategoria}(idUsuarioBeneficiario) \land
 			\\
-			AM.Promociones = AM0.Promociones \land
+			AM.Promociones = AM_0.Promociones \land
 			\\
-			AM.Usuarios = AM0.Usuarios
+			AM.Usuarios = AM_0.Usuarios
 		}
 
 	\end{proc}
@@ -374,6 +373,38 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		Transaccion.UsuarioDestino = idDestino
 	}
 
+    \vspace{0.5cm}
+    \phantomsection\hypertarget{sec:EsNuevoReferido}{}\label{sec:EsNuevoReferido}
+    \predLargo{EsNuevoReferido}
+	{AM: \Tipo{Airmiles}, AM_0: \Tipo{Airmiles}, idReferidor: \Tipo{\Z}, idReferido: \Tipo{\Z}, Millas: \Tipo{\Z}}
+	{
+		AM.Referidos = AM_0.Referidos ++ [idReferidor,idReferido,Millas]
+	}
+
+    \vspace{0.5cm}
+    \phantomsection\hypertarget{sec:EsNuevoVuelo}{}\label{sec:EsNuevoVuelo}
+    \predLargo{EsNuevoVuelo}
+	{AM: \Tipo{Airmiles}, AM_0: \Tipo{Airmiles}, IdUsuario: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\Z}}
+	{
+		AM.Vuelos = AM_0.Vuelos ++ [IdUsuario,Millas,distancia,NombrePromo,FactorPromo]
+	}
+
+    \vspace{0.5cm}
+    \phantomsection\hypertarget{sec:EsNuevoCanjeo}{}\label{sec:EsNuevoCanjeo}
+    \predLargo{EsNuevoCanjeo}
+	{AM: \Tipo{Airmiles}, AM_0: \Tipo{Airmiles}, IdUsuario: \Tipo{\Z}, Millas: \Tipo{\R}}
+	{
+		AM.Canjeo = AM_0.Canjeo ++ [IdUsuario,Millas]
+	}
+
+    \vspace{0.5cm}
+    \phantomsection\hypertarget{sec:EsNuevaTransferencia}{}\label{sec:EsNuevaTransferencia}
+    \predLargo{EsNuevaTransferencia}
+	{AM: \Tipo{Airmiles}, AM_0: \Tipo{Airmiles}, IdUsuarioOrigen: \Tipo{\Z} \\, IdUsuarioDestino: \Tipo{\Z}, Millas: \Tipo{\R}}
+	{
+		AM.Transferencias = AM_0.Transferencias ++ [IdUsuarioOrigen, \\IdUsuarioDestino,Millas]
+	}
+
 	\predLargo{EsTransferenciaEnviada}
 	{Transaccion: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}, Usuarios: \Tipo{\dict{\Z}{Categoria}}}
 	{
@@ -394,15 +425,15 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		}
 		{}
 		\requiereLargo{
-			AM = AM0 \land
+			AM = AM_0 \land
 			factorPromo \geq 1 \land
-			nombrePromo \notin claves(AM0.Promociones)}
+			nombrePromo \notin claves(AM_0.Promociones)}
 		\aseguraLargo{
-			AM.Usuarios = AM0.Usuarios \land
+			AM.Usuarios = AM_0.Usuarios \land
 			\\
-			AM.Historial = AM0.Historial \land
+			AM.Historial = AM_0.Historial \land
 			\\
-			AM.Promociones = SetKey(AM0.Promociones, nombrePromo, \struct{factorPromo,0,-1})
+			AM.Promociones = SetKey(AM_0.Promociones, nombrePromo, \struct{factorPromo,0,-1})
 		}
 	\end{proc}
 	\vspace{1.0cm}
@@ -417,22 +448,22 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		}
 		{}
 		\requiereLargo{
-			AM = AM0 \land factorPromo \geq 1 \land nombrePromo \notin
+			AM = AM_0 \land factorPromo \geq 1 \land nombrePromo \notin
 			claves(AM.Promociones) \land TopePromo > 0
 		}
 		\aseguraLargo{
-			AM.Usuarios = AM0.Usuarios \land
+			AM.Usuarios = AM_0.Usuarios \land
 			\\
-			AM.Historial = AM0.Historial \land
+			AM.Historial = AM_0.Historial \land
 			\\
-			AM.Promociones = SetKey(AM0.Promociones, nombrePromo,
+			AM.Promociones = SetKey(AM_0.Promociones, nombrePromo,
 			\\
 			\struct{factorPromo,topePromo,topePromo})
 		}
 	\end{proc}
-	% Asegura{ AM.Usuarios = AM0.Usuarios  ∧ 
-	% 		   AM.Historial = AM0.Historial ∧
-	% 		   AM.Promociones = SetKey(AM0.Promociones, nombrePromo, [factorPromo,0,0] 		
+	% Asegura{ AM.Usuarios = AM_0.Usuarios  ∧ 
+	% 		   AM.Historial = AM_0.Historial ∧
+	% 		   AM.Promociones = SetKey(AM_0.Promociones, nombrePromo, [factorPromo,0,0] 		
 	% 		 }
 
 	\vspace{1.0cm}
@@ -445,16 +476,16 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		}
 		{}
 		\requiereLargo{
-			AM = AM0 \land nombrePromo \neq "NoPromo" \yLuego
+			AM = AM_0 \land nombrePromo \neq "NoPromo" \yLuego
 			\\
 			nombrePromo \in claves(AM.Promociones)
 		}
 		\aseguraLargo{
-			AM.Usuarios = AM0.Usuarios \land
+			AM.Usuarios = AM_0.Usuarios \land
 			\\
-			AM.Historial = AM0.Historial \land
+			AM.Historial = AM_0.Historial \land
 			\\
-			AM.Promociones = DelKey(AM0.Promociones, nombrePromo)
+			AM.Promociones = DelKey(AM_0.Promociones, nombrePromo)
 		}
 	\end{proc}
 
@@ -583,9 +614,9 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	\vspace{1cm}
 	\phantomsection\hypertarget{sec:EsNuevaTransaccion}{}\label{sec:EsNuevaTransaccion}
 	\predLargo{EsNuevaTransaccion}{
-		AM,AM0 : \Tipo{AirMiles},idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, \\TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}
+		AM,AM_0 : \Tipo{AirMiles},idUsuario: \Tipo{\Z}, idReferidor: \Tipo{\Z}, \\TipoDeTransaccion: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}
 	}
-	{AM.Historial = AM0.Historial ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
+	{AM.Historial = AM_0.Historial ++ \lbrack \tupla{idUsuario, idReferidor, \\ TipoDeTransaccion, Millas,NombrePromo, FactorPromo} \rbrack}
 	{}
 
 	\vspace{1cm}
@@ -595,19 +626,19 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	{\Tipo{\R}}
 	{
 		\IfThenElse{
-			\hyperref[sec:MillasTotales]{MillasTotales}(Historial, idUsuario) < 10000
+			\hyperref[sec:MillasTotales]{MillasTotales}(AM, idUsuario) < 10000
 		}{
 			1.0
 			\\
 		}{
 			\IfThenElse{
-				\hyperref[sec:MillasTotales]{MillasTotales}(Historial, idUsuario) < 50000
+				\hyperref[sec:MillasTotales]{MillasTotales}(AM, idUsuario) < 50000
 			}{
 				1.5
 				\\
 			}{
 				\IfThenElse{
-					\hyperref[sec:MillasTotales]{MillasTotales}(Historial, idUsuario) < 1000000
+					\hyperref[sec:MillasTotales]{MillasTotales}(AM, idUsuario) < 1000000
 				}{
 					2.0
 				}{
@@ -620,23 +651,23 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	\vspace{0.5cm}
 	\phantomsection\hypertarget{sec:DarCategoria}{}\label{sec:DarCategoria}
 	\auxLargo{DarCategoria}
-	{Historial: \Tipo{\seq{Transacciones}}, idUsuario: \Tipo{\Z}}
+	{AM: \Tipo{Airmiles}, idUsuario: \Tipo{\Z}}
 	{\Tipo{Categoria}}
 	{
 		\IfThenElse{
-			\hyperref[sec:MillasTotales]{MillasTotales}(Historial, idUsuario) < 10000
+			\hyperref[sec:MillasTotales]{MillasTotales}(AM, idUsuario) < 10000
 		}{
 			Bronce
 			\\
 		}{
 			\IfThenElse{
-				\hyperref[sec:MillasTotales]{MillasTotales}(Historial, idUsuario) < 50000
+				\hyperref[sec:MillasTotales]{MillasTotales}(AM, idUsuario) < 50000
 			}{
 				Plata
 				\\
 			}{
 				\IfThenElse{
-					\hyperref[sec:MillasTotales]{MillasTotales}(Historial, idUsuario) < 1000000
+					\hyperref[sec:MillasTotales]{MillasTotales}(AM, idUsuario) < 1000000
 				}{
 					Oro
 				}{
@@ -663,26 +694,75 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		Promociones[nombrePromo].millasRestantes
 	}
 
+    \vspace{0.5cm}
+    \auxLargo{SumaVuelos}
+    {Vuelos: \seq{Vuelo}, Usuario: \Tipo{\Z}}
+    {\Tipo{\Z}}
+    {\sum\limits_{i=0}^{\norm{Vuelos}-1} 
+    \IfThenElse{Usuario = Vuelos[i].Usuario}{Vuelos[i].Millas}{0}}
 
-	\vspace{0.5cm}
-	\phantomsection\hypertarget{sec:MillasTotales}{}\label{sec:MillasTotales}
+    \vspace{0.5cm}
+    \noindent \comentario{Dado un usuario verifico las transferencias que recibio} \\
+    \auxLargo{SumaTransferenciasRecibidas}
+    {Transferencias: \seq{Transferencia}, IdUsuario: \Tipo{\Z}}
+    {\Tipo{\Z}}
+    {\sum\limits_{i=0}^{\norm{Transferencias}-1} 
+    \IfThenElse{IdUsuario = Transferencias.UsuarioDestino \\}
+    {Transferencias[i].Millas}
+    {0}}
+
+    \vspace{0.5cm}
+    \noindent \comentario{Dado un usuario verifico las transferencias que envió} \\
+    \auxLargo{SumaTransferenciasEnviadas}
+    {Transferencias: \seq{Transferencia}, IdUsuario: \Tipo{\Z}}
+    {\Tipo{\Z}}
+    {\sum\limits_{i=0}^{\norm{Transferencias}-1} 
+    \IfThenElse{IdUsuario = Transferencias.UsuarioOrigen \\}
+    {Transferencias[i].Millas}
+    {0}}
+
+    \vspace{0.5cm}
+    \noindent \comentario{Dado un usuario verifico las transferencias que recibió} \\
+    \auxLargo{SumaCanjeos}
+    {Canjeos: \seq{Canjeo}, IdUsuario: \Tipo{\Z}}
+    {\Tipo{\Z}}
+    {\sum\limits_{i=0}^{\norm{Canjeos}-1} 
+    \IfThenElse{IdUsuario = Canjeos.Usuario}
+    {Canjeos[i].Millas}
+    {0}}
+
+    \vspace{0.5cm}
+    \noindent \comentario{Verifica que el usuario pertenezca a alguno de los campos de referidos y suma las millas} \\
+    \auxLargo{SumaReferidos}
+    {Referidos: \seq{Referido}, IdUsuario: \Tipo{\Z}}
+    {\Tipo{\Z}}
+    {\sum\limits_{i=0}^{\norm{Referidos}-1} 
+    \IfThenElse{IdUsuario = Referidos.UsuarioReferidor \lor IdUsuario = Referidos.UsuarioReferido}
+    {Referidos[i].Millas}
+    {0}}
+
+    \vspace{0.5cm}
+    \phantomsection\hypertarget{sec:MillasTotales}{}\label{sec:MillasTotales}
+    \noindent \comentario{Aca se suman todas las transacciones que recibe el usuario, y tambien a todos los que recibio y tambien si fue referido} \\
 	\auxLargo{MillasTotales}
-	{IdUsuario : \Tipo{\Z}, Historial : \seq{Transacciones}}
+	{AM : \Tipo{Airmiles}, IdUsuario : \Tipo{\Z}}
 	{\Tipo{\Z}}
-	{res = \sum\limits_{i=0}^{\lvert Historial \rvert - 1} \IfThenElse{\hyperref[sec:EsTransaccionDelUsuario]{EsTransaccionDelUsuario}(Historial[i], IdUsuario \land \hyperref[sec:EsTransaccionSumadora]{EsTransaccionSumadora}(Historial[i], IdUsuario))}{Historial[i].Millas}{0}}
+	{res = SumaVuelos(AM.Vuelos,IdUsuario) + \\ 
+           SumaTransferenciasRecibidas(AM.Transferencias, IdUsuario) + \\ 
+           SumaReferidos(AM.Referidos,IdUsuario)}
 
-
-
-	\vspace{0.5cm}
-	\noindent \comentario{Auxiliar para obtener las millas disponibles de un usuario. Recorre el historial de transacciones y de acuerdo al TipoDeTransaccion, al IdUsuario y las Millas del registro, suma o resta con un acumulador.}
-	\\
-	\phantomsection\hypertarget{sec:MillasDisponibles}{}\label{sec:MillasDisponibles}
-	\\
+    \vspace{0.5cm}
+    \phantomsection\hypertarget{sec:MillasDisponibles}{}\label{sec:MillasDisponibles}
+    \noindent \comentario{Se suma todo lo disponibles y tambien se restan los canjeos y transferencias que le hizo a otros} \\
 	\auxLargo{MillasDisponibles}
-	{IdUsuario : \Tipo{\Z}, Historial : \seq{Transacciones}}
+	{AM : \Tipo{Airmiles}, IdUsuario : \Tipo{\Z}}
 	{\Tipo{\Z}}
-	{res = \sum\limits_{i=0}^{\lvert Historial \rvert - 1} \IfThenElse{\hyperref[sec:EsTransaccionDelUsuario]{EsTransaccionDelUsuario}(Historial[i], IdUsuario)}{\\\IfThenElse{\hyperref[sec:EsTransaccionSumadora]{EsTransaccionSumadora}(Historial[i], IdUsuario)\\}{Historial[i].Millas}{-Historial[i].Millas}}{0}}
-
+	{res = SumaVuelos(AM.Vuelos,IdUsuario) + \\ 
+           SumaTransferenciasRecibidas(AM.Transferencias,IdUsuario) + \\
+           SumaReferidos(AM.Referidos,IdUsuario) - \\
+           SumaCanjeos(AM.Canjeos,IdUsuario) - \\
+           SumaTransferenciasEnviadas(AM.Transferencias, IdUsuario)
+    }
 
 	\vspace{1.0cm}
 	\phantomsection\hypertarget{sec:EsTransaccionSumadora}{}\label{sec:EsTransaccionSumadora}
@@ -702,9 +782,9 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	{
 		nombrePromo: \Tipo{\str},
 		AM: Airmiles
-		AM0: Airmiles
+		AM_0: Airmiles
 	}
-	{AM.Promociones = DelKey(AM0.Promociones,nombrePromo)}
+	{AM.Promociones = DelKey(AM_0.Promociones,nombrePromo)}
 
 	\vspace{0.5cm}
 
