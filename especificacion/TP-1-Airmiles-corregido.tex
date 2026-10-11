@@ -179,53 +179,49 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			\Inout AM: \Tipo{Airmiles},
 			\In idUsuario: \Tipo{\Z},
 			\In distancia: \Tipo{\R},
-			\In nombrePromo: \Tipo{\str},
+			\In nombrePromo: \Tipo{\str}
 		}
 		{}
 
-		\requiere{AM = AM_0 \land idUsuario \in claves(AM.Usuarios) \land nombrePromo \in claves(AM.Promociones) \land distancia > 0 }
+		\requiere{AM = AM_0 \land idUsuario \in claves(AM.Usuarios) \land nombrePromo \in claves(AM.PromocionesConTope) \land distancia > 0 }
 		\aseguraLargo{
 			\comentario{Si el tope de las millas de la promo supera la distancia se hace una sola transaccion}
 			\\
-			AM_0.Promociones\lbrack nombrePromo \rbrack.millasRestantes \geq
+			AM_0.PromocionesConTope\lbrack nombrePromo \rbrack.millasRestantes \geq
 			\\
-			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0.Historial,idUsuario),
-			\\ AM_0.Promociones[nombrePromo].factorDePromocion)
-			\lor
+			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0,idUsuario),
+			\\ AM_0.PromocionesConTope[nombrePromo].FactorPromocion) \implicaLuego \\
+            \comentario{Se crea un vuelo y se actualizan las millas de la promo} \\
+            \hyperref[sec:EsNuevoVuelo]{EsNuevoVuelo}(AM,AM_0,idUsuario,
 			\\
+			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0,idUsuario),distancia,
+            \\NombrePromo,AM_0.PromocionesConTope[nombrePromo].FactorPromocion)) \land 
+            \\
+            ActualizaMillasRestantesDePromo(AM,AM0,NombrePromo)
+			\lor \\
+            \comentario{Si la promo no tiene tope se hace el vuelo únicamente} 
+            \\
+            nombrePromo \in AM_0.PromocionesSinTope \implicaLuego
 			\\
-			\comentario{Si la promo no tiene tope lo manejamos a parte}
+            \hyperref[sec:EsNuevoVuelo]{EsNuevoVuelo}(AM,AM_0,idUsuario,
 			\\
-			AM_0.Promociones\lbrack nombrePromo \rbrack.millasRestantes = -1
-			\implicaLuego
-			\\
-			\comentario{Se crea la transaccion}
-			\\
-			\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM_0,idUsuario,-1,0,
-			\\
-			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0.Historial,idUsuario),
-			\\ AM_0.Promociones[nombrePromo].factorDePromocion) ,distancia, \\
-			nombrePromo, AM_0.Promociones[nombrePromo].FactorDePromocion) \land\\
-			\\
-			\comentario{Se restan las millas de la promocion unicamente para promos que no tiene tope}
-			\\
-			AM_0.Promociones\lbrack nombrePromo \rbrack.millasRestantes > 0 \implicaLuego
-			\\
+			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0,idUsuario),distancia,
+            \\NombrePromo,PromocionesConTope[nombrePromo].FactorPromocion)) \land
+            \\
 			AM.Promociones = setKey(AM_0.Promociones, nombrePromo,\\
-			AM_0.Promociones[nombrePromo].millasRestantes - \hyperref[sec:MillasCalculadas]{MillasCalculadas}\\(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0.Historial, idUsuario), \\
-			AM_0.Promociones[nombrePromo].factorDePromocion)
+			AM_0.Promociones[nombrePromo].millasRestantes - \hyperref[sec:MillasCalculadas]{MillasCalculadas}\\(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0.Historial, idUsuario)))
 			\lor
 			\\
 			\\
-			AM_0.Promociones\lbrack nombrePromo \rbrack.millasRestantes <
+			AM_0.PromocionesConTope\lbrack nombrePromo \rbrack.millasRestantes <
 			\\
 			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0.Historial, idUsuario),\\
-			AM_0.Promociones[nombrePromo].factorDePromocion) \implica
+			AM_0.Promociones[nombrePromo].factorDePromocion) \implicaLuego
 			\\
 			\\
 			\comentario{Se hace 1 transaccion con las millas restantes de promo}
 			\\
-			\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM_0,idUsuario,-1,1,
+			\hyperref[sec:EsNuevoVuelo]{EsNuevoVuelo}(AM,AM_0,idUsuario,
 			\\
 			AM_0.Promociones[nombrePromo].millasRestantes, distancia,
 			\\ nombrePromo, AM_0.Promociones[nombrePromo].FactorDePromocion) \yLuego
@@ -636,7 +632,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	\vspace{1cm}
 	\phantomsection\hypertarget{sec:DarFactorCategoria}{}\label{sec:DarFactorCategoria}
 	\auxLargo{DarFactorCategoria}
-	{Historial: \Tipo{\seq{Transacciones}}, idUsuario: \Tipo{\Z}}
+	{AM: \Tipo{Airmiles}, idUsuario: \Tipo{\Z}}
 	{\Tipo{\R}}
 	{
 		\IfThenElse{
@@ -766,9 +762,11 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	\auxLargo{MillasTotales}
 	{AM : \Tipo{Airmiles}, IdUsuario : \Tipo{\Z}}
 	{\Tipo{\Z}}
-	{res = SumaVuelos(AM.Vuelos,IdUsuario) + \\ 
-           SumaTransferenciasRecibidas(AM.Transferencias, IdUsuario) + \\ 
-           SumaReferidos(AM.Referidos,IdUsuario)}
+	{
+     SumaVuelos(AM.Vuelos,IdUsuario) + \\ 
+     SumaTransferenciasRecibidas(AM.Transferencias, IdUsuario) + \\ 
+     SumaReferidos(AM.Referidos,IdUsuario)
+    }
 
     \vspace{0.5cm}
     \phantomsection\hypertarget{sec:MillasDisponibles}{}\label{sec:MillasDisponibles}
@@ -776,11 +774,12 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	\auxLargo{MillasDisponibles}
 	{AM : \Tipo{Airmiles}, IdUsuario : \Tipo{\Z}}
 	{\Tipo{\Z}}
-	{res = SumaVuelos(AM.Vuelos,IdUsuario) + \\ 
-           SumaTransferenciasRecibidas(AM.Transferencias,IdUsuario) + \\
-           SumaReferidos(AM.Referidos,IdUsuario) - \\
-           SumaCanjeos(AM.Canjeos,IdUsuario) - \\
-           SumaTransferenciasEnviadas(AM.Transferencias, IdUsuario)
+	{
+        SumaVuelos(AM.Vuelos,IdUsuario) + \\ 
+        SumaTransferenciasRecibidas(AM.Transferencias,IdUsuario) + \\
+        SumaReferidos(AM.Referidos,IdUsuario) - \\
+        SumaCanjeos(AM.Canjeos,IdUsuario) - \\
+        SumaTransferenciasEnviadas(AM.Transferencias, IdUsuario)
     }
 
 	\vspace{1.0cm}
