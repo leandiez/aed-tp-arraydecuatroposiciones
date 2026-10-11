@@ -361,7 +361,8 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			nombrePromo \notin claves(AM_0.PromocionesSinTope)}
 		\aseguraLargo{
             AM.PromocionesSinTope = SetKey(AM_0.PromocionesSinTope,\\ nombrePromo, FactorPromo) \land \\
-            AM.Usuarios = AM_0.Usuarios \land \\ 
+            AM.Usuarios = AM_0.Usuarios \land \\
+            AM.Transferencias = AM_0.Usuarios \land \\ 
             AM.Vuelos = AM_0.Vuelos \land \\ 
             AM.Canjeos = AM_0.Canjeos \land \\ 
             AM.Referidos = AM_0.Referidos \land \\
@@ -380,17 +381,21 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		}
 		{}
 		\requiereLargo{
-			AM = AM_0 \land factorPromo \geq 1 \land nombrePromo \notin
-			claves(AM.Promociones) \land TopePromo > 0
+			AM = AM_0 \land factorPromo \geq 1 \land
+            \\ 
+            nombrePromo \notin
+			claves(AM.PromocionesConTope) \land TopePromo > 0
 		}
 		\aseguraLargo{
-			AM.Usuarios = AM_0.Usuarios \land
+			AM.PromocionesConTope = SetKey(AM_0.PromocionesConTope, nombrePromo,
 			\\
-			AM.Historial = AM_0.Historial \land
-			\\
-			AM.Promociones = SetKey(AM_0.Promociones, nombrePromo,
-			\\
-			\struct{factorPromo,topePromo,topePromo})
+			\struct{factorPromo,topePromo,topePromo}) \land
+            AM.Usuarios = AM_0.Usuarios \land \\
+            AM.Vuelos = AM_0.Vuelos \land \\ 
+            AM.Transferencias = AM_0.Usuarios \land \\  
+            AM.Canjeos = AM_0.Canjeos \land \\ 
+            AM.Referidos = AM_0.Referidos \land \\
+            AM.PromocionesSinTope = AM_0.PromocionesSinTope	
 		}
 	\end{proc}
 	% Asegura{ AM.Usuarios = AM_0.Usuarios  ∧ 
