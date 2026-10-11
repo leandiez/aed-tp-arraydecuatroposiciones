@@ -335,7 +335,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		{\Tipo{\seq{\Tipo{\Z}}}}
 		\requiere{ n > 0}
 
-		\aseguraLargo{ (|AM.Usuarios| > n  \land_L |res| = n) \\ \lor (|AM.Usuarios| \leq n  \land_L |res| = |AM.Usuarios|) \yLuego
+		\aseguraLargo{ (|AM.Usuarios| > n  \land |res| = n) \\ \lor (|AM.Usuarios| \leq n  \land |res| = |AM.Usuarios|) \yLuego
 			\\ \hyperref[sec:perteneceUsuarios]{perteneceUsuarios}(AM.Usuarios, res) \land
 			\\ \hyperref[sec:sinRepetidos]{sinRepetidos}(res) \land
 			\\ \hyperref[sec:ordenDecreciente]{ordenDecreciente}(AM.Historial, res) \land
@@ -344,100 +344,28 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		}
 	\end{proc}
 
-	\vspace{0.5cm}
-	\phantomsection\hypertarget{sec:ResumenTransacciones}{}\label{sec:ResumenTransacciones}
-	\begin{proc}{ResumenTransacciones}
-		{\In AM: Airmiles, \In id : \Tipo{\Z}}
-		{\tupla{\Tipo{\R}, \Tipo{\R}, \Tipo{\R}}}
-		\requiere{ id \in claves(AM.Usuarios)}
-
-		\aseguraLargo{ res_{0} = \hyperref[sec:MillasObtenidasPorVuelo]{MillasObtenidasPorVuelo}(AM.Historial, id) \land
-			\\
-			res_{1} = \hyperref[sec:MillasDescontadasPorCanjeo]{MillasDescontadasPorCanjeo}(AM.Historial, id) \land
-			\\
-			res_{2} = \hyperref[sec:MillasTransferidasYRecibidas]{MillasTransferidasYRecibidas}(AM.Historial, id)
-		}
-	\end{proc}
-
-	\vspace{1cm}
-	\phantomsection\hypertarget{sec:MillasTransferidasYRecibidas}{}\label{sec:MillasTransferidasYRecibidas}
-	\auxLargo{MillasTransferidasYRecibidas}{Historial:\Tipo{\seq{Transaccion}}, id: \Tipo{\Z}}{\Tipo{\R}}
-	{
-		\sum\limits_{0}^{\norm{Historial}-1}\IfThenElse{EsTransferenciaEnviada}{-Historial[i].Millas}
-		\\{\IfThenElse{EsTransferenciaRecibida}{Historial[i].Millas}{0}}
-	}
-	\vspace{1cm}
-	\predLargo{EsTransferenciaRecibida}
-	{Transaccion: \Tipo{Transaccion}, idDestino: \Tipo{\Z}, Usuarios: \Tipo{\dict{\Z}{Categoria}}}
-	{
-		Transaccion.UsuarioOrigen \in claves(Usuarios) \land
-		\\
-		Transaccion.TipoDeTransaccion = 1 \land
-		\\
-		Transaccion.UsuarioDestino = idDestino
-	}
-
-    \vspace{0.5cm}
-    \phantomsection\hypertarget{sec:EsNuevoReferido}{}\label{sec:EsNuevoReferido}
-    \predLargo{EsNuevoReferido}
-	{AM: \Tipo{Airmiles}, AM_0: \Tipo{Airmiles}, idReferidor: \Tipo{\Z}, idReferido: \Tipo{\Z}, Millas: \Tipo{\Z}}
-	{
-		AM.Referidos = AM_0.Referidos ++ [idReferidor,idReferido,Millas]
-	}
-
-    \vspace{0.5cm}
-    \phantomsection\hypertarget{sec:EsNuevoVuelo}{}\label{sec:EsNuevoVuelo}
-    \predLargo{EsNuevoVuelo}
-	{AM: \Tipo{Airmiles}, AM_0: \Tipo{Airmiles}, IdUsuario: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\Z}}
-	{
-		AM.Vuelos = AM_0.Vuelos ++ [IdUsuario,Millas,distancia,NombrePromo,FactorPromo]
-	}
-
-    \vspace{0.5cm}
-    \phantomsection\hypertarget{sec:EsNuevoCanjeo}{}\label{sec:EsNuevoCanjeo}
-    \predLargo{EsNuevoCanjeo}
-	{AM: \Tipo{Airmiles}, AM_0: \Tipo{Airmiles}, IdUsuario: \Tipo{\Z}, Millas: \Tipo{\R}}
-	{
-		AM.Canjeo = AM_0.Canjeo ++ [IdUsuario,Millas]
-	}
-
-    \vspace{0.5cm}
-    \phantomsection\hypertarget{sec:EsNuevaTransferencia}{}\label{sec:EsNuevaTransferencia}
-    \predLargo{EsNuevaTransferencia}
-	{AM: \Tipo{Airmiles}, AM_0: \Tipo{Airmiles}, IdUsuarioOrigen: \Tipo{\Z} \\, IdUsuarioDestino: \Tipo{\Z}, Millas: \Tipo{\R}}
-	{
-		AM.Transferencias = AM_0.Transferencias ++ [IdUsuarioOrigen, \\IdUsuarioDestino,Millas]
-	}
-
-	\predLargo{EsTransferenciaEnviada}
-	{Transaccion: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}, Usuarios: \Tipo{\dict{\Z}{Categoria}}}
-	{
-		Transaccion.UsuarioOrigen = idOrigen \land
-		\\
-		Transaccion.TipoDeTransaccion = 1 \land
-		\\
-		Transaccion.UsuarioDestino \in claves(Usuarios)
-	}
+	
 
 	\vspace{1cm}
 	\phantomsection\hypertarget{sec:IniciarPromocion}{}\label{sec:IniciarPromocion}
 	\begin{proc}{IniciarPromocion}
 		{
 			\Inout AM: \Tipo{Airmiles},
-			\In nombrePromo: \Tipo{\seq{char}},
-			\In factorPromo: \Tipo{\R},
+			\In NombrePromo: \Tipo{\seq{char}},
+			\In FactorPromo: \Tipo{\R},
 		}
 		{}
 		\requiereLargo{
 			AM = AM_0 \land
-			factorPromo \geq 1 \land
-			nombrePromo \notin claves(AM_0.Promociones)}
+			factorPromo \geq 1 \land \\
+			nombrePromo \notin claves(AM_0.PromocionesSinTope)}
 		\aseguraLargo{
-			AM.Usuarios = AM_0.Usuarios \land
-			\\
-			AM.Historial = AM_0.Historial \land
-			\\
-			AM.Promociones = SetKey(AM_0.Promociones, nombrePromo, \struct{factorPromo,0,-1})
+            AM.PromocionesSinTope = SetKey(AM_0.PromocionesSinTope,\\ nombrePromo, FactorPromo) \land \\
+            AM.Usuarios = AM_0.Usuarios \land \\ 
+            AM.Vuelos = AM_0.Vuelos \land \\ 
+            AM.Canjeos = AM_0.Canjeos \land \\ 
+            AM.Referidos = AM_0.Referidos \land \\
+            AM.PromocionesConTope = AM_0.PromocionesConTope			
 		}
 	\end{proc}
 	\vspace{1.0cm}
@@ -552,6 +480,81 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			\hyperref[sec:SonParejaExclusiva]{SonParejaExclusiva}(AM.Historial, res)
 		}
 	\end{proc}
+
+    \vspace{0.5cm}
+	\phantomsection\hypertarget{sec:ResumenTransacciones}{}\label{sec:ResumenTransacciones}
+	\begin{proc}{ResumenTransacciones}
+		{\In AM: Airmiles, \In id : \Tipo{\Z}}
+		{\tupla{\Tipo{\R}, \Tipo{\R}, \Tipo{\R}}}
+		\requiere{ id \in claves(AM.Usuarios)}
+
+		\aseguraLargo{ res_{0} = \hyperref[sec:MillasObtenidasPorVuelo]{MillasObtenidasPorVuelo}(AM.Historial, id) \land
+			\\
+			res_{1} = \hyperref[sec:MillasDescontadasPorCanjeo]{MillasDescontadasPorCanjeo}(AM.Historial, id) \land
+			\\
+			res_{2} = \hyperref[sec:MillasTransferidasYRecibidas]{MillasTransferidasYRecibidas}(AM.Historial, id)
+		}
+	\end{proc}
+
+	\vspace{1cm}
+	\phantomsection\hypertarget{sec:MillasTransferidasYRecibidas}{}\label{sec:MillasTransferidasYRecibidas}
+	\auxLargo{MillasTransferidasYRecibidas}{Historial:\Tipo{\seq{Transaccion}}, id: \Tipo{\Z}}{\Tipo{\R}}
+	{
+		\sum\limits_{0}^{\norm{Historial}-1}\IfThenElse{EsTransferenciaEnviada}{-Historial[i].Millas}
+		\\{\IfThenElse{EsTransferenciaRecibida}{Historial[i].Millas}{0}}
+	}
+	\vspace{1cm}
+	\predLargo{EsTransferenciaRecibida}
+	{Transaccion: \Tipo{Transaccion}, idDestino: \Tipo{\Z}, Usuarios: \Tipo{\dict{\Z}{Categoria}}}
+	{
+		Transaccion.UsuarioOrigen \in claves(Usuarios) \land
+		\\
+		Transaccion.TipoDeTransaccion = 1 \land
+		\\
+		Transaccion.UsuarioDestino = idDestino
+	}
+
+    \vspace{0.5cm}
+    \phantomsection\hypertarget{sec:EsNuevoReferido}{}\label{sec:EsNuevoReferido}
+    \predLargo{EsNuevoReferido}
+	{AM: \Tipo{Airmiles}, AM_0: \Tipo{Airmiles}, idReferidor: \Tipo{\Z}, idReferido: \Tipo{\Z}, Millas: \Tipo{\Z}}
+	{
+		AM.Referidos = AM_0.Referidos ++ [idReferidor,idReferido,Millas]
+	}
+
+    \vspace{0.5cm}
+    \phantomsection\hypertarget{sec:EsNuevoVuelo}{}\label{sec:EsNuevoVuelo}
+    \predLargo{EsNuevoVuelo}
+	{AM: \Tipo{Airmiles}, AM_0: \Tipo{Airmiles}, IdUsuario: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\Z}}
+	{
+		AM.Vuelos = AM_0.Vuelos ++ [IdUsuario,Millas,distancia,NombrePromo,FactorPromo]
+	}
+
+    \vspace{0.5cm}
+    \phantomsection\hypertarget{sec:EsNuevoCanjeo}{}\label{sec:EsNuevoCanjeo}
+    \predLargo{EsNuevoCanjeo}
+	{AM: \Tipo{Airmiles}, AM_0: \Tipo{Airmiles}, IdUsuario: \Tipo{\Z}, Millas: \Tipo{\R}}
+	{
+		AM.Canjeo = AM_0.Canjeo ++ [IdUsuario,Millas]
+	}
+
+    \vspace{0.5cm}
+    \phantomsection\hypertarget{sec:EsNuevaTransferencia}{}\label{sec:EsNuevaTransferencia}
+    \predLargo{EsNuevaTransferencia}
+	{AM: \Tipo{Airmiles}, AM_0: \Tipo{Airmiles}, IdUsuarioOrigen: \Tipo{\Z} \\, IdUsuarioDestino: \Tipo{\Z}, Millas: \Tipo{\R}}
+	{
+		AM.Transferencias = AM_0.Transferencias ++ [IdUsuarioOrigen, \\IdUsuarioDestino,Millas]
+	}
+
+	\predLargo{EsTransferenciaEnviada}
+	{Transaccion: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}, Usuarios: \Tipo{\dict{\Z}{Categoria}}}
+	{
+		Transaccion.UsuarioOrigen = idOrigen \land
+		\\
+		Transaccion.TipoDeTransaccion = 1 \land
+		\\
+		Transaccion.UsuarioDestino \in claves(Usuarios)
+	}
 
 	\vspace{1cm}
 	\phantomsection\hypertarget{sec:perteneceUsuarios}{}\label{sec:perteneceUsuarios}
