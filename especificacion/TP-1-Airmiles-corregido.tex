@@ -467,9 +467,8 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 				\\
 				\land \paraTodo{id2}{\Tipo{\Z}}{id2 \in claves(AM.Usuarios) \implicaLuego
 					\\
-					\hyperref[sec:MillasPerdidas]{MillasPerdidas}(AM.Historial,res,AM.Usuarios) \ge
-					\\
-					\hyperref[sec:MillasPerdidas]{MillasPerdidas}(AM.Historial,id2,AM.Usuarios)}}
+					\hyperref[sec:MillasPerdidas]{MillasPerdidas}(AM,res) \ge
+					\hyperref[sec:MillasPerdidas]{MillasPerdidas}(AM,id2)}}
 		}
 	\end{proc}
 
@@ -500,11 +499,12 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		{\tupla{\Tipo{\R}, \Tipo{\R}, \Tipo{\R}}}
 		\requiere{ id \in claves(AM.Usuarios)}
 
-		\aseguraLargo{ res_{0} = \hyperref[sec:MillasObtenidasPorVuelo]{MillasObtenidasPorVuelo}(AM.Historial, id) \land
+		\aseguraLargo{ res_{0} = \hyperref[sec:SumaVuelos]{SumaVuelos}(AM.Vuelos, id) \land
 			\\
-			res_{1} = \hyperref[sec:MillasDescontadasPorCanjeo]{MillasDescontadasPorCanjeo}(AM.Historial, id) \land
+			res_{1} = \hyperref[sec:SumaCanjeos]{SumaCanjeos}(AM.Canjeos, id) \land
 			\\
-			res_{2} = \hyperref[sec:MillasTransferidasYRecibidas]{MillasTransferidasYRecibidas}(AM.Historial, id)
+			res_{2} = \hyperref[sec:SumaTransferenciasRecibidas]{SumaTransferenciasRecibidas}(AM.Transferencias, id) - \\
+            \hyperref[sec:SumaTransferenciasEnviadas]{SumaTransferenciasEnviadas}(AM.Transferencias, id) 
 		}
 	\end{proc}
 
@@ -714,6 +714,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	}
 
     \vspace{0.5cm}
+    \phantomsection\hypertarget{sec:SumaVuelos}{}\label{sec:SumaVuelos}
     \auxLargo{SumaVuelos}
     {Vuelos: \seq{Vuelo}, Usuario: \Tipo{\Z}}
     {\Tipo{\Z}}
@@ -722,6 +723,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 
     \vspace{0.5cm}
     \noindent \comentario{Dado un usuario verifico las transferencias que recibio} \\
+    \phantomsection\hypertarget{sec:SumaTransferenciasRecibidas}{}\label{sec:SumaTransferenciasRecibidas}
     \auxLargo{SumaTransferenciasRecibidas}
     {Transferencias: \seq{Transferencia}, IdUsuario: \Tipo{\Z}}
     {\Tipo{\Z}}
@@ -732,6 +734,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 
     \vspace{0.5cm}
     \noindent \comentario{Dado un usuario verifico las transferencias que envió} \\
+    \phantomsection\hypertarget{sec:SumaTransferenciasEnviadas}{}\label{sec:SumaTransferenciasEnviadas}
     \auxLargo{SumaTransferenciasEnviadas}
     {Transferencias: \seq{Transferencia}, IdUsuario: \Tipo{\Z}}
     {\Tipo{\Z}}
@@ -742,6 +745,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 
     \vspace{0.5cm}
     \noindent \comentario{Dado un usuario verifico las transferencias que recibió} \\
+    \phantomsection\hypertarget{sec:SumaCanjeos}{}\label{sec:SumaCanjeos}
     \auxLargo{SumaCanjeos}
     {Canjeos: \seq{Canjeo}, IdUsuario: \Tipo{\Z}}
     {\Tipo{\Z}}
@@ -752,6 +756,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 
     \vspace{0.5cm}
     \noindent \comentario{Verifica que el usuario pertenezca a alguno de los campos de referidos y suma las millas} \\
+    \phantomsection\hypertarget{sec:SumaReferidos}{}\label{sec:SumaReferidos}
     \auxLargo{SumaReferidos}
     {Referidos: \seq{Referido}, IdUsuario: \Tipo{\Z}}
     {\Tipo{\Z}}
@@ -882,19 +887,15 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		Transaccion.UsuarioDestino \in claves(Usuarios)
 	}
 
-	\vspace{1cm}
+    \vspace{1cm}
 	\phantomsection\hypertarget{sec:MillasPerdidas}{}\label{sec:MillasPerdidas}
 	\auxLargo{MillasPerdidas}
-	{Historial: \Tipo{\seq{Transacciones},idUsuario: \Tipo{\Z},Usuarios: \Diccionario{\Tipo{\Z}}{categoria}}}
+	{AM: \Tipo{Airmiles},IdUsuario: \Tipo{\Z}}
 	{\Tipo{\R}}
-	{\sum\limits_{i=0}^{\norm{Historial}-1}
-		\IfThenElse
-		{\hyperref[sec:EsTransferenciaEnviada]{EsTransferenciaEnviada}(Historial[i],idUsuario,Usuarios) \lor
-			\\
-			\hyperref[sec:EsCanjeo]{EsCanjeo}(Historial[i],idUsuario)}
-		{Historial[i].Millas}
-		{0}
-	}
+	{
+        res = SumaTransferenciasEnviadas(AM.Transferencias,IdUsuario) +
+        \\ SumaCanjeos(AM.Canjeos,IdUsuario)
+    }
 
 	\vspace{1cm}
 	\phantomsection\hypertarget{sec:NoHayRepetidos}{}\label{sec:NoHayRepetidos}
