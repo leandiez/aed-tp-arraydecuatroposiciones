@@ -494,11 +494,12 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		{\tupla{\Tipo{\R}, \Tipo{\R}, \Tipo{\R}}}
 		\requiere{ id \in claves(AM.Usuarios)}
 
-		\aseguraLargo{ res_{0} = \hyperref[sec:MillasObtenidasPorVuelo]{MillasObtenidasPorVuelo}(AM.Historial, id) \land
+		\aseguraLargo{ res_{0} = \hyperref[sec:SumaVuelos]{SumaVuelos}(AM.Vuelos, id) \land
 			\\
-			res_{1} = \hyperref[sec:MillasDescontadasPorCanjeo]{MillasDescontadasPorCanjeo}(AM.Historial, id) \land
+			res_{1} = \hyperref[sec:SumaCanjeos]{SumaCanjeos}(AM.Canjeos, id) \land
 			\\
-			res_{2} = \hyperref[sec:MillasTransferidasYRecibidas]{MillasTransferidasYRecibidas}(AM.Historial, id)
+			res_{2} = \hyperref[sec:SumaTransferenciasRecibidas]{SumaTransferenciasRecibidas}(AM.Transferencias, id) - \\
+            \hyperref[sec:SumaTransferenciasEnviadas]{SumaTransferenciasEnviadas}(AM.Transferencias, id) 
 		}
 	\end{proc}
 
@@ -708,6 +709,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	}
 
     \vspace{0.5cm}
+    \phantomsection\hypertarget{sec:SumaVuelos}{}\label{sec:SumaVuelos}
     \auxLargo{SumaVuelos}
     {Vuelos: \seq{Vuelo}, Usuario: \Tipo{\Z}}
     {\Tipo{\Z}}
@@ -716,6 +718,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 
     \vspace{0.5cm}
     \noindent \comentario{Dado un usuario verifico las transferencias que recibio} \\
+    \phantomsection\hypertarget{sec:SumaTransferenciasRecibidas}{}\label{sec:SumaTransferenciasRecibidas}
     \auxLargo{SumaTransferenciasRecibidas}
     {Transferencias: \seq{Transferencia}, IdUsuario: \Tipo{\Z}}
     {\Tipo{\Z}}
@@ -726,6 +729,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 
     \vspace{0.5cm}
     \noindent \comentario{Dado un usuario verifico las transferencias que envió} \\
+    \phantomsection\hypertarget{sec:SumaTransferenciasEnviadas}{}\label{sec:SumaTransferenciasEnviadas}
     \auxLargo{SumaTransferenciasEnviadas}
     {Transferencias: \seq{Transferencia}, IdUsuario: \Tipo{\Z}}
     {\Tipo{\Z}}
@@ -736,6 +740,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 
     \vspace{0.5cm}
     \noindent \comentario{Dado un usuario verifico las transferencias que recibió} \\
+    \phantomsection\hypertarget{sec:SumaCanjeos}{}\label{sec:SumaCanjeos}
     \auxLargo{SumaCanjeos}
     {Canjeos: \seq{Canjeo}, IdUsuario: \Tipo{\Z}}
     {\Tipo{\Z}}
@@ -746,6 +751,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 
     \vspace{0.5cm}
     \noindent \comentario{Verifica que el usuario pertenezca a alguno de los campos de referidos y suma las millas} \\
+    \phantomsection\hypertarget{sec:SumaReferidos}{}\label{sec:SumaReferidos}
     \auxLargo{SumaReferidos}
     {Referidos: \seq{Referido}, IdUsuario: \Tipo{\Z}}
     {\Tipo{\Z}}
