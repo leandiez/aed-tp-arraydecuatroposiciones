@@ -413,16 +413,18 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		}
 		{}
 		\requiereLargo{
-			AM = AM_0 \land nombrePromo \neq "NoPromo" \yLuego
+			AM = AM_0 \land nombrePromo \notin AM_0.PromocionesSinTope \yLuego
 			\\
-			nombrePromo \in claves(AM.Promociones)
+			nombrePromo \in claves(AM.PromocionesConTope)
 		}
 		\aseguraLargo{
-			AM.Usuarios = AM_0.Usuarios \land
-			\\
-			AM.Historial = AM_0.Historial \land
-			\\
-			AM.Promociones = DelKey(AM_0.Promociones, nombrePromo)
+			AM.PromocionesConTope = DelKey(AM_0.PromocionesConTope, nombrePromo) \land
+			AM.Usuarios = AM_0.Usuarios \land \\
+            AM.Vuelos = AM_0.Vuelos \land \\ 
+            AM.Transferencias = AM_0.Usuarios \land \\  
+            AM.Canjeos = AM_0.Canjeos \land \\ 
+            AM.Referidos = AM_0.Referidos \land \\
+            AM.PromocionesSinTope = AM_0.PromocionesSinTope
 		}
 	\end{proc}
 
