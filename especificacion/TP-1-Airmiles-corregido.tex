@@ -358,7 +358,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		\requiereLargo{
 			AM = AM_0 \land
 			factorPromo \geq 1 \land \\
-			nombrePromo \notin claves(AM.PromocionesSinTope) \land
+			nombrePromo \notin claves(AM.PromocionesSinTope) \land \\
 			nombrePromo \notin claves(AM.PromocionesConTope)}
 		\aseguraLargo{
             AM.PromocionesSinTope = SetKey(AM_0.PromocionesSinTope,\\ nombrePromo, FactorPromo) \land \\
@@ -385,8 +385,8 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			AM = AM_0 \land factorPromo \geq 1 \land
             \\ 
             nombrePromo \notin
-			claves(AM.PromocionesConTope) \land TopePromo > 0 \land
-			nombrPromo \notin claves(AM.PromocionesSinTope)
+			claves(AM.PromocionesConTope) \land TopePromo > 0 \land \\
+			nombrePromo \notin claves(AM.PromocionesSinTope)
 		}
 		\aseguraLargo{
 			AM.PromocionesConTope = SetKey(AM_0.PromocionesConTope, nombrePromo,
@@ -479,17 +479,13 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		{\seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}
 		\requiere{True}
 
-		\aseguraLargo{
-			\hyperref[sec:EstanTodosLosPares]{EstanTodosLosPares}(AM.usuarios,res)
-			\\
-			\hyperref[sec:sinRepetidos]{sinRepetidos}(res) \land_L
-			\\
-			\hyperref[sec:NoHayPermutacion]{NoHayPermutacion}(res) \land_L
-			\\
-			\hyperref[sec:TieneReciprocoHistorial]{TieneReciprocoHistorial}(AM.Historial, res) \land_L
-			\\
-			\hyperref[sec:SonParejaExclusiva]{SonParejaExclusiva}(AM.Historial, res)
+		\aseguraLargo	{
+		\norm{res} = CantidadDeExclusivos(AM.transacciones) \\
+		\paraTodo{i}{\Tipo{\Z}}{0 \leq i<\norm{res} \yLuego i \in res \implicaLuego
+		SeTransfirieron(res[0]_0, res[0]_1, AM.transacciones) \land
+		NoLeTransfirieronAOtros(res[0]_0, res[0]_1, AM.transacciones)} 
 		}
+
 	\end{proc}
 
     \vspace{0.5cm}
@@ -944,6 +940,14 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	\predLargo{EstanTodosLosPares}{Usuarios: \Diccionario{id}{categoria},res}
 	{
 		\paraTodo{t}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{t0 \in claves(Usuarios) \land t1 \in claves(Usuarios) \implicaLuego t \in res }
+	}
+
+	\predLargo{EstanTodasLasParejasExclusivas}{Trans: Transacciones,res: \seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}
+	{
+		\paraTodo{t}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{t_0 \in claves(AM.Usuarios)\land t_1 \in claves(AM.Usuarios) \yLuego \\
+		LeTransfirio(t_0,t_1, AM.Transacciones) \land\\
+		LeTransfirio(t_1, t_0, AM.Transacciones) \land SonParejaExclusiva(t_0,t_1, AM.Transacciones) \implicaLuego \\
+		}
 	}
 
 	\vspace{0.5cm}
