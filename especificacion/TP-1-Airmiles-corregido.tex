@@ -358,7 +358,8 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		\requiereLargo{
 			AM = AM_0 \land
 			factorPromo \geq 1 \land \\
-			nombrePromo \notin claves(AM_0.PromocionesSinTope)}
+			nombrePromo \notin claves(AM.PromocionesSinTope) \land
+			nombrePromo \notin claves(AM.PromocionesConTope)}
 		\aseguraLargo{
             AM.PromocionesSinTope = SetKey(AM_0.PromocionesSinTope,\\ nombrePromo, FactorPromo) \land \\
             AM.Usuarios = AM_0.Usuarios \land \\
@@ -384,7 +385,8 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			AM = AM_0 \land factorPromo \geq 1 \land
             \\ 
             nombrePromo \notin
-			claves(AM.PromocionesConTope) \land TopePromo > 0
+			claves(AM.PromocionesConTope) \land TopePromo > 0 \land
+			nombrPromo \notin claves(AM.PromocionesSinTope)
 		}
 		\aseguraLargo{
 			AM.PromocionesConTope = SetKey(AM_0.PromocionesConTope, nombrePromo,
@@ -413,18 +415,21 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		}
 		{}
 		\requiereLargo{
-			AM = AM_0 \land nombrePromo \notin AM_0.PromocionesSinTope \yLuego
+			AM = AM_0 \land (nombrePromo \in AM_0.PromocionesSinTope \lor
 			\\
-			nombrePromo \in claves(AM.PromocionesConTope)
+			nombrePromo \in claves(AM.PromocionesConTope))
 		}
 		\aseguraLargo{
-			AM.PromocionesConTope = DelKey(AM_0.PromocionesConTope, nombrePromo) \land
+			IfThenElse(nombrePromo \in claves(AM_0.PromocionesConTope),\\ 
+			AM.PromocionesConTope = DelKey(AM_0.PromocionesConTope, nombrePromo) \land 
+			AM.PromocionesSinTope = AM_0.PromocionesSinTope,\\
+			 AM.PromocionesSinTope = Delkey(AM_0.PromocionesSinTope, nombrePromo)\land 
+			 AM.PromocionesConTope = AM_0.PromocionesConTope) \land \\ 
 			AM.Usuarios = AM_0.Usuarios \land \\
             AM.Vuelos = AM_0.Vuelos \land \\ 
             AM.Transferencias = AM_0.Usuarios \land \\  
             AM.Canjeos = AM_0.Canjeos \land \\ 
-            AM.Referidos = AM_0.Referidos \land \\
-            AM.PromocionesSinTope = AM_0.PromocionesSinTope
+            AM.Referidos = AM_0.Referidos \land
 		}
 	\end{proc}
 
