@@ -142,8 +142,12 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		\comentario{Actualiza el diccionario de usuarios con  nuevo usuario} \\
 		\requiere{AM = AM0 \land id \notin claves(AM.Usuarios) \land id > 0}
 		\aseguraLargo{ AM.Usuarios = SetKey(AM0.Usuarios, id, Bronce) \land \\
-			AM.Historial = AM0.Historial \\
-			\land AM.Promociones = AM0.Promociones
+			AM.Vuelos = AM0.Vuelos \land \\ 
+            AM.Transferencias = AM0.Transferencias \land \\
+            AM.Canjeos = AM0.Canjeos \land \\
+            AM.Referidos = AM0.Referidos \land \\
+			AM.PromocionesConTope = AM0.PromocionesConTope \land \\ 
+            AM.PromocionesSinnTope = AM0.PromocionesSinTope
 		}
 	\end{proc}
 
