@@ -111,8 +111,6 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		\requiere{\Tipo{True}}
 		\aseguraLargo{ \norm{res.Usuarios} = 0 \land
 			\\
-			\norm{res.Historial} = 0 \land
-			\\
             \norm{res.Vuelos} = 0 \land
             \\
             \norm{res.Transferencias} = 0 \land
@@ -141,7 +139,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
             AM.Canjeos = AM_0.Canjeos \land \\
             AM.Referidos = AM_0.Referidos \land \\
 			AM.PromocionesConTope = AM_0.PromocionesConTope \land \\ 
-            AM.PromocionesSinnTope = AM_0.PromocionesSinTope
+            AM.PromocionesSinTope = AM_0.PromocionesSinTope
 		}
 	\end{proc}
 
@@ -266,10 +264,15 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		\requiereLargo{ AM=AM_0 \yLuego MillasCanjeadas > 0 \land IdUsuario \in claves(AM.Usuarios)}
 		\aseguraLargo{
 			\IfThenElse{ \hyperref[sec:MillasDisponibles]{MillasDisponibles}(IdUsuario, AM_0.Historial) \geq MillasCanjeadas}
-			{\\EsNuevaTransaccion(AM,AM_0,IdUsuario,-1,2,MillasCanjeadas,0,"NoPromo",1)}
-			{\\AM.Historial =  AM_0.Historial} \\ \land
-			AM.Usuarios = AM_0.Usuarios \\ \land
-			AM.Promociones = AM_0.Promociones
+			{\\ \hyperref[sec:EsNuevoCanjeo]{EsNuevoCanjeo}(AM,AM_0,IdUsuario,MillasCanjeadas)}
+			{\\AM.Canjeos =  AM_0.Canjeos} \land \\ 
+			AM.Usuarios = AM_0.Usuarios \land \\ 
+			AM.Vuelos = AM_0.Vuelos \land \\ 
+            AM.Transferencias = AM_0.Transferencias \land \\ 
+            AM.Canjeos = AM_0.Canjeos \land \\ 
+            AM.Referidos = AM_0.Referidos \land \\
+            AM.PromocionesConTope = AM_0.PromocionesConTope \land \\
+            AM.PromocionesSinTope = AM_0.PromocionesSinTope
 		}
 	\end{proc}
 
