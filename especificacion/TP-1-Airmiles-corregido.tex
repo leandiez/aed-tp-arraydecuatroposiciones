@@ -160,7 +160,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			\hyperref[sec:EsNuevoReferido]{EsNuevoReferido}(AM,AM_0,idReferidor, idUsuario, 500) \yLuego
 			\\
             \comentario{Se chequea si despues de referir a alguien subio de Categoria} \\
-            AM.Usuarios[idReferidor] = \hyperref[sec:DarCategoria]{DarCategoria}(AM,idReferidor) \land \\
+            AM.Usuarios = SetKey(AM_0.Usuarios,idReferidor,\hyperref[sec:DarCategoria]{DarCategoria}(AM, idUsuario)) \land
 			AM.PromocionesConTope = AM_0.PromocionesConTope \land \\ 
             AM.PromocionesSinTope = AM_0.PromocionesSinTope \land \\
             AM.Vuelos = AM_0.Vuelos \land \\
