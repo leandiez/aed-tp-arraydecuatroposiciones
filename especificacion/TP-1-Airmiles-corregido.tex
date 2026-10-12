@@ -182,11 +182,12 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			\In nombrePromo: \Tipo{\str}
 		}
 		{}
-
+		\comentario{Esta disyuncion es exclusiva, y esta garantizado en IniciarPromocion.} \\
 		\requiere{AM = AM_0 \land idUsuario \in claves(AM.Usuarios) \land (nombrePromo \in claves(AM.PromocionesConTope)\  \lor \ nombrePromo \in claves(AM.PromocionesSinTope))\land distancia > 0 }
 		\aseguraLargo{
 			\comentario{Si el tope de las millas de la promo supera la distancia se hace una sola transaccion}
 			\\
+			\comentario{Caso 1: promo con tope alcanza y sobran millas de promo} \\
 			AM_0.PromocionesConTope\lbrack nombrePromo \rbrack.millasRestantes \geq
 			\\
 			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0,idUsuario),
@@ -194,61 +195,51 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
             \comentario{Se crea un vuelo y se actualizan las millas de la promo} \\
             \hyperref[sec:EsNuevoVuelo]{EsNuevoVuelo}(AM,AM_0,idUsuario,
 			\\
-			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0,idUsuario),distancia,
-            \\NombrePromo,AM_0.PromocionesConTope[nombrePromo].FactorPromocion)) \land 
+			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0,idUsuario),\\ AM_0.PromocionesConTope[nombrePromo].FactorPromocion),distancia,
+            \\NombrePromo,AM_0.PromocionesConTope[nombrePromo].FactorPromocion) \land 
             \\
             ActualizaMillasRestantesDePromo(AM,AM0,NombrePromo)
 			\lor \\
-            \comentario{Si la promo no tiene tope se hace el vuelo únicamente} 
+            \comentario{Caso 2: La promo no tiene tope, se hace el vuelo comun} 
             \\
             nombrePromo \in AM_0.PromocionesSinTope \implicaLuego
 			\\
             \hyperref[sec:EsNuevoVuelo]{EsNuevoVuelo}(AM,AM_0,idUsuario,
 			\\
-			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0,idUsuario),distancia,
-            \\NombrePromo,PromocionesConTope[nombrePromo].FactorPromocion)) \land
+			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0,idUsuario),\\ PromocionesSinTope[nombrePromo].FactorPromocion),distancia,
+            \\NombrePromo,PromocionesSinTope[nombrePromo].FactorPromocion) \land
             \\
-			AM.Promociones = setKey(AM_0.Promociones, nombrePromo,\\
-			AM_0.Promociones[nombrePromo].millasRestantes - \hyperref[sec:MillasCalculadas]{MillasCalculadas}\\(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0.Historial, idUsuario)))
-			\lor
 			\\
-			\\
+			\comentario{Caso 3: Las millas de la promo no alcanzan para completar el vuelo} \\
 			AM_0.PromocionesConTope\lbrack nombrePromo \rbrack.millasRestantes <
 			\\
-			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0.Historial, idUsuario),\\
-			AM_0.Promociones[nombrePromo].factorDePromocion) \implicaLuego
+			\hyperref[sec:MillasCalculadas]{MillasCalculadas}(distancia, \hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0, idUsuario),\\
+			AM_0.PromocionesConTope[nombrePromo].factorDePromocion) \implicaLuego
 			\\
 			\\
 			\comentario{Se hace 1 transaccion con las millas restantes de promo}
 			\\
 			\hyperref[sec:EsNuevoVuelo]{EsNuevoVuelo}(AM,AM_0,idUsuario,
 			\\
-			AM_0.Promociones[nombrePromo].millasRestantes, distancia,
-			\\ nombrePromo, AM_0.Promociones[nombrePromo].FactorDePromocion) \yLuego
-			\\
+			AM_0.PromocionesConTope[nombrePromo].millasRestantes, distancia,
+			\\ nombrePromo, AM_0.PromocionesConTope[nombrePromo].FactorDePromocion) \yLuego \\
+			\hyperref[sec:SeConsumioLaPromocion]{SeConsumioLaPromocion}(nombrePromo, AM, AM_0)
 			\\
 			\comentario{Se hace otra transaccion con noPromo para completar}
 			\\
-			\hyperref[sec:EsNuevaTransaccion]{EsNuevaTransaccion}(AM,AM_0,idUsuario,-1,1,
+			\hyperref[sec:EsNuevoVuelo]{EsNuevoVuelo}(AM,AM_0,idUsuario,
 			\\
 			MillasACompletar(AM_0.Promociones,"NoPromo",distancia,
-			\\\hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0.Historial,idUsuario), 1)
-			\\distancia, "NoPromo", 1) \yLuego
+			\\\hyperref[sec:DarFactorCategoria]{DarFactorCategoria}(AM_0,idUsuario), distancia, "NoPromo", 1)) \yLuego
 			% Luego de hacer la transaccion tengo que verificar si se modifico la categoría del usuario
 			\\
 			\comentario{Se puede indefinir si no le pasamos un usuario que este en el sistema}
 			\\
-			\hyperref[sec:SubioCategoria]{SubioCategoria}(idUsuario,AM.Historial,AM_0.Historial) \implicaLuego
+			\hyperref[sec:SubioCategoria]{SubioCategoria}(idUsuario,AM,AM_0) \implicaLuego
 			\\
 			AM.Usuarios = SetKey(AM_0.Usuarios,idUsuario,
 			\\
-			\hyperref[sec:DarCategoria]{DarCategoria}(AM_0.Historial, idUsuario)) \land
-			\\
-			\comentario{Despues de completar el viaje se verifica si la promocion termino}
-			\\
-			AM_0.Promociones[nombrePromo].millasRestantes = 0 \implicaLuego
-			\\
-			\hyperref[sec:SeConsumioLaPromocion]{SeConsumioLaPromocion}(nombrePromo, AM, AM_0)
+			\hyperref[sec:DarCategoria]{DarCategoria}(AM, idUsuario))
 		}
 	\end{proc}
 
@@ -529,7 +520,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
     \vspace{0.5cm}
     \phantomsection\hypertarget{sec:EsNuevoVuelo}{}\label{sec:EsNuevoVuelo}
     \predLargo{EsNuevoVuelo}
-	{AM: \Tipo{Airmiles}, AM_0: \Tipo{Airmiles}, IdUsuario: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\Z}}
+	{AM, AM_0: \Tipo{Airmiles}, IdUsuario: \Tipo{\Z}, Millas: \Tipo{\R}, distancia: \Tipo{\Z}, NombrePromo: \Tipo{\str}, FactorPromo: \Tipo{\R}}
 	{
 		AM.Vuelos = AM_0.Vuelos ++ [IdUsuario,Millas,distancia,NombrePromo,FactorPromo]
 	}
