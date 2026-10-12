@@ -183,7 +183,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		}
 		{}
 
-		\requiere{AM = AM_0 \land idUsuario \in claves(AM.Usuarios) \land nombrePromo \in claves(AM.PromocionesConTope) \land distancia > 0 }
+		\requiere{AM = AM_0 \land idUsuario \in claves(AM.Usuarios) \land (nombrePromo \in claves(AM.PromocionesConTope)\  \lor \ nombrePromo \in claves(AM.PromocionesSinTope))\land distancia > 0 }
 		\aseguraLargo{
 			\comentario{Si el tope de las millas de la promo supera la distancia se hace una sola transaccion}
 			\\
