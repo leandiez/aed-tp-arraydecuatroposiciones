@@ -354,7 +354,8 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		\requiereLargo{
 			AM = AM_0 \land
 			factorPromo \geq 1 \land \\
-			nombrePromo \notin claves(AM_0.PromocionesSinTope)}
+			nombrePromo \notin claves(AM.PromocionesSinTope) \land \\
+			nombrePromo \notin claves(AM.PromocionesConTope)}
 		\aseguraLargo{
             AM.PromocionesSinTope = SetKey(AM_0.PromocionesSinTope,\\ nombrePromo, FactorPromo) \land \\
             AM.Usuarios = AM_0.Usuarios \land \\
@@ -380,7 +381,8 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			AM = AM_0 \land factorPromo \geq 1 \land
             \\ 
             nombrePromo \notin
-			claves(AM.PromocionesConTope) \land TopePromo > 0
+			claves(AM.PromocionesConTope) \land TopePromo > 0 \land \\
+			nombrePromo \notin claves(AM.PromocionesSinTope)
 		}
 		\aseguraLargo{
 			AM.PromocionesConTope = SetKey(AM_0.PromocionesConTope, nombrePromo,
@@ -409,18 +411,21 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		}
 		{}
 		\requiereLargo{
-			AM = AM_0 \land nombrePromo \notin AM_0.PromocionesSinTope \yLuego
+			AM = AM_0 \land (nombrePromo \in AM_0.PromocionesSinTope \lor
 			\\
-			nombrePromo \in claves(AM.PromocionesConTope)
+			nombrePromo \in claves(AM.PromocionesConTope))
 		}
 		\aseguraLargo{
-			AM.PromocionesConTope = DelKey(AM_0.PromocionesConTope, nombrePromo) \land
+			IfThenElse(nombrePromo \in claves(AM_0.PromocionesConTope),\\ 
+			AM.PromocionesConTope = DelKey(AM_0.PromocionesConTope, nombrePromo) \land 
+			AM.PromocionesSinTope = AM_0.PromocionesSinTope,\\
+			 AM.PromocionesSinTope = Delkey(AM_0.PromocionesSinTope, nombrePromo)\land 
+			 AM.PromocionesConTope = AM_0.PromocionesConTope) \land \\ 
 			AM.Usuarios = AM_0.Usuarios \land \\
             AM.Vuelos = AM_0.Vuelos \land \\ 
             AM.Transferencias = AM_0.Usuarios \land \\  
             AM.Canjeos = AM_0.Canjeos \land \\ 
-            AM.Referidos = AM_0.Referidos \land \\
-            AM.PromocionesSinTope = AM_0.PromocionesSinTope
+            AM.Referidos = AM_0.Referidos \land
 		}
 	\end{proc}
 
@@ -470,17 +475,13 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		{\seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}
 		\requiere{True}
 
-		\aseguraLargo{
-			\hyperref[sec:EstanTodosLosPares]{EstanTodosLosPares}(AM.usuarios,res)
-			\\
-			\hyperref[sec:sinRepetidos]{sinRepetidos}(res) \land_L
-			\\
-			\hyperref[sec:NoHayPermutacion]{NoHayPermutacion}(res) \land_L
-			\\
-			\hyperref[sec:TieneReciprocoHistorial]{TieneReciprocoHistorial}(AM.Historial, res) \land_L
-			\\
-			\hyperref[sec:SonParejaExclusiva]{SonParejaExclusiva}(AM.Historial, res)
+		\aseguraLargo	{
+		\norm{res} = CantidadDeExclusivos(AM.transacciones) \\
+		\paraTodo{i}{\Tipo{\Z}}{0 \leq i<\norm{res} \yLuego i \in res \implicaLuego
+		SeTransfirieron(res[0]_0, res[0]_1, AM.transacciones) \land
+		NoLeTransfirieronAOtros(res[0]_0, res[0]_1, AM.transacciones)} 
 		}
+
 	\end{proc}
 
     \vspace{0.5cm}
@@ -938,6 +939,14 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	\predLargo{EstanTodosLosPares}{Usuarios: \Diccionario{id}{categoria},res}
 	{
 		\paraTodo{t}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{t0 \in claves(Usuarios) \land t1 \in claves(Usuarios) \implicaLuego t \in res }
+	}
+
+	\predLargo{EstanTodasLasParejasExclusivas}{Trans: Transacciones,res: \seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}
+	{
+		\paraTodo{t}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{t_0 \in claves(AM.Usuarios)\land t_1 \in claves(AM.Usuarios) \yLuego \\
+		LeTransfirio(t_0,t_1, AM.Transacciones) \land\\
+		LeTransfirio(t_1, t_0, AM.Transacciones) \land SonParejaExclusiva(t_0,t_1, AM.Transacciones) \implicaLuego \\
+		}
 	}
 
 	\vspace{0.5cm}
