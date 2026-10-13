@@ -493,6 +493,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		SeTransfirieron(res[0]_0, res[0]_1, AM.transacciones) \land
 		NoLeTransfirieronAOtros(res[0]_0, res[0]_1, AM.transacciones)} 
 		}
+    \comentarioLargo{Esto tiene que ser al reves para todo i y j en usuarios que cumplan pertenecen a res (sino puede haber copias)}
 
 	\end{proc}
 
@@ -518,6 +519,13 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	{
 		\sum\limits_{0}^{\norm{Historial}-1}\IfThenElse{EsTransferenciaEnviada}{-Historial[i].Millas}
 		\\{\IfThenElse{EsTransferenciaRecibida}{Historial[i].Millas}{0}}
+	}
+	\vspace{1cm}
+	\auxLargo{CantidadDeExclusivos}{AM: AirMiles }{\Tipo{\Z}}
+	{
+		(\sum\limits_{0}^{\norm{AirMiles.Transacciones}}\IfThenElse{\paraTodo{j}{\Tipo{\Z}} j \in claves(AM.Usuarios) \implicaLuego \\
+		SeTransfirieron(j,i,AM.Transacciones) \land \\
+		NoLeTransfirieronAOtros(i, j, AM.Transacciones)}{1}{0})/2
 	}
 	\vspace{1cm}
 	\predLargo{EsTransferenciaRecibida}
@@ -934,7 +942,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	}
 
 	\phantomsection\hypertarget{sec:cantApariciones}{}\label{sec:cantApariciones}
-	\auxLargo{cantApariciones}{t:\Tipo{\tupla{\Tipo{\Z,\Z}}},res: \Tipo{\seq{\Tipo{\Z},\Tipo{\Z}}}}{\Tipo{\Z}}{
+	\auxLargo{cantaApariciones}{t:\Tipo{\tupla{\Tipo{\Z,\Z}}},res: \Tipo{\seq{\Tipo{\Z},\Tipo{\Z}}}}{\Tipo{\Z}}{
 		\sum\limits_{0}^{\norm{res}} \IfThenElse{t \in res}{1}{0}
 	}
 	\vspace{1cm}
@@ -973,14 +981,6 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	\predLargo{EstanTodosLosPares}{Usuarios: \Diccionario{id}{categoria},res}
 	{
 		\paraTodo{t}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{t0 \in claves(Usuarios) \land t1 \in claves(Usuarios) \implicaLuego t \in res }
-	}
-
-	\predLargo{EstanTodasLasParejasExclusivas}{Trans: Transacciones,res: \seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}
-	{
-		\paraTodo{t}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{t_0 \in claves(AM.Usuarios)\land t_1 \in claves(AM.Usuarios) \yLuego \\
-		LeTransfirio(t_0,t_1, AM.Transacciones) \land\\
-		LeTransfirio(t_1, t_0, AM.Transacciones) \land SonParejaExclusiva(t_0,t_1, AM.Transacciones) \implicaLuego \\
-		}
 	}
 
 	\vspace{0.5cm}
