@@ -776,7 +776,51 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
         \\ SumaCanjeos(AM.Canjeos,IdUsuario)
     }
 
+	\vspace{1cm}
+	\phantomsection\hypertarget{sec:perteneceUsuarios}{}\label{sec:perteneceUsuarios}
+	\predLargo{perteneceUsuarios}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, res: \seq{\Z}} {
+		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res} \implica_L res[i] \in claves(usuarios)}
+	}
 
+	\vspace{1cm}
+	\phantomsection\hypertarget{sec:sinRepetidos}{}\label{sec:sinRepetidos}
+	\predLargo{sinRepetidos}{res: \seq{\Z}} {
+		\paraTodo{x}{\Tipo{\Z}}{x \in res\implica_L \hyperref[sec:cantAparicion]{cantAparicion}(res,x) = 1}
+	}
+
+	\vspace{1cm}
+	\phantomsection\hypertarget{sec:cantAparicion}{}\label{sec:cantAparicion}
+	\auxLargo{cantAparicion}
+	{res: \Tipo{\seq{\Z}}, x: \Tipo{\Z}}
+	{\Tipo{\R}}
+	{
+		\sum\limits_{i=0}^{\norm{res} - 1}
+		\IfThenElse{
+			res[i] = x
+		}{
+			1
+		}{
+			0
+		}
+	}
+
+	\vspace{1cm}
+	\phantomsection\hypertarget{sec:ordenDecreciente}{}\label{sec:ordenDecreciente}
+	\predLargo{ordenDecreciente}{Historial:\seq{Transacciones}, res: \seq{\Z}} {
+		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res}-1 \implica_L \\ millasDisponibles(res[i], Historial) >= millasDisponibles(res[i + 1], Historial)}
+	}
+	\\
+	\phantomsection\hypertarget{sec:losMejoresCandidatos}{}\label{sec:losMejoresCandidatos}
+	\\
+	\predLargo{losMejoresCandidatos}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}} {
+		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res} \land  res[i] \in claves(usuarios)  \implica_L  \\ \hyperref[sec:elMejorCandidato]{elMejorCandidato}(Usuarios, Historial, res, i) }
+	}
+	\\
+	\phantomsection\hypertarget{sec:elMejorCandidato}{}\label{sec:elMejorCandidato}
+	\\
+	\predLargo{elMejorCandidato}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}, i: \Tipo{\Z}} {
+		\paraTodo{x}{\Tipo{\Z}}{ (x \in claves(usuarios) \land \\ millasDisponibles(x,Historial) \leq millasDisponibles(res[i],Historial))\implica_L  \\ (\existe {j}{\Tipo{\Z}}{0 \leq j < i } \land_L res[j] = x) }
+	}
 
 \end{tad}
 
