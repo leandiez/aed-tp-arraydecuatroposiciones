@@ -58,6 +58,9 @@ En el caso de la transferencia de millas, detectamos que si 2 usuarios se envian
 \subsection{Categoria Platino}
 Los usuarios que llegan a categoria Platino, se indica que no acumulan mas millas, sin embargo no se especifica que ocurre con las millas disponibles, ni con las transferencias. Nuestra interpretacion de esto, es que estos usuarios SI pueden hacer esas operaciones, siendo unicamente la acumulacion por vuelo la que se anula, utilizando un factor 0 en el calculo de millas otorgadas.
 
+\subsection{Comentarios PostCorrección}
+\textbf{Observadores}: Se decidió optar por modificar los observadores, los mismos serán Vuelos, Transferencias,Canjeos y Referidos. Que antes pertenecían a un unico observador Historial. Se decidió hacer de esta forma ya que cada uno de estos observadores tiene un struct que contiene \textbf{únicamente} la información necesaria para cada una de las transacciones. Esta información no rompe la minimalidad de los observadores ya que no se esta repitiendo información, es decir, no se esta observando dos veces lo mismo. Por otro lado, tambie nse separo el antiguo observador promociones a PromocionesConTope y PromocionesSinTope, esto para evitar campos con valores "hardcodeados" o simplemente valores que no toman relevancia para dicho observador. 
+
 \section{Renombres de Tipos y Estructuras}
 
 \noindent enum Categoría \textbf{ES} \{Bronce, Plata,Oro, Platino  \}
@@ -165,7 +168,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
             AM.PromocionesSinTope = AM_0.PromocionesSinTope \land \\
             AM.Vuelos = AM_0.Vuelos \land \\
             AM.Transferencias = AM_0.Transferencias \land \\
-            AM.Canjeos = AM_0.Canjeos \land \\ 
+            AM.Canjeos = AM_0.Canjeos 
 		}
 	\end{proc}
 	% ===============Aca comienza la funcion de acumular millas===============
@@ -514,28 +517,11 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	\end{proc}
 
 	\vspace{1cm}
-	\phantomsection\hypertarget{sec:MillasTransferidasYRecibidas}{}\label{sec:MillasTransferidasYRecibidas}
-	\auxLargo{MillasTransferidasYRecibidas}{Historial:\Tipo{\seq{Transaccion}}, id: \Tipo{\Z}}{\Tipo{\R}}
-	{
-		\sum\limits_{0}^{\norm{Historial}-1}\IfThenElse{EsTransferenciaEnviada}{-Historial[i].Millas}
-		\\{\IfThenElse{EsTransferenciaRecibida}{Historial[i].Millas}{0}}
-	}
-	\vspace{1cm}
 	\auxLargo{CantidadDeExclusivos}{AM: AirMiles }{\Tipo{\Z}}
 	{
 		(\sum\limits_{0}^{\norm{AirMiles.Transacciones}}\IfThenElse{\paraTodo{j}{\Tipo{\Z}} j \in claves(AM.Usuarios) \implicaLuego \\
 		SeTransfirieron(j,i,AM.Transacciones) \land \\
 		NoLeTransfirieronAOtros(i, j, AM.Transacciones)}{1}{0})/2
-	}
-	\vspace{1cm}
-	\predLargo{EsTransferenciaRecibida}
-	{Transaccion: \Tipo{Transaccion}, idDestino: \Tipo{\Z}, Usuarios: \Tipo{\dict{\Z}{Categoria}}}
-	{
-		Transaccion.UsuarioOrigen \in claves(Usuarios) \land
-		\\
-		Transaccion.TipoDeTransaccion = 1 \land
-		\\
-		Transaccion.UsuarioDestino = idDestino
 	}
 
     \vspace{0.5cm}
@@ -568,62 +554,6 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	{AM: \Tipo{AirMiles}, AM_0: \Tipo{AirMiles}, IdUsuarioOrigen: \Tipo{\Z} \\, IdUsuarioDestino: \Tipo{\Z}, Millas: \Tipo{\R}}
 	{
 		AM.Transferencias = AM_0.Transferencias ++ [IdUsuarioOrigen, \\IdUsuarioDestino,Millas]
-	}
-
-	\predLargo{EsTransferenciaEnviada}
-	{Transaccion: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}, Usuarios: \Tipo{\dict{\Z}{Categoria}}}
-	{
-		Transaccion.UsuarioOrigen = idOrigen \land
-		\\
-		Transaccion.TipoDeTransaccion = 1 \land
-		\\
-		Transaccion.UsuarioDestino \in claves(Usuarios)
-	}
-
-	\vspace{1cm}
-	\phantomsection\hypertarget{sec:perteneceUsuarios}{}\label{sec:perteneceUsuarios}
-	\predLargo{perteneceUsuarios}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, res: \seq{\Z}} {
-		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res} \implica_L res[i] \in claves(usuarios)}
-	}
-
-	\vspace{1cm}
-	\phantomsection\hypertarget{sec:sinRepetidos}{}\label{sec:sinRepetidos}
-	\predLargo{sinRepetidos}{res: \seq{\Z}} {
-		\paraTodo{x}{\Tipo{\Z}}{x \in res\implica_L \hyperref[sec:cantAparicion]{cantAparicion}(res,x) = 1}
-	}
-
-	\vspace{1cm}
-	\phantomsection\hypertarget{sec:cantAparicion}{}\label{sec:cantAparicion}
-	\auxLargo{cantAparicion}
-	{res: \Tipo{\seq{\Z}}, x: \Tipo{\Z}}
-	{\Tipo{\R}}
-	{
-		\sum\limits_{i=0}^{\norm{res} - 1}
-		\IfThenElse{
-			res[i] = x
-		}{
-			1
-		}{
-			0
-		}
-	}
-
-	\vspace{1cm}
-	\phantomsection\hypertarget{sec:ordenDecreciente}{}\label{sec:ordenDecreciente}
-	\predLargo{ordenDecreciente}{Historial:\seq{Transacciones}, res: \seq{\Z}} {
-		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res}-1 \implica_L \\ millasDisponibles(res[i], Historial) >= millasDisponibles(res[i + 1], Historial)}
-	}
-	\\
-	\phantomsection\hypertarget{sec:losMejoresCandidatos}{}\label{sec:losMejoresCandidatos}
-	\\
-	\predLargo{losMejoresCandidatos}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}} {
-		\paraTodo{i}{\Tipo{\Z}}{0 \leq i < \norm{res} \land  res[i] \in claves(usuarios)  \implica_L  \\ \hyperref[sec:elMejorCandidato]{elMejorCandidato}(Usuarios, Historial, res, i) }
-	}
-	\\
-	\phantomsection\hypertarget{sec:elMejorCandidato}{}\label{sec:elMejorCandidato}
-	\\
-	\predLargo{elMejorCandidato}{usuarios:\Diccionario{\Tipo{\Z}}{categoria}, \\ Historial:\seq{Transacciones}, res: \seq{\Z}, i: \Tipo{\Z}} {
-		\paraTodo{x}{\Tipo{\Z}}{ (x \in claves(usuarios) \land \\ millasDisponibles(x,Historial) \leq millasDisponibles(res[i],Historial))\implica_L  \\ (\existe {j}{\Tipo{\Z}}{0 \leq j < i } \land_L res[j] = x) }
 	}
 
 	\vspace{1cm}
@@ -811,17 +741,6 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
         SumaTransferenciasEnviadas(AM.Transferencias, IdUsuario)
     }
 
-	\vspace{1.0cm}
-	\phantomsection\hypertarget{sec:EsTransaccionSumadora}{}\label{sec:EsTransaccionSumadora}
-	\predLargo{EsTransaccionSumadora}{Trans: Transacciones,idUsuario : \Tipo{\Z}}
-	{ (Trans.TipoDeTransaccion = 0) \lor \\(IdUsuario = Trans.UsuarioDestino \land Trans.TipoDeTransaccion = 1)}
-
-
-	\vspace{1.0cm}
-	\phantomsection\hypertarget{sec:EsTransaccionDelUsuario}{}\label{sec:EsTransaccionDelUsuario}
-	\pred{EsTransaccionDelUsuario}{Trans: Transacciones,idUsuario : \Tipo{\Z}}{\\Trans.UsuarioOrigen = idUsuario \lor Trans.UsuarioDestino = idUsuario}
-
-
 	\vspace{0.5cm}
 	\phantomsection\hypertarget{sec:SeConsumioLaPromocion}{}\label{sec:SeConsumioLaPromocion}
 	\predLargo
@@ -847,83 +766,6 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			})
 	}
 
-	\vspace{0.5cm}
-
-	\phantomsection\hypertarget{sec:MillasObtenidasPorVuelo}{}\label{sec:MillasObtenidasPorVuelo}
-	\auxLargo{MillasObtenidasPorVuelo}
-	{Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}}
-	{\Tipo{\R}}
-	{
-		\sum\limits_{i=0}^{\norm{Historial} - 1}
-		\IfThenElse{
-			\hyperref[sec:EsVuelo]{EsVuelo}(Historial[i],
-			idOrigen)
-		}{
-			Historial[i].Millas
-		}{
-			0
-		}
-	}
-
-	\vspace{1cm}
-
-	\vspace{1cm}
-	\phantomsection\hypertarget{sec:MillasDescontadasPorCanjeo}{}\label{sec:MillasDescontadasPorCanjeo}
-	\auxLargo{MillasDescontadasPorCanjeo}
-	{Historial: \Tipo{\seq{Transacciones}}, idOrigen: \Tipo{\Z}}
-	{\Tipo{\R}}
-	{
-		\sum\limits_{i=0}^{\norm{Historial} - 1}
-		\IfThenElse{
-			\hyperref[sec:EsCanjeo]{EsCanjeo}(Historial[i],
-			idOrigen)
-		}{
-			Historial[i].Millas
-		}{
-			0
-		}
-	}
-	\vspace{1cm}
-	\phantomsection\hypertarget{sec:EsVuelo}{}\label{sec:EsVuelo}
-	\predLargo{EsVuelo}
-	{Transaccion: \Tipo{Struct}, idOrigen: \Tipo{\Z}}
-	{
-		Transaccion.UsuarioOrigen = idOrigen \land
-		\\
-		Transaccion.TipoDeTransaccion = 0 \land
-		\\
-		Transaccion.UsuarioDestino = -1
-	}
-
-	\vspace{1cm}
-
-
-	\phantomsection\hypertarget{sec:EsCanjeo}{}\label{sec:EsCanjeo}
-	\predLargo{EsCanjeo}
-	{Transaccion: \Tipo{struct}, idOrigen: \Tipo{\Z}}
-	{
-		Transaccion.UsuarioOrigen = idOrigen \land
-		\\
-		Transaccion.TipoDeTransaccion = 2 \land
-		\\
-		Transaccion.UsuarioDestino = -1
-	}
-
-	\vspace{1cm}
-	\noindent \comentario{Es similar a EsTransferencia pero aca no importa el destino, unicamente chequeo que exista el usuario de origen.}
-	\\
-	\phantomsection\hypertarget{sec:EsTransferenciaEnviada}{}\label{sec:EsTransferenciaEnviada}
-	\\
-	\predLargo{EsTransferenciaEnviada}
-	{Transaccion: \Tipo{Transacciones}, idOrigen: \Tipo{\Z}, Usuarios: \Tipo{\dict{\Z}{Categoria}}}
-	{
-		Transaccion.UsuarioOrigen = idOrigen \land
-		\\
-		Transaccion.TipoDeTransaccion = 1 \land
-		\\
-		Transaccion.UsuarioDestino \in claves(Usuarios)
-	}
-
     \vspace{1cm}
 	\phantomsection\hypertarget{sec:MillasPerdidas}{}\label{sec:MillasPerdidas}
 	\auxLargo{MillasPerdidas}
@@ -934,63 +776,6 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
         \\ SumaCanjeos(AM.Canjeos,IdUsuario)
     }
 
-	\vspace{1cm}
-	\phantomsection\hypertarget{sec:NoHayRepetidos}{}\label{sec:NoHayRepetidos}
-	\predLargo{NoHayRepetidos}{res: \Tipo{\seq{\tupla{\Z,\Z}}}}
-	{
-		\paraTodo{t}{\tupla{\Tipo{\Z},\Tipo{\Z}}}{t \in res \implicaLuego \hyperref[sec:cantApariciones]{cantApariciones}(t,res)=1}
-	}
-
-	\phantomsection\hypertarget{sec:cantApariciones}{}\label{sec:cantApariciones}
-	\auxLargo{cantaApariciones}{t:\Tipo{\tupla{\Tipo{\Z,\Z}}},res: \Tipo{\seq{\Tipo{\Z},\Tipo{\Z}}}}{\Tipo{\Z}}{
-		\sum\limits_{0}^{\norm{res}} \IfThenElse{t \in res}{1}{0}
-	}
-	\vspace{1cm}
-	\phantomsection\hypertarget{sec:NoHayPermutacion}{}\label{sec:NoHayPermutacion}
-	\predLargo{NoHayPermutacion}{res}{
-		\paraTodo{t}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{t \in res \implicaLuego \tupla{{t_1},t_{0}} \notin res}
-	}
-
-	\vspace{0.5cm}
-	\phantomsection\hypertarget{sec:TieneReciprocoHistorial}{}\label{sec:TieneReciprocoHistorial}
-	\predLargo{TieneReciprocoHistorial}{Historial: \Tipo{\seq{Transacciones}},res: \seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}
-	{\paraTodo{x}{\tupla{\Tipo{\Z},\Tipo{\Z}}}{x \in res \implica \hyperref[sec:HayReciproco]{HayReciproco}(Historial,x)}}
-
-	\vspace{0.5cm}
-	\phantomsection\hypertarget{sec:HayReciproco}{}\label{sec:HayReciproco}
-	\predLargo{HayReciproco}{Historial: \Tipo{\seq{Transacciones}},t: \Tipo{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}}
-	{
-		\existe{i}{\Tipo{\Z}}{0 \le i < \norm{Historial} \yLuego
-			Historial[i].TipoDeTransaccion = 1 \yLuego
-			\\
-			(Historial[i].usuarioOrigen = t_{1} \land Historial[i].usuarioDestino = t_{0})}
-	}
-
-	\vspace{0.5cm}
-	\phantomsection\hypertarget{sec:SonParejaExclusiva}{}\label{sec:SonParejaExclusiva}
-	\predLargo{SonParejaExclusiva}{Historial: \Tipo{\seq{Transacciones}},res: \seq{\tupla{\Tipo{\Z}, \Tipo{\Z}}}}
-	{
-		\paraTodo{t}{\tupla{\Tipo{\Z},\Tipo{\Z}}}{ t \in res \implicaLuego
-			\neg (\hyperref[sec:HayOtroUsuario]{HayOtroUsuario}(t0,t1,Historial) \lor
-			\\
-			\hyperref[sec:HayOtroUsuario]{HayOtroUsuario}(t1,t0,Historial))
-		}
-	}
-
-	\phantomsection\hypertarget{sec:EstanTodosLosPares}{}\label{sec:EstanTodosLosPares}
-	\predLargo{EstanTodosLosPares}{Usuarios: \Diccionario{id}{categoria},res}
-	{
-		\paraTodo{t}{\Tipo{\tupla{\Tipo{\Z},\Tipo{\Z}}}}{t0 \in claves(Usuarios) \land t1 \in claves(Usuarios) \implicaLuego t \in res }
-	}
-
-	\vspace{0.5cm}
-	\phantomsection\hypertarget{sec:HayOtroUsuario}{}\label{sec:HayOtroUsuario}
-	\predLargo{HayOtroUsuario}{t0,t1,Historial}
-	{
-		\paraTodo{i}{\Tipo{\Z}}{ 0 \le i < \norm{Historial} \yLuego Historial[i].UsuarioOrigen = t0 \implicaLuego
-			\\
-			Historial[i].UsuarioDestino \neq t1}
-	}
 
 
 \end{tad}
