@@ -489,8 +489,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		\requiere{True}
 
 		\aseguraLargo	{
-			\paraTodo{i}{\Z}{\paraTodo{j}{\Z}{i \in AM.Usuarios \land j \in AM.Usuarios \land SeTransfirieron(i,j,AM) \land NoLeTransfirieronAOtros(i,j,AM) \implicaLuego \tupla{i,j} \in res }} \land \\
-			NoHayRepetidos(res) \land NoHayPermutaciones(res)
+			\paraTodo{i}{\Z}{\paraTodo{j}{\Z}{(i \in AM.Usuarios \land j \in AM.Usuarios \land i < j \land \\ SeTransfirieron(i,j,AM) \land NoLeTransfirieronAOtros(i,j,AM)) \sii \tupla{i,j} \in res }} \land NoHayRepetidos(res)
 		}
 
 	\end{proc}
@@ -537,11 +536,16 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	}
 
 	\vspace{0.5cm}
-	\phantomsection\hypertarget{sec:EsNuevoCanjeo}{}\label{sec:EsNuevoCanjeo}
-	\predLargo{EsNuevoCanjeo}
-	{}
+	\phantomsection\hypertarget{sec:NoHayRepetidos}{}\label{sec:NoHayRepetidos}
+	\predLargo{NoHayRepetidos}
+	{res: \seq{\tupla{\Z,\Z}}}
 	{
-		i
+		\paraTodo{t}{Tupla}{t \in res \implicaLuego cantidadApariciones(res,t) = 1 }
+	}
+
+	\auxLargo{cantidadApariciones}{res: \seq{\tupla{\Z,\Z}}, tupla: \tupla{\Z,\Z}}{\Tipo{\Z}}
+	{
+		.\sum\limits_{i = 0}^{\norm{res}-1} \IfThenElse{res[i] = tupla}{1}{0}
 	}
 	\vspace{0.5cm}
 	\phantomsection\hypertarget{sec:EsNuevoCanjeo}{}\label{sec:EsNuevoCanjeo}
@@ -844,7 +848,6 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		\paraTodo{i}{\Tipo{\Z}}{\paraTodo{j}{\Tipo{\Z}}{i \in AM.Usuarios \land j \in res \land i \notin res \implicaLuego MillasDisponibles(AM,i) \leq MillasDisponibles(AM,j)}}
 	}
 	\\
-
 \end{tad}
 
 \end{document}
