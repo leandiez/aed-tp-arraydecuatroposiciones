@@ -489,12 +489,9 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		\requiere{True}
 
 		\aseguraLargo	{
-			\norm{res} = CantidadDeExclusivos(AM) \\
-			\paraTodo{i}{\Tipo{\Z}}{0 \leq i<\norm{res} \yLuego i \in res \implicaLuego
-				SeTransfirieron(res[0]_0, res[0]_1, AM.transacciones) \land
-				NoLeTransfirieronAOtros(res[0]_0, res[0]_1, AM.transacciones)}
+			\paraTodo{i}{\Z}{\paraTodo{j}{\Z}{i \in AM.Usuarios \land j \in AM.Usuarios \land SeTransfirieron(i,j,AM) \land NoLeTransfirieronAOtros(i,j,AM) \implicaLuego \tupla{i,j} \in res }} \land \\
+			NoHayRepetidos(res) \land NoHayPermutaciones(res)
 		}
-		\comentarioLargo{Esto tiene que ser al reves para todo i y j en usuarios que cumplan pertenecen a res (sino puede haber copias)}
 
 	\end{proc}
 
@@ -522,6 +519,37 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			NoLeTransfirieronAOtros(i, j, AM.Transacciones)}{1}{0})/2
 	}
 
+	\vspace{0.5cm}
+	\phantomsection\hypertarget{sec:SeTransfirieron}{}\label{sec:SeTransfirieron}
+	\predLargo{SeTransfirieron}
+	{i :\Tipo{\Z},j :\Tipo{\Z}, AM:AirMiles}
+	{
+		\existe{t1}{Transferencia}{t1 \in AM.Transferencias \yLuego i = t1.UsuarioOrigen \land j = t1.UsuarioDestino} \land\\
+		\existe{t2}{Transferencia}{t2 \in AM.Transferencias \yLuego i = t2.UsuarioDestino \land j = t2.UsuarioOrigen}
+	}
+
+	\vspace{0.5cm}
+	\phantomsection\hypertarget{sec:NoLeTransfirieronAOtros}{}\label{sec:NoLeTransfirieronAOtros}
+	\predLargo{NoLeTransfirieronAOtros}
+	{i :\Tipo{\Z},j :\Tipo{\Z}, AM:AirMiles}
+	{
+		\neg \existe{t}{Transferencia}{t \in AM.Transferencias \yLuego (i = t.UsuarioOrigen \land t.UsuarioDestino \neq j) \lor (j = t.UsuarioOrigen \land t.UsuarioDestino \neq i)}
+	}
+
+	\vspace{0.5cm}
+	\phantomsection\hypertarget{sec:EsNuevoCanjeo}{}\label{sec:EsNuevoCanjeo}
+	\predLargo{EsNuevoCanjeo}
+	{}
+	{
+		i
+	}
+	\vspace{0.5cm}
+	\phantomsection\hypertarget{sec:EsNuevoCanjeo}{}\label{sec:EsNuevoCanjeo}
+	\predLargo{EsNuevoCanjeo}
+	{i :\Tipo{\Z},j :\Tipo{\Z}, AM:AirMiles}
+	{
+		i
+	}
 	\vspace{0.5cm}
 	\phantomsection\hypertarget{sec:EsNuevoReferido}{}\label{sec:EsNuevoReferido}
 	\predLargo{EsNuevoReferido}
