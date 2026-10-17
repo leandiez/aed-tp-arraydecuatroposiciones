@@ -8,7 +8,7 @@
 \newlength{\miSangria}
 \setlength{\miSangria}{2em}
 
-\titulo{Trabajo práctico 1 Reentregan: Especificacion de Tads}
+\titulo{Trabajo práctico 1 Reentrega: Especificacion de Tads}
 \subtitulo{Tad AirMiles}
 
 \fecha{\today}
@@ -44,10 +44,10 @@ El detalle de los procedimientos se encuentra en la consigna del trabajo, sin em
 Por ultimo añadimos comentarios sobre los propios Procedimientos, para los casos donde creimos que valia la pena alguna aclaracion.\\
 
 \subsection{Observadores}
-Elegimos utilizar 7 observadores, que consideramos tienen la informacion mas relevante para describir el estado del sistema.\\
-En el caso de Usuarios, tiene un conjunto de IDs para distinguir uno de otro.\\
-En el caso de Historial, *** completar despues con los cambios ***\\
-Por ultimo las Promociones, *** completar despues con los cambios ***.
+Elegimos utilizar 7 observadores, que consideramos tienen la informacion más relevante para describir el estado del sistema. 
+En el caso de Usuarios, tiene un conjunto de IDs para distinguir uno de otro. No se puede repetir y no importa el orden.
+Para el manejo del historial se tomaron 4 observadores, separados por Vuelos,Canjeos,Transferencias y Referidos. Esta información no rompe la minimalidad de los observadores ya que no se esta repitiendo información, es decir, no se esta observando dos veces lo mismo, y no se tienen campos hardcodeados que rompen la especificacion.
+Por otro lado, tambien se separo el observador promociones a PromocionesConTope y PromocionesSinTope, esto para evitar campos con valores sin uso o simplemente valores que no toman relevancia para dicho observador.
 
 \subsection{Agotamiento de Promociones con Tope}
 En la acumulacion de millas, detectamos que cuando a un usuario se le aplica una promocion con tope y aun tiene tope disponibles, se le podrian otorgar una cantidad de millas mayor a la disponible debido a la distancia y su factor de categoria. Para ese caso decidimos que se le otorguen al usuario 2 acumulaciones por separado, una utilizando la promocion con las millas de tope disponibles, y el resto utilizando la "NoPromo", es decir recibe un "bonus parcial".
@@ -56,10 +56,8 @@ En la acumulacion de millas, detectamos que cuando a un usuario se le aplica una
 En el caso de la transferencia de millas, detectamos que si 2 usuarios se envian y reciben millas mutuamente, el total de millas de los mismos se incrementaria indefinidamente, dandoles la oportunidad de subir de categoria sin realizar vuelos. Si bien esto lo podiamos resolver evitando que las transferencias acumulen totales, al contradecirse con lo que interpretamos de la consigna decidimos darlo como una opcion valida.
 
 \subsection{Categoria Platino}
-Los usuarios que llegan a categoria Platino, se indica que no acumulan mas millas, sin embargo no se especifica que ocurre con las millas disponibles, ni con las transferencias. Nuestra interpretacion de esto, es que estos usuarios SI pueden hacer esas operaciones, siendo unicamente la acumulacion por vuelo la que se anula, utilizando un factor 0 en el calculo de millas otorgadas.
+Los usuarios que llegan a categoria Platino, se indica que no acumulan mas millas, sin embargo no se especifica que ocurre con las millas disponibles, ni con las transferencias. Nuestra interpretacion de esto, es que estos usuarios SI pueden hacer esas operaciones, siendo únicamente la acumulación por vuelo la que se anula, utilizando un factor 0 en el cálculo de millas otorgadas.
 
-\subsection{Comentarios PostCorrección}
-\textbf{Observadores}: Se decidió optar por modificar los observadores, los mismos serán Vuelos, Transferencias,Canjeos y Referidos. Que antes pertenecían a un unico observador Historial. Se decidió hacer de esta forma ya que cada uno de estos observadores tiene un struct que contiene \textbf{únicamente} la información necesaria para cada una de las transacciones. Esta información no rompe la minimalidad de los observadores ya que no se esta repitiendo información, es decir, no se esta observando dos veces lo mismo. Por otro lado, tambie nse separo el antiguo observador promociones a PromocionesConTope y PromocionesSinTope, esto para evitar campos con valores "hardcodeados" o simplemente valores que no toman relevancia para dicho observador.
 
 \section{Renombres de Tipos y Estructuras}
 
@@ -94,12 +92,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 
 \section{Especificación del TAD AirMiles}
 \begin{tad}{AirMiles}
-
-
-	\comentario{Decidimos dejar en usuarios la categoria por mas que se pueda calcular por fuera. Las promociones tienen a un diccionario que adentro tiene un struct }
-	\\
-	\obs{Usuarios}{\conj{id:\Tipo{\Z}}}
-	\\
+	\obs{Usuarios}{\conj{id:\Tipo{\Z}}} \\
 	\noindent \obs{Vuelos}{\seq{Vuelo}} \\
 	\noindent \obs{Transferencias}{\seq{Transferencia}} \\
 	\noindent \obs{Canjeos}{\seq{Canjeo}} \\
@@ -158,9 +151,9 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		\requiere{AM_0 = AM \land idReferidor \in AM_0.Usuarios \land idUsuario \notin AM_0.Usuarios \land idUsuario > 0}
 		\aseguraLargo{
 			% Creo el usuario
-			AM.Usuarios = AM_0.Usuarios \cup \{idUsuario\} \land
+			AM.Usuarios = AM_0.Usuarios \cup \{idUsuario\} \yLuego
 			\\
-			\hyperref[sec:EsNuevoReferido]{EsNuevoReferido}(AM,AM_0,idReferidor, idUsuario, 500) \yLuego
+			\hyperref[sec:EsNuevoReferido]{EsNuevoReferido}(AM,AM_0,idReferidor, idUsuario, 500) \land
 			\\
 			AM.PromocionesConTope = AM_0.PromocionesConTope \land \\
 			AM.PromocionesSinTope = AM_0.PromocionesSinTope \land \\
@@ -184,16 +177,16 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		}
 		{}
 
-		\comentario{Acumula millas por vuelo. Tres casos mutuamente excluyentes segun la promocion: \\
-			Caso 1: Promocion CON tope y MillasRestantes $\ge$ MillasCalculadas(distancia, fcat, fpromo). \\
-			Se registra 1 vuelo con la promo. Si MillasRestantes $>$ MillasCalculadas se decrementa el tope (ActualizaMillasRestantesDePromo); si son iguales se elimina la promocion (SeConsumioLaPromocion). \\
-			Caso 2: Promocion CON tope y MillasRestantes $<$ MillasCalculadas. El vuelo se divide en dos transacciones coherentes: \\
-			Vuelo 1 usa la promo (millas = MillasRestantes, distancia = MillasRestantes/(fcat$\times$fpromo)). \\
-			Vuelo 2 usa "NoPromo" (factor 1, distancia = distanciaTotal - distanciaVuelo1, millas = distanciaVuelo2 $\times$ fcat). \\
-			Se elimina la promocion. Las distancias suman la distancia total. \\
-			Caso 3: Promocion SIN tope. Vuelo unico con factor de la promo. PromocionesConTope no varía. \\
-			Postcondicion comun: categoria recalculada con DarCategoria(AM) (El SetKey se aplica y si no cambia la categoría no pasa nada). \\
-			Observadores no afectados (Canjeos, Transferencias, Referidos, PromocionesSinTope).} \\
+		% Acumula millas por vuelo. Tres casos mutuamente excluyentes segun la promocion: 
+		% 	Caso 1: Promocion CON tope y MillasRestantes $\ge$ MillasCalculadas(distancia, fcat, fpromo). \\
+		% 	Se registra 1 vuelo con la promo. Si MillasRestantes $>$ MillasCalculadas se decrementa el tope (ActualizaMillasRestantesDePromo); si son iguales se elimina la promocion (SeConsumioLaPromocion). \\
+		% 	Caso 2: Promocion CON tope y MillasRestantes $<$ MillasCalculadas. El vuelo se divide en dos transacciones coherentes: \\
+		% 	Vuelo 1 usa la promo (millas = MillasRestantes, distancia = MillasRestantes/(fcat$\times$fpromo)). \\
+		% 	Vuelo 2 usa "NoPromo" (factor 1, distancia = distanciaTotal - distanciaVuelo1, millas = distanciaVuelo2 $\times$ fcat). \\
+		% 	Se elimina la promocion. Las distancias suman la distancia total. \\
+		% 	Caso 3: Promocion SIN tope. Vuelo unico con factor de la promo. PromocionesConTope no varía. \\
+		% 	Postcondicion comun: categoria recalculada con DarCategoria(AM) (El SetKey se aplica y si no cambia la categoría no pasa nada). \\
+		% 	Observadores no afectados (Canjeos, Transferencias, Referidos, PromocionesSinTope). 
 		\comentario{Esta disyuncion es exclusiva, y esta garantizado en IniciarPromocion.} \\
 		\requiereLargo{AM = AM_0 \land idUsuario \in AM_0.Usuarios \land
 			\\
@@ -222,7 +215,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 					} \land \\
 					AM.PromocionesSinTope = AM_0.PromocionesSinTope
 				}{
-					% Caso 3: promo con tope no alcanza - Modelo B: split por distancia
+					% Caso 2: promo con tope no alcanza
 					\\
 					\comentario{Caso 2: Las millas de la promo no alcanzan para completar el vuelo} \\
 					\hyperref[sec:EsNuevoVuelo]{EsNuevoVuelo}(AM, AM_0, idUsuario, \\
@@ -248,7 +241,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 				}
 			}{
 				\\
-				% Caso 2: promo sin tope
+				% Caso 3: promo sin tope
 				\comentario{Caso 3: La promo no tiene tope, se hace el vuelo comun} \\
 				\\
 				(nombrePromo \in claves(AM_0.PromocionesSinTope) \implicaLuego
@@ -262,7 +255,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			} \land
 			% Postcondiciones comunes a todos los casos
 			\\
-			AM.Usuarios = SetKey(AM_0.Usuarios, idUsuario, \hyperref[sec:DarCategoria]{DarCategoria}(AM, idUsuario)) \land
+			AM.Usuarios = AM_0.Usuarios \land \\
 			AM.Canjeos = AM_0.Canjeos \land \\
 			AM.Transferencias = AM_0.Transferencias \land \\
 			AM.Referidos = AM_0.Referidos
@@ -274,9 +267,9 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	\begin{proc}{CanjearMillas}
 		{\Inout AM: AirMiles, \In MillasCanjeadas : \Tipo{\R}, \In IdUsuario : \Tipo{\Z}}
 		{}
-		\requiereLargo{ AM=AM_0 \yLuego MillasCanjeadas > 0 \land IdUsuario \in AM_0.Usuarios}
+		\requiereLargo{ AM=AM_0 \yLuego IdUsuario \in AM_0.Usuarios \land MillasCanjeadas > 0 }
 		\aseguraLargo{
-			\IfThenElse{ \hyperref[sec:MillasDisponibles]{MillasDisponibles}(IdUsuario, AM_0.Historial) \geq MillasCanjeadas}
+			\IfThenElse{ \hyperref[sec:MillasDisponibles]{MillasDisponibles}( AM_0, IdUsuario) \geq MillasCanjeadas}
 			{\\ \hyperref[sec:EsNuevoCanjeo]{EsNuevoCanjeo}(AM,AM_0,IdUsuario,MillasCanjeadas)}
 			{\\AM.Canjeos =  AM_0.Canjeos} \land \\
 			AM.Usuarios = AM_0.Usuarios \land \\
@@ -298,7 +291,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			\In CantMillasTrans: \Tipo{\R}
 		}
 		{}
-		\requiereLargo{AM_0 = AM \land idUsuarioPagador \in AM_0.usuarios\\
+		\requiereLargo{AM_0 = AM \yLuego idUsuarioPagador \in AM_0.usuarios\\
 			idUsuarioBeneficiario \in AM_0.usuarios \land \\
 			idUsuarioPagador \neq idUsuarioBeneficiario \land \\
 			\hyperref[sec:MillasDisponibles]{MillasDisponibles}(AM, idUsuarioPagador) \geq CantMillasTrans
@@ -319,7 +312,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	\begin{proc}{ConsultarSaldo}
 		{\In AM: AirMiles, \In IdUsuario : \Tipo{\Z}}
 		{\Tipo{\Z}}
-		\requiere{IdUsuario \in AM_0.Usuarios }
+		\requiere{IdUsuario \in AM.Usuarios }
 
 		\asegura{
 			res = \hyperref[sec:MillasDisponibles]{MillasDisponibles}(AM,IdUsuario)
@@ -334,7 +327,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 			\In idUsuario: \Tipo{\Z},
 		}
 		{\Tipo{categoria}}
-		\requiere{idUsuario \in AM_0.Usuarios}
+		\requiere{idUsuario \in AM.Usuarios}
 		\asegura{res = \hyperref[sec:DarCategoria]{DarCategoria}(AM, idUsuario)}
 
 	\end{proc}
@@ -392,7 +385,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		}
 		{}
 		\requiereLargo{
-			AM = AM_0 \land factorPromo \geq 1 \land
+			AM = AM_0 \land factorPromo \geq 1 \land \norm{nombrePromo} > 0 
 			\\
 			nombrePromo \notin
 			claves(AM.PromocionesConTope) \land TopePromo > 0 \land \\
@@ -510,14 +503,6 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 		}
 	\end{proc}
 
-	\vspace{1cm}
-	\auxLargo{CantidadDeExclusivos}{AM: AirMiles }{\Tipo{\Z}}
-	{
-		(\sum\limits_{0}^{\norm{AirMiles.Transacciones}}\IfThenElse{\paraTodo{j}{\Tipo{\Z}} j \in claves(AM.Usuarios) \implicaLuego \\
-			SeTransfirieron(j,i,AM.Transacciones) \land \\
-			NoLeTransfirieronAOtros(i, j, AM.Transacciones)}{1}{0})/2
-	}
-
 	\vspace{0.5cm}
 	\phantomsection\hypertarget{sec:SeTransfirieron}{}\label{sec:SeTransfirieron}
 	\predLargo{SeTransfirieron}
@@ -547,13 +532,7 @@ Los usuarios que llegan a categoria Platino, se indica que no acumulan mas milla
 	{
 		.\sum\limits_{i = 0}^{\norm{res}-1} \IfThenElse{res[i] = tupla}{1}{0}
 	}
-	\vspace{0.5cm}
-	\phantomsection\hypertarget{sec:EsNuevoCanjeo}{}\label{sec:EsNuevoCanjeo}
-	\predLargo{EsNuevoCanjeo}
-	{i :\Tipo{\Z},j :\Tipo{\Z}, AM:AirMiles}
-	{
-		i
-	}
+	
 	\vspace{0.5cm}
 	\phantomsection\hypertarget{sec:EsNuevoReferido}{}\label{sec:EsNuevoReferido}
 	\predLargo{EsNuevoReferido}
