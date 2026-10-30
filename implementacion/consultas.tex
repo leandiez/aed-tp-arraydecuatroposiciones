@@ -23,45 +23,32 @@
 \subsection{Estructuras elegidas}
 
 \begin{enumerate}
-	\item Usuarios --- AVL/ABB para la busqueda normal y HEAP para obtener el ranking por millas (Esto abarcaría crearUsuario, RegistrarUsuario y RegistrarUsuarioConReferidor). El arbol del usuario va a estar compuesto por nodos, dichos nodo contendrán el ID del usuario, su categoría, su saldoDisponible (Es decir las millas disponibles) y tambien las totales, esto para aprovechar tambien y obtener instantamentamente su categoría.
-	\item Transacciones --- ArrayList(Transaccion): (Abarca los procs CanjearMillas,TranferirMillas, AcumularMillas y tambien ParesTransferidoresExclusivos!)
+	\item Usuarios --- ABB para la busqueda normal y HEAP para obtener el ranking por millas (Esto abarcaría crearUsuario, RegistrarUsuario y RegistrarUsuarioConReferidor). El arbol del usuario va a estar compuesto por nodos, dichos nodo contendrán el ID del usuario, su categoría, su saldoDisponible (Es decir las millas disponibles) y tambien las totales, esto para aprovechar tambien y obtener instantamentamente su categoría. --- CONSULTAR--- Para la parte de paresExclusivosDeTransferidores, podria quizas implementarse otro arbol que contenga la los usuarios que a los que se le hizo la transferencia, ademas de una constante que diga cuantos elementos tiene el árbol (La idea detrás de esto es que si el arbol tiene +1 hijo es porque entonces no son transferidores exclusivos. Pero si tiene exactamente un hijo hay que buscar nuevamente sobre el arbol de usuarios, o con un handle sería mucho más eficiente y verificar las transferencias de dicho usuario nuevamente, si su arbol de transferidores vario es porque no son paresTransferidores, si son iguales entonces si.) ¿Es esta idea equivalente con otra estructura? Suena un poco raro crear un arbol cuando solo interesa recorrerlo si tiene un elemento. Para eso no sería mejor crear una lista o algo similar? 
+	\item Transacciones --- ArrayList(Transaccion): (Abarca los procs CanjearMillas,TranferirMillas, AcumularMillas) (Creo que esto no es necesario, porque en realidad no se utiliza, se utilizaría capaz en ResumenTransacciones, pero en la consigna del tp no hay que implementarlo asi que este quizas no va y directamente iria todo dentro del arbol de usuarios.)
 	\item Promociones --- DiccionarioDigital (TRIE): como clave tiene el nombre de la promocion, y como valor al objeto Promocion. (Abarca los procs IniciarPromocion,IniciarPromocionConTope y FinalizarPromocion)
-	\item ElMasAcumulador: Heap(HandleUsuario) ElMasAcumulador es una estructura Heap que contiene el handle del usuario, es decir, una referencia abstracta de los usuarios es mucho mas fácil acceder al Objeto usuario en tiempo O(1). A su vez la clase ElMasAcumulador implementa la interfaz comparator que se encarga de chequear que para todo objeto del heap este primero siempre el que mas millas acumuló.
-	\item elMasCanjeador: Heap(HandleUsuario) Misma idea con el mas canjeador, tiene un handler para acceder a la referencia del usuario en O(1) e implementa el mismo comparator pero con un CompareTo pensado para la   
-	\item rankingMillas: Heap(HandleUsuarios), esto entiendo que costaría N log U porque obtener los N usuarios es O(1) y reordenar el heap sería N veces log u, es decir O(n log U), la diferencia entre este y los dos anteriores es que aca hay que reordenar el heap y eso cuesta O(N log U). Ademas, esta clase del heap utiliza otro comparator, que compara justamente por el que tiene mas millas. Creo que igual aca hay que tener un cuidado extra. Estamos SACANDO los elementos del Heap, si luego no los vuelvo a insertar, no se rompe el invariante pero se puede romper el sistema. Esto lo podemos consultar.
-	
-	Falta todavia alguna estructura o algo para ver como va a ser ParesTransferidoresExclusivos...
+	\item ElMasAcumulador: Heap(HandleUsuario) ElMasAcumulador es  un atributo de la clase airmiles cuya estructura Heap que contiene el handle del usuario, es decir, una referencia abstracta de los usuarios es mucho mas fácil acceder al Objeto usuario en tiempo O(1). A su vez la clase Heap implementa la interfaz comparator (PorMasAcumulado o algo similar) que se encarga de chequear que para todo objeto del heap este primero siempre el que mas millas acumuló.
+	\item elMasCanjeador: Heap(HandleUsuario) Misma idea con el mas canjeador, tiene un handler para acceder a la referencia del usuario en O(1) y el heap implementa el mismo comparator pero con un CompareTo pensado para la persona que mas millas canjeo. 
+	\item rankingMillas: Heap(HandleUsuarios), esto entiendo que costaría O(N log U) Obtener los usuarios es O(1) en el heap y reordenar el heap (sift-down) es O(log U). El total queda entonces O(N log U) para obtener los usuarios y reordenar todo el heap, la diferencia entre este y los dos anteriores es que aca hay que reordenar el heap y eso cuesta O(N log U). Ademas, esta clase del heap utiliza otro comparator, que compara justamente por el que tiene mas millas. Creo que igual aca hay que tener un cuidado extra. Estamos SACANDO los elementos del Heap, si luego no los vuelvo a insertar, no se rompe el invariante pero se puede romper el sistema. Esto lo podemos consultar.
 
 \end{enumerate}
 
 
-\subsection{Objetos que vamos a usar}
+\subsection{Objetos que vamos a usar (No esta todo completo, es un pantallazo)}
 
 \begin{enumerate}
 	\item Usuario: tiene un ID, una categoria, las millas disponibles y las millas totales
 	\item Promocion: tiene un nombre, un factor y millas restantes. Al crearlo se debe especificar si es con o sin tope
-\end{enumerate}
-
-\subsection{Procedimientos / Funciones de AirMiles}
-\begin{enumerate}
-	\item Canjear Millas, Transferir Millas: tardan O(log U) porque buscar al usuario en el arbol cuesta eso, y asignarle las millas es O(1)
-	\item Acumular Millas: tiene complejidad O(log U + $\norm{L}$) porque la busqueda del usuario es log U y la busqueda de la promocion es $\norm{L}$ ya que su estructura es un TRIE
-	\item
-
-\end{enumerate}
-
-\subsection{Objetos auxiliares}
-\begin{enumerate}
 	\item Clase Transaccion: \\
 	Enum TipoDeTransaccion (Canjeo, transferencia, referido) \\
 	int UsuarioOrigen \\
 	int UsuarioDestino \\
-	int distancia \\ 
-	int millas \\
+	float distancia \\ 
+	floatj millas \\
 	str NombrePromo \\
 	float factorPromo \\
 
 	Hay que definir tambien aca los métodos del objeto transaccion (tener solo una clase con atributos, lo vuelve una clase anémica. No tiene mucho sentido. Otra opcion sino sería usar una estructura como un struct o algo asi aunque no la vimos.)
+
 	\item Objeto Promocion \\
 	str NombrePromocion \\
 	float FactorPromocion \\
@@ -73,6 +60,19 @@
 	IniciarPromocion \\
 	IniciarPromocionConTope \\
 	FinalizarPromocion \\
+	
+\end{enumerate}
+
+\subsection{Procedimientos / Funciones de AirMiles}
+\begin{enumerate}
+	\item IniciarSistema O(1) Solo inicializaciones.
+	\item RegistrarUsuario / RegistrarUsuarioConReferidor O(log U) en el caso promedio porque es meter al usuario en un arbol binario y O(U) en el peor caso si el arbol esta degenerado, es decir no esta balanceado (esta es la justificacion además de por que podemos utilizar un ABB en vez de un AVL.)
+	\item Canjear Millas, Transferir Millas: tardan O(log U) porque buscar al usuario en el arbol cuesta eso, y asignarle las millas es O(1)
+	\item Acumular Millas: tiene complejidad O(log U + $\norm{L}$) porque la busqueda del usuario es log U y la busqueda de la promocion es $\norm{L}$ ya que su estructura es un TRIE
+	\item elMasAcumulador / elMasCanjeador O(1) Porque la implementacion del Heap para obtener la raiz es instantánea.
+	\item rankingMillas: O(N log U) porque sacar la usuario es O(1) y eso se hace N veces, y luego reordenar el heap es O(Log U).
+	\item paresTransferidoresExclusivos: O(U) porque en el peor de los casos hay que buscar al usuario en el arbol (Faltaría entrar mejor en detalles con esto, consultar!)
+
 \end{enumerate}
 
 \end{document}
