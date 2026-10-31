@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Comparator;
+import aed.tp2.Handle;
 
 public class Heap<T> {
     // No especificaron nada acerca de si se puede usar esta estructura o no. No tenemos tiempo para implementar tantas cosas asi que opto por usar esto.
@@ -9,10 +10,19 @@ public class Heap<T> {
     /*
     No tenemos muy seguro la complejidad de hacer la extension del arrayList ¿se puede no considerar?
     */
-    public Heap(Comparator comparator){
+    public Heap(Comparator<T> comparator){
         // Creo el array vacio
         data = new ArrayList<T>();
         this.comparator = comparator; 
+    }
+
+    // Tampoco estoy del todo seguro si esto deberia ir aca. Entiendo que si igual
+    public class HandleUsuario<Usuario> implements Handle<T>{
+        public T valor(){};
+        public void eliminar(){};
+        public void modificar(T v){};
+        public boolean equals(Handle<T> h){}; // Ni la mas pálida idea de como implementar el equals aca
+
     }
     // Algunos metodos comunes
     // Si tengo que implementar un sift up lo que hago es lo pongo al final y voy subiendo

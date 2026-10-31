@@ -1,6 +1,6 @@
 package aed.tp2;
 
-interface Handle<T>{    
+public interface Handle<T>{    
     /**
      * Devuelve el valor del elemento
      * 
