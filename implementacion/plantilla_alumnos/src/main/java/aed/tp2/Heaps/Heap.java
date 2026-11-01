@@ -1,3 +1,4 @@
+package aed.tp2.Heaps;
 import java.util.ArrayList;
 import java.util.Comparator;
 import aed.tp2.Handle;
@@ -17,11 +18,15 @@ public class Heap<T> {
     }
 
     // Tampoco estoy del todo seguro si esto deberia ir aca. Entiendo que si igual
-    public class HandleUsuario<Usuario> implements Handle<T>{
-        public T valor(){};
+    public class HandleHeap implements Handle<T>{
+        public T valor(){
+            return null;
+        };
         public void eliminar(){};
         public void modificar(T v){};
-        public boolean equals(Handle<T> h){}; // Ni la mas pálida idea de como implementar el equals aca
+        public boolean equals(Handle<T> h){
+            return true;
+        }; // Ni la mas pálida idea de como implementar el equals aca
 
     }
     // Algunos metodos comunes
@@ -63,7 +68,7 @@ public class Heap<T> {
         while (i < longitud){
             int hijoIzqIndice = 2*i+1;
             int hijoDerIndice = 2*i+2;
-            int hijoMayorIndice;
+            int hijoMayorIndice = i;
  
             // Esto debería funciona porque se supone que el invariante del heap es "izquierdista", entonces deberia estar lleno del lado izquierdo
             // Esto se va a pisar si o si con el mayor
@@ -102,7 +107,7 @@ public class Heap<T> {
         if (data.size()-1 > 1){
             T valor = data.get(0); // Obtengo la raiz
             T ultimo = data.get(data.size()-1); // Tengo el ultimo valor y lo pongo en la raiz
-            data.add(0, ultimo);
+            data.set(0, ultimo);
             siftDown(); // Dejo que el siftdown lo acomode solo y retorno el valor
             return valor;
         } else {

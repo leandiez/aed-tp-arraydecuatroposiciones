@@ -1,7 +1,21 @@
 package aed.tp2;
-
+import aed.tp2.ABB.ABB;
+import aed.tp2.Usuario;
+import aed.tp2.Heaps.Heap;
+import aed.tp2.Heaps.PorMasCanjeos;
+import aed.tp2.Heaps.PorMillasDisponibles;
+import aed.tp2.Heaps.PorMillasTotales;
 public class AirMiles implements SistemaAirMiles {
-    /*COMPLETAR*/
+    
+    ABB<Usuario> Usuarios = new ABB<Usuario>();
+    // Trie Promociones = new Trie<Promocion>(); // No implementado aun
+    /* 
+    Le pasamos al constructor del Heap la clase PorMasCanjeos que es la clase que implementa el Comparator (interfaz de java) que tiene
+    un metodo override al compare para hacer la comparacion que necesitamos.
+    */
+    Heap<Handle<Usuario>> elMasAcumulador = new Heap(new PorMillasTotales()); // Algo asi esta hecho en la filmina del campus 
+    Heap<Handle<Usuario>> elMasCanjeador = new Heap(new PorMasCanjeos());
+    Heap<Handle<Usuario>> rankingMillas = new Heap(new PorMillasDisponibles());
 
     public AirMiles() {
         throw new UnsupportedOperationException("Sin implementar");

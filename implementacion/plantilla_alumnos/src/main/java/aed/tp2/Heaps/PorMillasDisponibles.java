@@ -1,8 +1,10 @@
 package aed.tp2.Heaps;
 import java.util.Comparator; // Este comparador es de la interfaz de java
+
+import aed.tp2.Handle;
 import aed.tp2.Usuario; // importo el usuario aca
 
-public class PorMillasDisponibles implements Comparator<Usuario>{
+public class PorMillasDisponibles implements Comparator<Handle<Usuario>>{
     // Hago una comparación entre 2 usuarios para saber quien es el que mas millas acumuló
     /*  
     Entiendo que la clase Comparator debe estar pisando el metodo Compare (que es distinto de CompareTo)
@@ -10,9 +12,9 @@ public class PorMillasDisponibles implements Comparator<Usuario>{
     ni me interesa. 
     */
     @Override 
-    public int compare(Usuario U1, Usuario U2){
+    public int compare(Handle<Usuario> U1, Handle<Usuario> U2){
         // Me interesa ver cuanto vale la resta entre estos dos numeros
         // Creo que el tema del orden tambien importa, lo podemos ver despues, no se si es Integer o Double.
-        return Integer.compare(U2.millasDisponibles(), U1.millasDisponibles());
+        return Integer.compare(U2.valor().millasDisponibles(), U1.valor().millasDisponibles());
     }
 }

@@ -1,6 +1,11 @@
 package aed.tp2;
 
-public class Usuario {
+/*  
+La posta es que esto habría que consultarlo... Tengo que implementarle este Comparable porque es la clase que usa el Arbol del taller 6. 
+Si no lo tenemos no se puede usar el Comparator pero creo que no es necesario, la comparacion entre usuarios para el arbol basta unicamente con el ID
+Asi que creo que esto es suficiente.
+*/
+public class Usuario implements Comparable<Usuario>{
     // Los atributos son privados pero creo los getter para obtenerlos y usarlos en otra clase
     private int id;
     private int millasTotales;
@@ -37,5 +42,10 @@ public class Usuario {
         } else {
             return categoria.PLATINO;
         }
+    }
+
+    @Override 
+    public int compareTo(Usuario otro){
+        return Integer.compare(this.id, otro.id);
     }
 }
