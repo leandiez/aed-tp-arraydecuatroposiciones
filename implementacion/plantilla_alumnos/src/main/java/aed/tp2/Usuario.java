@@ -12,12 +12,21 @@ public class Usuario implements Comparable<Usuario>{
     private int millasDisponibles;
     private int canjeosRealizados;
     private Categoria categoria;
+    // private ALGUNAESTRUCTURARANDOM transferidores; Aca en teoria deberíamos meter algo para ver como 
 
     public enum Categoria {
         BRONCE, 
         PLATA, 
         ORO, 
         PLATINO
+    }
+
+    public Usuario(int id){
+        this.id = id;
+        this.millasTotales = 0;
+        this.millasDisponibles = 0;
+        this.canjeosRealizados = 0;
+        this.categoria = categoria.BRONCE;
     }
 
     public int millasTotales(){

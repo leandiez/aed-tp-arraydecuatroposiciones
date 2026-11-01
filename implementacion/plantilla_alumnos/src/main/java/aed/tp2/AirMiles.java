@@ -7,18 +7,23 @@ import aed.tp2.Heaps.PorMillasDisponibles;
 import aed.tp2.Heaps.PorMillasTotales;
 public class AirMiles implements SistemaAirMiles {
     
-    ABB<Usuario> Usuarios = new ABB<Usuario>();
+    ABB<Usuario> Usuarios;
     // Trie Promociones = new Trie<Promocion>(); // No implementado aun
     /* 
     Le pasamos al constructor del Heap la clase PorMasCanjeos que es la clase que implementa el Comparator (interfaz de java) que tiene
     un metodo override al compare para hacer la comparacion que necesitamos.
     */
-    Heap<Handle<Usuario>> elMasAcumulador = new Heap(new PorMillasTotales()); // Algo asi esta hecho en la filmina del campus 
-    Heap<Handle<Usuario>> elMasCanjeador = new Heap(new PorMasCanjeos());
-    Heap<Handle<Usuario>> rankingMillas = new Heap(new PorMillasDisponibles());
+    // ArrayList<Transaccion> Transacciones; No se si va aca o directamente todo dentro desde usuarios al momento de crearse.
+    Heap<Handle<Usuario>> elMasAcumulador; // Algo asi esta hecho en la filmina del campus 
+    Heap<Handle<Usuario>> elMasCanjeador;
+    Heap<Handle<Usuario>> rankingMillas;
 
     public AirMiles() {
-        throw new UnsupportedOperationException("Sin implementar");
+        Usuarios = new ABB<Usuario>();
+        // Se crea el sistema con la promocion NOPROMO --IMPLEMENTAR--
+        elMasAcumulador = new Heap(new PorMillasTotales());
+        elMasCanjeador = new Heap(new PorMasCanjeos());
+        rankingMillas = new Heap(new PorMillasDisponibles());
     }
 
     public void registrarUsuario(int id) {
