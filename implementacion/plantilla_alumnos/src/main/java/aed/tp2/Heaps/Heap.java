@@ -183,4 +183,9 @@ public class Heap<T> {
         data.add(h);
         siftUp();
     }
+
+    public void agregarEnTope(T elem){
+        HandleHeap h = new HandleHeap(elem,0); // Hay que ver si el tema del indice molesta o no. Al agregarlo lo agrego siempre al final
+        data.add(h);
+    }
 }

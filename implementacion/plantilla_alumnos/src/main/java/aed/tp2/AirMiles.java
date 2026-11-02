@@ -116,6 +116,13 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public double consultarSaldo(int id) {
+        /* 
+            Analisis de complejidad:
+            BuscarUsuario en Nodo -> Promedio O(ln U), peor caso O(u)
+            MillasDisponibles -> O(1)
+
+            Complejidad Total: Promedio O(ln U), peor caso O(U)
+        */
         // Creo el usuario y lo busco (Esto me suena muy raro igual) Esto habría que consultarlo...
         Usuario usuario = new Usuario(id);
         Usuario nodoUsuario = Usuarios.buscarNodo(usuario); 
@@ -124,12 +131,28 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public String consultarCategoria(int id) {
+        /* 
+            Analisis de complejidad:
+            BuscarUsuario en Nodo -> Promedio O(ln U), peor caso O(u)
+            darCategoria -> O(1)
+
+            Complejidad Total: Promedio O(ln U), peor caso O(U)
+        */
         Usuario usuario = new Usuario(id);
         Usuario nodoUsuario = Usuarios.buscarNodo(usuario);
         return nodoUsuario.darCategoria().toString();
     }
 
     public int[] rankingMillas(int n) {
+        /* 
+            Analisis de complejidad:
+            Get de usuarios es O(1)* N -> O(N)
+            volver a agregar a los usuarios es O(1) * N, reordenarlos es O(ln U), entonces queda O(N lg U)
+        
+            Complejidad Total:  O(N ln U)
+        */
+
+
         int i = 0;
         int[] res = new int[n];
         // Primero devuelvo los usuarios
@@ -160,13 +183,35 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public int elMasAcumulador() {
+        /* 
+            Análisis de complejidad
+            GetUsuario -> O(1)
+            agregarEnTope -> O(1), no hay que hacer siftUp ni nada
+
+            ComplejidadTotal: O(1)
+        */
         // Lo obtengo de mi heap
         Usuario usuario = elMasAcumulador.get();
-        return usuario.id();
+        int id = usuario.id();
+        
+        // Lo vuelvo a meter en el heap despues de sacarlo
+        elMasAcumulador.agregarEnTope(usuario);
+        return id;
     }
 
     public int elMasCanjeador() {
-        throw new UnsupportedOperationException("Sin implementar");
+        /* 
+            Análisis de complejidad
+            GetUsuario -> O(1)
+            agregarEnTope -> O(1), no hay que hacer siftUp ni nada
+
+            ComplejidadTotal: O(1)
+        */
+        Usuario usuario = elMasCanjeador.get();
+        int id = usuario.id();
+
+        elMasCanjeador.agregarEnTope(usuario);
+        return id;
     }
 
     public int[][] paresTransferidoresExclusivos() {
