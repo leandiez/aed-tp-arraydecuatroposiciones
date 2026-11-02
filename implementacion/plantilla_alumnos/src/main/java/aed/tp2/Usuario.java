@@ -8,9 +8,9 @@ Asi que creo que esto es suficiente.
 public class Usuario implements Comparable<Usuario>{
     // Los atributos son privados pero creo los getter para obtenerlos y usarlos en otra clase
     private int id;
-    private int millasTotales;
-    private int millasDisponibles;
-    private int millasCanjeadas;
+    private double millasTotales;
+    private double millasDisponibles;
+    private double millasCanjeadas;
     private int idReferidor;
     private ArrayList<Integer> transferidores; // Esta sería la lista de personas que transfirieron o le transfirio el usuario
     private Categoria categoria;
@@ -45,15 +45,15 @@ public class Usuario implements Comparable<Usuario>{
         this.idReferidor = idReferido;
     }
 
-    public int millasTotales(){
+    public double millasTotales(){
         return millasTotales;
     }
 
-    public int millasDisponibles(){
+    public double millasDisponibles(){
         return millasDisponibles;
     }
 
-    public int millasCanjeadas(){
+    public double millasCanjeadas(){
         return millasCanjeadas;
     }
 
@@ -61,7 +61,7 @@ public class Usuario implements Comparable<Usuario>{
         return id;
     }
 
-    public void sumaMillasDisponibles(int puntos){
+    public void sumaMillasDisponibles(double puntos){
         millasDisponibles += puntos;
     }
 
@@ -69,7 +69,7 @@ public class Usuario implements Comparable<Usuario>{
         millasTotales += puntos;
     }
 
-    public void canjeoMillas(double cantidad){
+    public void restarMillas(double cantidad){
         millasDisponibles -= cantidad;
     }
 
@@ -85,6 +85,17 @@ public class Usuario implements Comparable<Usuario>{
         }
     }
 
+    public double darFactorCategoria(){
+        if (millasTotales < 10000){
+            return 1;
+        } else if (millasTotales >= 10000 && millasTotales < 49999){
+            return 1.5;
+        } else if (millasTotales >= 50000 && millasTotales < 1000000){
+            return 2.0;
+        } else {
+            return 0;
+        }
+    }
     public void crearUsuario(int id){
         Usuario usuario = new Usuario(id);
     }
@@ -112,5 +123,13 @@ public class Usuario implements Comparable<Usuario>{
         Usuario usuario = (Usuario) otro;
 
         return this.id() == usuario.id();
+    }
+
+    public void crearTransferencia(int destino){
+        transferidores.add(destino);
+    }
+
+    public double calcularMillasViaje(double distancia, double factorCategoria, double factorPromo){
+        return distancia*factorCategoria*factorPromo;
     }
 }

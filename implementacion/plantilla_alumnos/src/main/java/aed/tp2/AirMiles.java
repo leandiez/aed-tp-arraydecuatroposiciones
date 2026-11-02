@@ -83,6 +83,21 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public void acumularMillas(int id, double distancia, String nombrePromo) {
+        /* 
+            Posible implementacion
+        
+            // busco la promo
+            Promocion.buscarPromo(nombrePromo)
+            
+            // Busco al usuario
+            Usuario usuario = new Usuario(id);
+            Usuario usuarioDelArbol = Usuarios.buscarNodo(usuario);
+
+            // Caso 1, la promocion alcanza para recorrer lo que tiene que viajar
+            millasARecorrer = usuario.calcularMillasViaje(distancia, usuario.darFactorCategoria(), Promocion.darFactorPromo(nombrePromo));
+
+
+        */
         throw new UnsupportedOperationException("Sin implementar");
     }
 
@@ -104,7 +119,7 @@ public class AirMiles implements SistemaAirMiles {
         Usuario usuario = new Usuario(id);
 
         Usuario usuarioDelArbol = Usuarios.buscarNodo(usuario);
-        usuarioDelArbol.canjeoMillas(cantidad);
+        usuarioDelArbol.restarMillas(cantidad);
 
         // Despues de canjear las millas del usuario tengo que actualizar el heap.
         int indiceHeap = elMasCanjeador.buscarPorUsuario(usuario); // No me gusta esta forma, la complejidad de buscarlo en el arbol es en el peor caso O(U)
@@ -112,6 +127,32 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public void transferirMillas(int origen, int destino, double cantidad) {
+        // Posible idea de implementacion
+        /* 
+            Analisis de complejidad
+            BuscarUsuarios -> Promedio O(ln U), peor caso O(U)
+            restarMillas/SumarMillas -> O(1)
+            crearTransferencia -> O(1)
+
+            Complejidad Total: Promedio O(ln U), peor caso O(U)
+        */
+
+        //Se crea a ambos usuarios.
+        Usuario usuarioOrigen = new Usuario(origen);
+        Usuario usuarioDestino = new Usuario(destino);
+
+        // Se los busca en el arbol
+        Usuario usuarioOrigenArbol = Usuarios.buscarNodo(usuarioOrigen);
+        Usuario usuarioDestinoArbol = Usuarios.buscarNodo(usuarioDestino);
+
+        // Se asume que tienen las millas disponibles. Se le resta unicamente de las millas disponibles
+        usuarioOrigenArbol.restarMillas(cantidad); // se le resta la cantidad de millas al usuario
+        usuarioDestinoArbol.sumaMillasDisponibles(cantidad); // Se le agregan las millas al usuario de destino y no se modifican las totales.
+
+        // Se crea la relacion en algun lugar
+        usuarioOrigenArbol.crearTransferencia(destino); // Solo le agrega la transferencia al usuario de origen 
+
+        
         throw new UnsupportedOperationException("Sin implementar");
     }
 
@@ -171,14 +212,31 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public void iniciarPromocion(String nombre, double factor) {
+        // Posible idea de implementacion (composicion)
+        /* 
+        Promocion.iniciarPromocion(nombre,factor) -> Le corresponde a la clase Promocion implementada con un Trie
+        
+        */
         throw new UnsupportedOperationException("Sin implementar");
     }
 
     public void iniciarPromocionConTope(String nombre, double factor, double tope) {
+        // Posible idea de implementacion (composicion)
+        /* 
+        Llamaria al constructor pero es lo mismo, tendria dos clases constructoras y es comun
+        Promocion.iniciarPromocionConTope(nombre,factor,tope) -> Le corresponde a la clase Promocion implementada con un Trie
+        
+        */
         throw new UnsupportedOperationException("Sin implementar");
     }
 
     public void finalizarPromocion(String nombre) {
+        // Posible idea de implementacion (composicion)
+        /* 
+        Habria que ver si la borra o si modifica una flag. Tendriamos que ver como esta implementado en los tests/ lo que dice la especificacion que dicen cosas distintas.
+        Promocion.finalizarPromocion(nombre) -> Le corresponde a la clase Promocion implementada con un Trie
+        
+        */
         throw new UnsupportedOperationException("Sin implementar");
     }
 
