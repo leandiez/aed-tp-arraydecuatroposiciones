@@ -64,7 +64,24 @@ public class Heap<T> {
             } else {
                 return;
             }
+        }
+    }
 
+    public void siftUp(int indice){
+        /* Misma idea que el siftUp pero solo que este es para un indice en especifico.*/
+        int i = indice ; // Empiezo desde el final de array y hago subir al elemento
+        while (i > 0){
+            int padreIndice = (i-1)/2;
+            T padre = data.get(padreIndice).valor();
+            T hijo = data.get(i).valor();
+
+            if (comparator.compare(hijo,padre) > 0){
+                // Si entro aca es porque hay que hacer un swap
+                swap(i, padreIndice);
+                i = padreIndice;
+            } else {
+                return;
+            }
         }
     }
 
@@ -106,18 +123,37 @@ public class Heap<T> {
 
         }
     };
-    public void Heapify(){
-        // Esteban habia comentado que para heapifycar el arbol no habia que darle importancia a las hojas, que se podia comenzar desde el "anteúltimo nivel"
-        // Idea: 
-        // 1) Empiezo desde el anteultimo nivel
-        // 2) Aplico sift down a todos los nodos de ese nivel
-        // 3) Termino cuando llego al inicio.
-        // No estoy del todo seguro si lo vamos a usar¿?
-        int i = data.size() - 1; 
-        int inicio = (i-1)/2; // empiezo por el padre
 
-        
-    }
+    public void siftDown(int indice){
+        /* Misma idea que el siftdown pero solo que este es para un indice en especifico.*/
+        int i = indice;
+        int longitud = data.size(); // no se si es size o size - 1 
+        while (i < longitud){
+            int hijoIzqIndice = 2*i+1;
+            int hijoDerIndice = 2*i+2;
+            int hijoMayorIndice = i;
+ 
+            // Esto debería funciona porque se supone que el invariante del heap es "izquierdista", entonces deberia estar lleno del lado izquierdo
+            // Esto se va a pisar si o si con el mayor
+            // Hay que ver bien el signo, si es > 0 o < 0
+            if(hijoIzqIndice < longitud && comparator.compare(data.get(i).valor(), data.get(hijoIzqIndice).valor()) > 0){
+                hijoMayorIndice = hijoIzqIndice;
+            } 
+            
+            if(hijoDerIndice < longitud && comparator.compare(data.get(i).valor(), data.get(hijoDerIndice).valor()) > 0){
+                hijoMayorIndice = hijoDerIndice;
+            } 
+            
+            if(hijoMayorIndice == i){
+                return;
+            } else {
+                swap(i, hijoMayorIndice);
+                i = hijoMayorIndice;
+            }
+
+        }
+    };
+
     public T get(){
         // Este metodo tambien tiene que sacar efectivamente el elemento del heap.
         // Retorna la raiz y hace sift-down para no romper el invariante
@@ -131,6 +167,15 @@ public class Heap<T> {
             return null;
         }    
     };
+
+    public int buscarPorUsuario(T usuario){
+        for (HandleHeap handleHeap : data) {
+            if (handleHeap.valor().equals(usuario)){
+                return handleHeap.indice;
+            }
+        }
+        return -1; // No deberia llegar nunca aca
+    }
 
     public void agregar(T elem){
         // Recordar que lo que tengo que almacenar es un handle! asi que lo tengo que crear aca

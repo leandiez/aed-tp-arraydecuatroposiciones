@@ -125,7 +125,6 @@ public class ABB<T extends Comparable<T>> {
         return null;
     }
 
-    // Me quedo espantosa esta solucion pero parece funcionar :D
     public void eliminar(T elem){
         // Preparo mi nodo para recorrer
         Nodo inicio = raiz;
@@ -235,7 +234,8 @@ public class ABB<T extends Comparable<T>> {
                 } 
             }
         }
-    }
+    }// Me quedo espantosa esta solucion pero parece funcionar :D
+    
 
     public Nodo Sucesor(Nodo nodo){
         Nodo res = null;

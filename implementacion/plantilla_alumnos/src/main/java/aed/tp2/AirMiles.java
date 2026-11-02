@@ -1,11 +1,12 @@
 package aed.tp2;
 import aed.tp2.ABB.ABB;
+
 import aed.tp2.Usuario;
 import aed.tp2.Heaps.Heap;
-import aed.tp2.Heaps.Heap.HandleHeap;
 import aed.tp2.Heaps.PorMasCanjeos;
 import aed.tp2.Heaps.PorMillasDisponibles;
 import aed.tp2.Heaps.PorMillasTotales;
+import java.util.ArrayList;
 
 public class AirMiles implements SistemaAirMiles {
     
@@ -20,6 +21,7 @@ public class AirMiles implements SistemaAirMiles {
     Heap<Usuario> elMasAcumulador; // Algo asi esta hecho en la filmina del campus 
     Heap<Usuario> elMasCanjeador;
     Heap<Usuario> rankingMillas;
+    ArrayList<int[][]> ParesTransferidores; //[[1,2],[6,3], etc]
 
     public AirMiles() {
         Usuarios = new ABB<Usuario>();
@@ -30,6 +32,13 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public void registrarUsuario(int id) {
+        /* 
+            Analisis de complejidad:
+            Insertar Usuario en arbol: Promedio O(ln U), peor caso O(U)
+            Agregar al heap: O(1)
+
+            Complejidad Total: Promedio O(ln U), peor caso O(U)
+        */
         // Creo el usuario y lo meto en el arbol
         Usuario usuario = new Usuario(id); 
         Usuarios.insertar(usuario);
@@ -42,6 +51,15 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public void registrarUsuarioConReferidor(int id, int ref) {
+        /* 
+            Analisis de complejidad:
+            Insertar Usuario en arbol: Promedio O(ln U), peor caso O(U)
+            BuscarUsuario en Arbol: Promedio O(ln U), peor caso O(U)
+            SumarMillas: O(1)
+            Agregar a cualquier heap: O(1)
+
+            Complejidad Total: Promedio O(ln U), peor caso O(U)
+        */
         // El usuario referidor ya existe en el sistema.
         Usuario usuarioReferidor = new Usuario(ref); // Este usuario no lo estoy creando y agregando al arbol, solo lo creo para buscarlo en el arbol
         Usuario usuarioReferido = new Usuario(id, ref);
@@ -69,7 +87,28 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public void canjearMillas(int id, double cantidad) {
-        throw new UnsupportedOperationException("Sin implementar");
+        /* 
+            Analisis de complejidad:
+            Crea usuario -> O(1)
+            BuscarUsuario en arbol -> Promedio O(ln U), peor caso O(u)
+            CanjeoMillas -> O(1)
+            buscarPorUsuario en heap -> Peor caso O(U)
+            siftUp -> O(ln U)
+
+            Total: O(ln U) en caso promedio y O(U) en peor caso.
+
+            Anotacion Javi:
+            No le estamos sacando el jugo al Handle con el indice aca, no supe como corregirlo. No tiene sentido buscarPorUsuario, para eso deberia usarse el Handle y hacerse mas rapido, aun asi no rompe la complejidad pero no lo estamos aprovechando creo.
+        */
+        // Primero creo el usuario para buscarlo
+        Usuario usuario = new Usuario(id);
+
+        Usuario usuarioDelArbol = Usuarios.buscarNodo(usuario);
+        usuarioDelArbol.canjeoMillas(cantidad);
+
+        // Despues de canjear las millas del usuario tengo que actualizar el heap.
+        int indiceHeap = elMasCanjeador.buscarPorUsuario(usuario); // No me gusta esta forma, la complejidad de buscarlo en el arbol es en el peor caso O(U)
+        elMasCanjeador.siftUp(indiceHeap);
     }
 
     public void transferirMillas(int origen, int destino, double cantidad) {
@@ -93,10 +132,18 @@ public class AirMiles implements SistemaAirMiles {
     public int[] rankingMillas(int n) {
         int i = 0;
         int[] res = new int[n];
+        // Primero devuelvo los usuarios
+        Usuario[] usuarios = new Usuario[n];
         while(i <= n){
             Usuario usuario = rankingMillas.get();
             res[i] = usuario.id();
         }
+
+        // Restauro los usuarios despues de haberlos sacado.
+        for (Usuario usuario : usuarios) {
+            rankingMillas.agregar(usuario);
+        }
+
         return res;
     }
 

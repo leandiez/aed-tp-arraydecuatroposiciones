@@ -10,9 +10,9 @@ public class Usuario implements Comparable<Usuario>{
     private int id;
     private int millasTotales;
     private int millasDisponibles;
-    private int canjeosRealizados;
+    private int millasCanjeadas;
     private int idReferidor;
-    private ArrayList<Usuario> transferidores; // Esta sería la lista de personas que transfirieron o le transfirio el usuario
+    private ArrayList<Integer> transferidores; // Esta sería la lista de personas que transfirieron o le transfirio el usuario
     private Categoria categoria;
     // private ALGUNAESTRUCTURARANDOM transferidores; Aca en teoria deberíamos meter algo para ver como 
 
@@ -28,9 +28,9 @@ public class Usuario implements Comparable<Usuario>{
         this.id = id;
         this.millasTotales = 0;
         this.millasDisponibles = 0;
-        this.canjeosRealizados = 0;
+        this.millasCanjeadas = 0;
         this.categoria = categoria.Bronce;
-        this.transferidores = new ArrayList<Usuario>();
+        this.transferidores = new ArrayList<Integer>();
         this.idReferidor = 0; // Si es 0 significaria que nadie lo refirio, no se si es la mejor forma...
     }
 
@@ -39,9 +39,9 @@ public class Usuario implements Comparable<Usuario>{
         this.id = id;
         this.millasTotales = 0;
         this.millasDisponibles = 0;
-        this.canjeosRealizados = 0;
+        this.millasCanjeadas = 0;
         this.categoria = categoria.Bronce;
-        this.transferidores = new ArrayList<Usuario>();
+        this.transferidores = new ArrayList<Integer>();
         this.idReferidor = idReferido;
     }
 
@@ -53,8 +53,8 @@ public class Usuario implements Comparable<Usuario>{
         return millasDisponibles;
     }
 
-    public int canjeosRealizados(){
-        return canjeosRealizados;
+    public int millasCanjeadas(){
+        return millasCanjeadas;
     }
 
     public int id(){
@@ -67,6 +67,10 @@ public class Usuario implements Comparable<Usuario>{
 
     public void sumaMillasTotales(int puntos){
         millasTotales += puntos;
+    }
+
+    public void canjeoMillas(double cantidad){
+        millasDisponibles -= cantidad;
     }
 
     public Categoria darCategoria(){
@@ -85,8 +89,28 @@ public class Usuario implements Comparable<Usuario>{
         Usuario usuario = new Usuario(id);
     }
 
+    public boolean esExclusivo(){
+        // Por la aclaracion en el tp, esta es valida como una unica transferencia para ambas partes asi que cuenta como par.
+        return transferidores.size() == 1;
+    }
+
     @Override 
     public int compareTo(Usuario otro){
         return Integer.compare(this.id, otro.id);
+    }
+
+    public boolean equals(Object otro){
+        // Defino la igualdad de usuario solo por su id.
+        boolean otroEsNull = (otro == null);
+        if(otroEsNull){
+            return false;
+        }
+        boolean claseDistinta = otro.getClass() != this.getClass();
+        if (claseDistinta) {
+            return false;
+        }
+        Usuario usuario = (Usuario) otro;
+
+        return this.id() == usuario.id();
     }
 }
