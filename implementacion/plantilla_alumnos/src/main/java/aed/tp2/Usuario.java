@@ -61,6 +61,10 @@ public class Usuario implements Comparable<Usuario>{
         return id;
     }
 
+    public void sumaMillasDisponibles(int puntos){
+        millasDisponibles += puntos;
+    }
+
     public Categoria darCategoria(){
         if (millasTotales < 10000){
             return categoria.Bronce;

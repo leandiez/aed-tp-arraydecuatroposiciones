@@ -42,7 +42,14 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public void registrarUsuarioConReferidor(int id, int ref) {
-        throw new UnsupportedOperationException("Sin implementar");
+        // Registra el usuario 
+        Usuario usuario = new Usuario(id, ref);
+
+        
+
+        // Se le asigna a cada uno 500 puntos
+        usuario.sumaMillasDisponibles(500);
+        Usuarios.buscarNodo(usuario);
     }
 
     public void acumularMillas(int id, double distancia, String nombrePromo) {
