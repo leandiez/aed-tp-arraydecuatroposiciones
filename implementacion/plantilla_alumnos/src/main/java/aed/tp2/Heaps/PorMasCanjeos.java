@@ -15,6 +15,6 @@ public class PorMasCanjeos implements Comparator<Handle<Usuario>>{
         // Me interesa ver cuanto vale la resta entre estos dos numeros
         // Creo que el tema del orden tambien importa, lo podemos ver despues, no se si es Integer o Double.
         // Recordar que como es un handle el metodo .valor() me da el objeto Usuario y del objeto obtengo los canjeos.
-        return Integer.compare(U2.valor().canjeosRealizados(), U1.valor().canjeosRealizados());
+        return Double.compare(U2.valor().millasCanjeadas(), U1.valor().millasCanjeadas());
     }
 }

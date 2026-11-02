@@ -15,6 +15,6 @@ public class PorMillasDisponibles implements Comparator<Handle<Usuario>>{
     public int compare(Handle<Usuario> U1, Handle<Usuario> U2){
         // Me interesa ver cuanto vale la resta entre estos dos numeros
         // Creo que el tema del orden tambien importa, lo podemos ver despues, no se si es Integer o Double.
-        return Integer.compare(U2.valor().millasDisponibles(), U1.valor().millasDisponibles());
+        return Double.compare(U2.valor().millasDisponibles(), U1.valor().millasDisponibles());
     }
 }
