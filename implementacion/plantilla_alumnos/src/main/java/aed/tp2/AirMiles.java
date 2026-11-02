@@ -42,14 +42,26 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public void registrarUsuarioConReferidor(int id, int ref) {
-        // Registra el usuario 
-        Usuario usuario = new Usuario(id, ref);
+        // El usuario referidor ya existe en el sistema.
+        Usuario usuarioReferidor = new Usuario(ref); // Este usuario no lo estoy creando y agregando al arbol, solo lo creo para buscarlo en el arbol
+        Usuario usuarioReferido = new Usuario(id, ref);
 
-        
+        // El que agrego al arbol es el referido, el referidor ya estaba en el sistema
+        Usuarios.insertar(usuarioReferido);
+
+        // Busco al usuario referidor
+        Usuario usuarioDelArbol = Usuarios.buscarNodo(usuarioReferidor);
 
         // Se le asigna a cada uno 500 puntos
-        usuario.sumaMillasDisponibles(500);
-        Usuarios.buscarNodo(usuario);
+        usuarioReferido.sumaMillasDisponibles(500);
+        usuarioReferido.sumaMillasTotales(500);
+        usuarioDelArbol.sumaMillasDisponibles(500);
+        usuarioDelArbol.sumaMillasTotales(500);
+
+        // Agrego el nuevo usuario a todos los heaps. El heap automaticamente se encargara de acomodarlo donde corresponda.
+        elMasAcumulador.agregar(usuarioReferido);
+        elMasCanjeador.agregar(usuarioReferido);
+        rankingMillas.agregar(usuarioReferido);
     }
 
     public void acumularMillas(int id, double distancia, String nombrePromo) {

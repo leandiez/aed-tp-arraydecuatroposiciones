@@ -30,7 +30,9 @@ public class Heap<T> {
         public T valor(){
             return this.nodoReferencia;
         };
-        public void eliminar(){};
+        public void eliminar(){
+            this.nodoReferencia = null;
+        };
         public void modificar(T v){};
         public boolean equals(Handle<T> h){
             return true;
@@ -132,7 +134,8 @@ public class Heap<T> {
 
     public void agregar(T elem){
         // Recordar que lo que tengo que almacenar es un handle! asi que lo tengo que crear aca
-        HandleHeap h = new HandleHeap(elem,0); // Hay que ver si el tema del indice molesta o no.
+        HandleHeap h = new HandleHeap(elem,data.size()-1); // Hay que ver si el tema del indice molesta o no. Al agregarlo lo agrego siempre al final
         data.add(h);
+        siftUp();
     }
 }
