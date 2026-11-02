@@ -1,5 +1,5 @@
 package aed.tp2;
-
+import java.util.ArrayList;
 /*  
 La posta es que esto habría que consultarlo... Tengo que implementarle este Comparable porque es la clase que usa el Arbol del taller 6. 
 Si no lo tenemos no se puede usar el Comparator pero creo que no es necesario, la comparacion entre usuarios para el arbol basta unicamente con el ID
@@ -11,22 +11,38 @@ public class Usuario implements Comparable<Usuario>{
     private int millasTotales;
     private int millasDisponibles;
     private int canjeosRealizados;
+    private int idReferidor;
+    private ArrayList<Usuario> transferidores; // Esta sería la lista de personas que transfirieron o le transfirio el usuario
     private Categoria categoria;
     // private ALGUNAESTRUCTURARANDOM transferidores; Aca en teoria deberíamos meter algo para ver como 
 
     public enum Categoria {
-        BRONCE, 
-        PLATA, 
-        ORO, 
-        PLATINO
+        Bronce, 
+        Plata, 
+        Oro, 
+        Platino
     }
 
+    // Este sería el primer usuario que creo, que no es referido
     public Usuario(int id){
         this.id = id;
         this.millasTotales = 0;
         this.millasDisponibles = 0;
         this.canjeosRealizados = 0;
-        this.categoria = categoria.BRONCE;
+        this.categoria = categoria.Bronce;
+        this.transferidores = new ArrayList<Usuario>();
+        this.idReferidor = 0; // Si es 0 significaria que nadie lo refirio, no se si es la mejor forma...
+    }
+
+    // Si el usuario es creado por referido se llama a este constructor.
+    public Usuario(int id, int idReferido){
+        this.id = id;
+        this.millasTotales = 0;
+        this.millasDisponibles = 0;
+        this.canjeosRealizados = 0;
+        this.categoria = categoria.Bronce;
+        this.transferidores = new ArrayList<Usuario>();
+        this.idReferidor = idReferido;
     }
 
     public int millasTotales(){
@@ -41,16 +57,24 @@ public class Usuario implements Comparable<Usuario>{
         return canjeosRealizados;
     }
 
+    public int id(){
+        return id;
+    }
+
     public Categoria darCategoria(){
         if (millasTotales < 10000){
-            return categoria.BRONCE;
+            return categoria.Bronce;
         } else if (millasTotales >= 10000 && millasTotales < 49999){
-            return categoria.PLATA;
+            return categoria.Plata;
         } else if (millasTotales >= 50000 && millasTotales < 1000000){
-            return categoria.ORO;
+            return categoria.Oro;
         } else {
-            return categoria.PLATINO;
+            return categoria.Platino;
         }
+    }
+
+    public void crearUsuario(int id){
+        Usuario usuario = new Usuario(id);
     }
 
     @Override 

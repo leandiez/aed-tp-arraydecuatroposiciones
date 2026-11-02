@@ -1,4 +1,4 @@
-package aed;
+package aed.tp2.ABB;
 
 interface Iterador<T> {
     

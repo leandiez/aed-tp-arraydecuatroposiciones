@@ -1,4 +1,4 @@
-
+package aed.tp2.ABB;
 import java.util.ArrayList;
 import java.util.Queue;
 
@@ -109,6 +109,20 @@ public class ABB<T extends Comparable<T>> {
             }
         }
         return false;
+    }
+
+    public T buscarNodo(T elem){
+        Nodo inicio = raiz;
+        while (inicio != null){
+            if (elem.compareTo(inicio.valor) == 0){
+                return inicio.valor;
+            } else if (elem.compareTo(inicio.valor) > 0){
+                inicio = inicio.der;
+            } else {
+                inicio = inicio.izq;
+            }
+        }
+        return null;
     }
 
     // Me quedo espantosa esta solucion pero parece funcionar :D
