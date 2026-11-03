@@ -106,11 +106,11 @@ public class Heap<T> {
             // Esto debería funciona porque se supone que el invariante del heap es "izquierdista", entonces deberia estar lleno del lado izquierdo
             // Esto se va a pisar si o si con el mayor
             // Hay que ver bien el signo, si es > 0 o < 0
-            if(hijoIzqIndice < longitud && comparator.compare(data.get(i).valor(), data.get(hijoIzqIndice).valor()) > 0){
+            if(hijoIzqIndice < longitud && comparator.compare(data.get(hijoIzqIndice).valor(), data.get(hijoMayorIndice).valor()) > 0){
                 hijoMayorIndice = hijoIzqIndice;
             } 
             
-            if(hijoDerIndice < longitud && comparator.compare(data.get(i).valor(), data.get(hijoDerIndice).valor()) > 0){
+            if(hijoDerIndice < longitud && comparator.compare(data.get(hijoDerIndice).valor(), data.get(hijoMayorIndice).valor()) > 0){
                 hijoMayorIndice = hijoDerIndice;
             } 
             
@@ -120,7 +120,6 @@ public class Heap<T> {
                 swap(i, hijoMayorIndice);
                 i = hijoMayorIndice;
             }
-
         }
     };
 
@@ -136,11 +135,11 @@ public class Heap<T> {
             // Esto debería funciona porque se supone que el invariante del heap es "izquierdista", entonces deberia estar lleno del lado izquierdo
             // Esto se va a pisar si o si con el mayor
             // Hay que ver bien el signo, si es > 0 o < 0
-            if(hijoIzqIndice < longitud && comparator.compare(data.get(i).valor(), data.get(hijoIzqIndice).valor()) > 0){
+            if(hijoIzqIndice < longitud && comparator.compare(data.get(hijoIzqIndice).valor(), data.get(hijoMayorIndice).valor()) > 0){
                 hijoMayorIndice = hijoIzqIndice;
             } 
             
-            if(hijoDerIndice < longitud && comparator.compare(data.get(i).valor(), data.get(hijoDerIndice).valor()) > 0){
+            if(hijoDerIndice < longitud && comparator.compare(data.get(hijoDerIndice).valor(), data.get(hijoMayorIndice).valor()) > 0){
                 hijoMayorIndice = hijoDerIndice;
             } 
             
@@ -161,12 +160,21 @@ public class Heap<T> {
             HandleHeap valor = data.get(0); // Obtengo la raiz
             data.set(0, data.get(data.size()-1)); // meto el ultimo en la raiz
             data.remove(data.size() - 1); // Borro el ultimo elemento, creo que la complejidad de esto es O(1)
-            siftDown(); // Dejo que el siftdown lo acomode solo y retorno el valor
+            siftDown(0); // Dejo que el siftdown lo acomode solo y retorno el valor
             return valor.valor();
         } else {
             return null;
         }    
     };
+
+    public T getSinQuitar(){
+        if (data.size() > 0){
+            HandleHeap valor = data.get(0); // Obtengo la raiz
+            return valor.valor();
+        } else {
+            return null;
+        }  
+    }
 
     public int buscarPorUsuario(T usuario){
         for (HandleHeap handleHeap : data) {
@@ -179,13 +187,8 @@ public class Heap<T> {
 
     public void agregar(T elem){
         // Recordar que lo que tengo que almacenar es un handle! asi que lo tengo que crear aca
-        HandleHeap h = new HandleHeap(elem,data.size()-1); // Hay que ver si el tema del indice molesta o no. Al agregarlo lo agrego siempre al final
+        HandleHeap h = new HandleHeap(elem,data.size()); // Hay que ver si el tema del indice molesta o no. Al agregarlo lo agrego siempre al final
         data.add(h);
         siftUp();
-    }
-
-    public void agregarEnTope(T elem){
-        HandleHeap h = new HandleHeap(elem,0); // Hay que ver si el tema del indice molesta o no. Al agregarlo lo agrego siempre al final
-        data.add(h);
     }
 }

@@ -120,7 +120,7 @@ public class Usuario implements Comparable<Usuario>{
         if (claseDistinta) {
             return false;
         }
-        Usuario usuario = (Usuario) otro;
+        Usuario usuario = (Usuario) otro; // Casteo
 
         return this.id() == usuario.id();
     }

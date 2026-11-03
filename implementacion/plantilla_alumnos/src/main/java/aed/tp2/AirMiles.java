@@ -244,32 +244,23 @@ public class AirMiles implements SistemaAirMiles {
         /* 
             Análisis de complejidad
             GetUsuario -> O(1)
-            agregarEnTope -> O(1), no hay que hacer siftUp ni nada
 
             ComplejidadTotal: O(1)
         */
         // Lo obtengo de mi heap
-        Usuario usuario = elMasAcumulador.get();
-        int id = usuario.id();
-        
-        // Lo vuelvo a meter en el heap despues de sacarlo
-        elMasAcumulador.agregarEnTope(usuario);
-        return id;
+        Usuario usuario = elMasAcumulador.getSinQuitar();
+        return usuario.id();
     }
 
     public int elMasCanjeador() {
         /* 
             Análisis de complejidad
-            GetUsuario -> O(1)
-            agregarEnTope -> O(1), no hay que hacer siftUp ni nada
+            getSinQuitar -> O(1)
 
             ComplejidadTotal: O(1)
         */
-        Usuario usuario = elMasCanjeador.get();
-        int id = usuario.id();
-
-        elMasCanjeador.agregarEnTope(usuario);
-        return id;
+        Usuario usuario = elMasCanjeador.getSinQuitar();
+        return usuario.id();
     }
 
     public int[][] paresTransferidoresExclusivos() {
