@@ -6,11 +6,12 @@ import aed.tp2.Heaps.Heap.HandleHeap;
 import aed.tp2.Heaps.PorMasCanjeos;
 import aed.tp2.Heaps.PorMillasDisponibles;
 import aed.tp2.Heaps.PorMillasTotales;
+import aed.tp2.DiccionarioDigital.DiccionarioDigital;
 
 public class AirMiles implements SistemaAirMiles {
     
     ABB<Usuario> Usuarios;
-    // Trie Promociones = new Trie<Promocion>(); // No implementado aun
+    DiccionarioDigital<Promocion> promociones;
     /* 
     Le pasamos al constructor del Heap la clase PorMasCanjeos que es la clase que implementa el Comparator (interfaz de java) que tiene
     un metodo override al compare para hacer la comparacion que necesitamos.
@@ -23,7 +24,8 @@ public class AirMiles implements SistemaAirMiles {
 
     public AirMiles() {
         Usuarios = new ABB<Usuario>();
-        // Se crea el sistema con la promocion NOPROMO --IMPLEMENTAR--
+        promociones = new DiccionarioDigital<>();
+        promociones.insertar("NoPromo", new Promocion("NoPromo", 1.0f, false, -1.0f));
         elMasAcumulador = new Heap(new PorMillasTotales());
         elMasCanjeador = new Heap(new PorMasCanjeos());
         rankingMillas = new Heap(new PorMillasDisponibles());
@@ -89,15 +91,33 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public void iniciarPromocion(String nombre, double factor) {
-        throw new UnsupportedOperationException("Sin implementar");
+        if (nombre == null || nombre.equals("NoPromo") || factor < 1 || promociones.pertenece(nombre)) {
+            throw new IllegalArgumentException();
+        }
+
+        promociones.insertar(
+            nombre,
+            new Promocion(nombre, (float) factor, false, -1.0f)
+        );
     }
 
     public void iniciarPromocionConTope(String nombre, double factor, double tope) {
-        throw new UnsupportedOperationException("Sin implementar");
+        if (nombre == null || nombre.equals("NoPromo") || factor < 1 || tope <= 0 || promociones.pertenece(nombre)) {
+            throw new IllegalArgumentException();
+        }
+
+        promociones.insertar(
+            nombre,
+            new Promocion(nombre, (float) factor, true, (float) tope)
+        );
     }
 
     public void finalizarPromocion(String nombre) {
-        throw new UnsupportedOperationException("Sin implementar");
+        if (nombre == null || nombre.equals("NoPromo") || !promociones.pertenece(nombre)) {
+            throw new IllegalArgumentException();
+        }
+
+        promociones.eliminar(nombre);
     }
 
     public int elMasAcumulador() {
