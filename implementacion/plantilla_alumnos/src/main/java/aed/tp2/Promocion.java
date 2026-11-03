@@ -15,5 +15,7 @@ public class Promocion {
         this.millasRestantes = TopePromo;
     }
 
-    
+    public boolean tieneTope(Promocion promo){
+        return promo.TieneTope;
+    }
 }

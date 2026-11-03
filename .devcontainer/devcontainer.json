@@ -133,7 +133,5 @@
         }
     },
     "postStartCommand": "bash ${containerWorkspaceFolder}/.devcontainer/scripts/pin-latex-workshop.sh",
-    "mounts": [
-        // "source=${env:USERPROFILE}/.gitconfig,target=/root/.gitconfig,type=bind,consistency=cached" // Windows only to use Git credentials
-    ]
+    "mounts": []
 }

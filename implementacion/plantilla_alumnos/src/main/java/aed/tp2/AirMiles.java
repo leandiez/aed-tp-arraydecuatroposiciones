@@ -1,12 +1,11 @@
 package aed.tp2;
-import aed.tp2.ABB.ABB;
+import java.util.ArrayList;
 
-import aed.tp2.Usuario;
+import aed.tp2.ABB.ABB;
 import aed.tp2.Heaps.Heap;
 import aed.tp2.Heaps.PorMasCanjeos;
 import aed.tp2.Heaps.PorMillasDisponibles;
 import aed.tp2.Heaps.PorMillasTotales;
-import java.util.ArrayList;
 
 public class AirMiles implements SistemaAirMiles {
     
@@ -21,7 +20,7 @@ public class AirMiles implements SistemaAirMiles {
     Heap<Usuario> elMasAcumulador; // Algo asi esta hecho en la filmina del campus 
     Heap<Usuario> elMasCanjeador;
     Heap<Usuario> rankingMillas;
-    ArrayList<int[][]> ParesTransferidores; //[[1,2],[6,3], etc]
+    ArrayList<int[]> paresTransferidoresExclusivos; //[[1,2],[6,3], etc]
 
     public AirMiles() {
         Usuarios = new ABB<Usuario>();
@@ -29,6 +28,7 @@ public class AirMiles implements SistemaAirMiles {
         elMasAcumulador = new Heap(new PorMillasTotales());
         elMasCanjeador = new Heap(new PorMasCanjeos());
         rankingMillas = new Heap(new PorMillasDisponibles());
+        paresTransferidoresExclusivos = new ArrayList<int[]>();
     }
 
     public void registrarUsuario(int id) {
@@ -98,6 +98,29 @@ public class AirMiles implements SistemaAirMiles {
 
 
         */
+       /* 
+       // logica y busco el usuario
+        double cantMillas = distancia;
+        boolean promocionTieneTope = true;
+        Usuario usuario = new Usuario(id);
+        Usuario usuarioDelArbol = Usuarios.buscarNodo(usuario);
+        //calculo las millas
+        // Caso 1: promocion sin tope
+        if (promocionTieneTope == false){
+            cantMillas = cantMillas*nombrePromo.darFactorPromocion*usuarioDelArbol.darCategoria()
+            usuarioDestinoArbol.sumaMillasDisponibles(cantMillas)
+            usuarioDestinoArbol.sumaMillas(cantMillas)
+        }
+        //caso 2:
+        if (promocionTieneTope == false){
+        }
+        //actualizo el heap millas totales
+        int indiceHeap = elMasAcumulador.buscarPorUsuario(usuario); 
+        elMasAcumulador.siftUp(indiceHeap);
+        //actualizo el heap millas disponibles
+        int indiceHeap = rankingMillas.buscarPorUsuario(usuario);
+        rankingMillas.siftUp(indiceHeap); 
+        */
         throw new UnsupportedOperationException("Sin implementar");
     }
 
@@ -151,6 +174,12 @@ public class AirMiles implements SistemaAirMiles {
 
         // Se crea la relacion en algun lugar
         usuarioOrigenArbol.crearTransferencia(destino); // Solo le agrega la transferencia al usuario de origen 
+        //hay que hacer un sift en el heap rankingMillas con el que recibio se le suman a las disponibles
+        int indiceHeap = rankingMillas.buscarPorUsuario(usuarioDestinoArbol);
+        rankingMillas.siftUp(indiceHeap); 
+        // y tambien hay que actualizar el heap del mas canjeador (lo dice en aclaraciones)
+        int indiceHeap0 = elMasCanjeador.buscarPorUsuario(usuarioOrigenArbol);
+        elMasCanjeador.siftUp(indiceHeap0);
 
         
         throw new UnsupportedOperationException("Sin implementar");
