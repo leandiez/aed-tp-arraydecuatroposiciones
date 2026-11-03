@@ -15,5 +15,20 @@ public class Promocion {
         this.millasRestantes = TopePromo;
     }
 
-    
+    public String nombre(){
+        return NombrePromo;
+    }
+
+    public float factor(){
+        return FactorPromo;
+    }
+
+    public boolean tieneTope(){
+        return TieneTope;
+    }
+
+    public float millasRestantes(){
+        return millasRestantes;
+    }
+
 }
