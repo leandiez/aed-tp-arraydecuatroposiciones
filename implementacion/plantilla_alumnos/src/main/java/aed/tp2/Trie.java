@@ -15,15 +15,15 @@ public class Trie {
     }
 
     public Trie (){
-        this.raiz = null;
+        this.raiz = new Nodo();
     }
     public void insertar(String palabra){
         // Me creo mi puntero en la raiz
         Nodo actual = raiz;
         for (int i = 0; i < palabra.length(); i++) {
             char letra = palabra.charAt(i);
-            if (raiz.hijos[indice(letra)] == null){
-                raiz.hijos[indice(letra)] = new Nodo();
+            if (actual.hijos[indice(letra)] == null){
+                actual.hijos[indice(letra)] = new Nodo();
             }
 
             // Me meto en esa letra (bajo un nivel)
@@ -37,7 +37,7 @@ public class Trie {
         Nodo actual = raiz;
         for (int i = 0; i < palabra.length(); i++) {
             char letra = palabra.charAt(i);
-            if (raiz.hijos[indice(letra)] == null){
+            if (actual.hijos[indice(letra)] == null){
                 return false;
             }
 
@@ -47,7 +47,7 @@ public class Trie {
 
         return actual.esFinDePalabra;
     }
-    
+
     public void eliminar(String palabra){
         // Me gustaria no implementarlo o no usarlo :D
     }
