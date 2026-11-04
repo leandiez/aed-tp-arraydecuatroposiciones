@@ -123,7 +123,7 @@ public class AirMiles implements SistemaAirMiles {
         //actualizo el heap millas disponibles
         int indiceHeap = rankingMillas.buscarPorUsuario(usuario);
         rankingMillas.siftUp(indiceHeap); 
-
+        */
         throw new UnsupportedOperationException("Sin implementar");
     }
 
