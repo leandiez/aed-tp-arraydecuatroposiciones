@@ -14,6 +14,9 @@ public class Trie {
         }
     }
 
+    public Trie (){
+        this.raiz = null;
+    }
     public void insertar(String palabra){
         // Me creo mi puntero en la raiz
         Nodo actual = raiz;

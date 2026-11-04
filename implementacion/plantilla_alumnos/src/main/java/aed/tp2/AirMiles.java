@@ -113,6 +113,7 @@ public class AirMiles implements SistemaAirMiles {
         }
         //caso 2:
         if (promocionTieneTope == false){
+        
         }
         //actualizo el heap millas totales
         int indiceHeap = elMasAcumulador.buscarPorUsuario(usuario); 

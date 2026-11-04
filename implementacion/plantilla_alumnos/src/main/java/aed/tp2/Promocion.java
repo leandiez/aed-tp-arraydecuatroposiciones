@@ -18,4 +18,17 @@ public class Promocion {
     public boolean tieneTope(Promocion promo){
         return promo.TieneTope;
     }
+    public float topPromo(){
+        return TopePromo;
+    }
+
+    public String nombre(){
+        return NombrePromo;
+    }
+   public float factor(){
+        return FactorPromo;
+    }
+    public float millasRestantes(){
+        return millasRestantes;
+    }
 }
