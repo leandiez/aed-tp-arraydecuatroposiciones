@@ -6,11 +6,13 @@ import aed.tp2.Heaps.Heap;
 import aed.tp2.Heaps.PorMasCanjeos;
 import aed.tp2.Heaps.PorMillasDisponibles;
 import aed.tp2.Heaps.PorMillasTotales;
+import aed.tp2.Trie;
+import aed.tp2.Promocion;
 
 public class AirMiles implements SistemaAirMiles {
     
     ABB<Usuario> Usuarios;
-    // Trie Promociones = new Trie<Promocion>(); // No implementado aun
+    Trie<Promocion> Promociones = new Trie<Promocion>(); // No implementado aun
     /* 
     Le pasamos al constructor del Heap la clase PorMasCanjeos que es la clase que implementa el Comparator (interfaz de java) que tiene
     un metodo override al compare para hacer la comparacion que necesitamos.
@@ -121,7 +123,7 @@ public class AirMiles implements SistemaAirMiles {
         //actualizo el heap millas disponibles
         int indiceHeap = rankingMillas.buscarPorUsuario(usuario);
         rankingMillas.siftUp(indiceHeap); 
-        */
+
         throw new UnsupportedOperationException("Sin implementar");
     }
 
@@ -247,7 +249,8 @@ public class AirMiles implements SistemaAirMiles {
         Promocion.iniciarPromocion(nombre,factor) -> Le corresponde a la clase Promocion implementada con un Trie
         
         */
-        throw new UnsupportedOperationException("Sin implementar");
+        Promociones.insertar(nombre, new Promocion(nombre, factor, false, -1));
+
     }
 
     public void iniciarPromocionConTope(String nombre, double factor, double tope) {
@@ -257,7 +260,7 @@ public class AirMiles implements SistemaAirMiles {
         Promocion.iniciarPromocionConTope(nombre,factor,tope) -> Le corresponde a la clase Promocion implementada con un Trie
         
         */
-        throw new UnsupportedOperationException("Sin implementar");
+        Promociones.insertar(nombre, new Promocion(nombre, factor, true, tope));
     }
 
     public void finalizarPromocion(String nombre) {
@@ -265,9 +268,10 @@ public class AirMiles implements SistemaAirMiles {
         /* 
         Habria que ver si la borra o si modifica una flag. Tendriamos que ver como esta implementado en los tests/ lo que dice la especificacion que dicen cosas distintas.
         Promocion.finalizarPromocion(nombre) -> Le corresponde a la clase Promocion implementada con un Trie
-        
         */
-        throw new UnsupportedOperationException("Sin implementar");
+
+        // Si la promocion primero la obtengo y si se consumio entoncess la saco
+        Promociones.eliminar(nombre);
     }
 
     public int elMasAcumulador() {

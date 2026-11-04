@@ -15,7 +15,6 @@ public class Trie<T> {
         private Nodo[] hijos; 
         private boolean esFinDePalabra;
         private T valor; // Aca se guardaria el objeto despues de recorrer todo el trie
-        
 
         public Nodo(){
             this.hijos = (Nodo<T>[]) new Nodo[52]; // Porque cuento minusculas y mayusculas del alfabeto. No me deja hacer esto creo this.hijos = new Nodo<T>[52]; Casteas la lista de Nodos de esta forma y funciona
@@ -78,8 +77,49 @@ public class Trie<T> {
         }
     }
 
-    public void eliminar(String palabra){
-        // Me gustaria no implementarlo o no usarlo :D
+    public void eliminar(String clave) {
+        // Muy similar a lo que haciamos en haskell cuando necesitabamos mas parametros de los que podiamos tomar.
+        // No creo que sea la forma correcta igual
+        eliminarAux(this.raiz, clave, 0); // No retorno nada, solo ejecuto la limpieza
+    }
+
+    private boolean eliminarAux(Nodo<T> nodo, String clave, int posicion) {
+        // Este es el caso base, si se llega al final de la palabra la palabra se borro correctamente
+        if (posicion == clave.length()) {
+            if (!nodo.esFinDePalabra) {
+                return false; // La palabra no estaba
+            }
+            nodo.esFinDePalabra = false;
+            nodo.valor = null;
+            return true; // se borro bien
+        }
+
+        int indice = indice(clave.charAt(posicion));
+        Nodo<T> hijo = nodo.hijos[indice];
+        
+        if (hijo == null) {
+            return false; // La palabra no existe (no hay camino)
+        }
+
+
+        boolean seElimino = eliminarAux(hijo, clave, posicion + 1);
+
+        // Si el hijo borró la palabra, chequeo si quedó inservible para desconectarlo
+        if (seElimino && !hijo.esFinDePalabra && noTieneHijos(hijo)) {
+            nodo.hijos[indice] = null;
+        }
+
+        // Le paso el resultado hacia arriba
+        return seElimino; 
+    }
+
+    private boolean noTieneHijos(Nodo<T> nodo) {
+        for (Nodo<T> hijo : nodo.hijos) {
+            if (hijo != null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private int indice(char c){

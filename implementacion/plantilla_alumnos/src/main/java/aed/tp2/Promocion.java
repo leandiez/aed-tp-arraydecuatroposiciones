@@ -2,12 +2,12 @@ package aed.tp2;
 
 public class Promocion {
     private String NombrePromo;
-    private float FactorPromo;
+    private double FactorPromo;
     private boolean TieneTope;
-    private float TopePromo;
-    private float millasRestantes;
+    private double TopePromo;
+    private double millasRestantes;
     
-    public Promocion(String NombrePromo, float FactorPromo, boolean TieneTope, float TopePromo){
+    public Promocion(String NombrePromo, double FactorPromo, boolean TieneTope, double TopePromo){
         this.NombrePromo = NombrePromo;
         this.FactorPromo = FactorPromo;
         this.TieneTope = TieneTope;
@@ -18,17 +18,21 @@ public class Promocion {
     public boolean tieneTope(Promocion promo){
         return promo.TieneTope;
     }
-    public float topPromo(){
+    public double topPromo(){
         return TopePromo;
     }
 
     public String nombre(){
         return NombrePromo;
     }
-   public float factor(){
+   public double factor(){
         return FactorPromo;
     }
-    public float millasRestantes(){
+    public double millasRestantes(){
         return millasRestantes;
+    }
+
+    public boolean seConsumio(){
+        return millasRestantes == 0;
     }
 }
