@@ -71,6 +71,10 @@ public class Usuario implements Comparable<Usuario>{
 
     public void restarMillas(double cantidad){
         millasDisponibles -= cantidad;
+        
+    }
+    public void sumarMillasCanjeadas(double cantidad){
+        millasCanjeadas += cantidad; 
     }
 
     public Categoria darCategoria(){
