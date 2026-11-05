@@ -88,6 +88,10 @@ public class AirMiles implements SistemaAirMiles {
         rankingMillas.siftUp(indiceHeapRanking1);
         rankingMillas.siftUp(indiceHeapRanking2);
 
+        // Y tambien el mas Acumulador, solo el del referidor porque el otro ya estaba agregado
+        int indiceHeapAcumulador1 = elMasAcumulador.buscarPorUsuario(usuarioDelArbolReferidor);
+        elMasAcumulador.siftUp(indiceHeapAcumulador1);
+
     }
 
     public void acumularMillas(int id, double distancia, String nombrePromo) {
@@ -187,12 +191,16 @@ public class AirMiles implements SistemaAirMiles {
         // Creo la relacion reciproca entre los usuarios
         usuarioOrigenArbol.crearReferenciaUsuario(usuarioDestinoArbol);
         usuarioDestinoArbol.crearReferenciaUsuario(usuarioOrigenArbol);
-        //hay que hacer un sift en el heap rankingMillas con el que recibio se le suman a las disponibles
+        //Hay que hacer un siftup en el heap rankingMillas con el que recibio se le suman a las disponibles
         int indiceHeap = rankingMillas.buscarPorUsuario(usuarioDestinoArbol);
         rankingMillas.siftUp(indiceHeap); 
         // y tambien hay que actualizar el heap del mas canjeador (lo dice en aclaraciones)
         int indiceHeap0 = elMasCanjeador.buscarPorUsuario(usuarioOrigenArbol);
         elMasCanjeador.siftUp(indiceHeap0);
+
+        // Para el usuario que transfirio las millas tiene que hacerse un siftdown
+        int indiceOrigen = rankingMillas.buscarPorUsuario(usuarioOrigenArbol);
+        rankingMillas.siftDown(indiceOrigen);
     }
 
     public double consultarSaldo(int id) {
