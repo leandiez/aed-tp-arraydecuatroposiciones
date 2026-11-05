@@ -34,8 +34,9 @@ public class AirMiles implements SistemaAirMiles {
     public void registrarUsuario(int id) {
         /* 
             Analisis de complejidad:
-            Insertar Usuario en arbol: Promedio O(ln U), peor caso O(U)
-            Agregar al heap: O(1)
+            Crear usuario: O(1)
+            Insertar Usuario en arbol: Promedio O(log U), peor caso O(U)
+            Agregar al heap: O(log U) porque lo agrega al final y lo tiene que subir
 
             Complejidad Total: Promedio O(ln U), peor caso O(U)
         */
@@ -53,10 +54,11 @@ public class AirMiles implements SistemaAirMiles {
     public void registrarUsuarioConReferidor(int id, int ref) {
         /* 
             Analisis de complejidad:
+            Crear usuarios: O(1)
             Insertar Usuario en arbol: Promedio O(ln U), peor caso O(U)
             BuscarUsuario en Arbol: Promedio O(ln U), peor caso O(U)
             SumarMillas: O(1)
-            Agregar a cualquier heap: O(1)
+            Agregar a cualquier heap: O(log U)
 
             Complejidad Total: Promedio O(ln U), peor caso O(U)
         */
@@ -95,7 +97,18 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public void acumularMillas(int id, double distancia, String nombrePromo) {
-        
+        /* 
+            Analisis de complejidad:
+            Obtener la promocion: O(|L|), depende de la cantidad de caracteres que tenga la promocion
+            CrearUsuario: O(1)
+            BuscarUsuarioEnArbol: Caso Promedio O(log U), peor caso O(U)
+            calcularMillasPorViaje, darFactorCategoria y factorPromocion: O(1)
+            Sumar/RestarMillas: O(1)
+            EliminarPromo: O(|L|)
+            ModificarHeaps: O(log U) (se tiene que reordenar los heaps)
+
+            Complejidad Total: Promedio O(ln U + |L|), peor caso O(U + |L|)
+        */
         // Primero obtengo la promocion
         Promocion promocion = Promociones.obtener(nombrePromo);
         if (promocion == null){
@@ -139,12 +152,12 @@ public class AirMiles implements SistemaAirMiles {
         /* 
             Analisis de complejidad:
             Crea usuario -> O(1)
-            BuscarUsuario en arbol -> Promedio O(ln U), peor caso O(u)
-            CanjeoMillas -> O(1)
+            BuscarUsuarioEnArbol: Caso Promedio O(log U), peor caso O(U)
+            Canjeo/Restar/sumarMillas -> O(1)
             buscarPorUsuario en heap -> Peor caso O(U)
-            siftUp -> O(ln U)
+            ModificarHeaps: O(log U) (se tiene que reordenar los heaps)
 
-            Total: O(ln U) en caso promedio y O(U) en peor caso.
+            Total: O(log U) en caso promedio y O(U) en peor caso.
 
             Anotacion Javi:
             No le estamos sacando el jugo al Handle con el indice aca, no supe como corregirlo. No tiene sentido buscarPorUsuario, para eso deberia usarse el Handle y hacerse mas rapido, aun asi no rompe la complejidad pero no lo estamos aprovechando creo.
@@ -168,9 +181,9 @@ public class AirMiles implements SistemaAirMiles {
         // Posible idea de implementacion
         /* 
             Analisis de complejidad
-            BuscarUsuarios -> Promedio O(ln U), peor caso O(U)
-            restarMillas/SumarMillas -> O(1)
-            crearTransferencia -> O(1)
+            BuscarUsuarioEnArbol: Caso Promedio O(log U), peor caso O(U)
+            restarMillas/SumarMillas: O(1)
+            crearReferenciaUsuario: O(1)
 
             Complejidad Total: Promedio O(ln U), peor caso O(U)
         */
@@ -262,33 +275,34 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public void iniciarPromocion(String nombre, double factor) {
-        // Posible idea de implementacion (composicion)
         /* 
-        Promocion.iniciarPromocion(nombre,factor) -> Le corresponde a la clase Promocion implementada con un Trie
+            Analisis de complejidad:
+            Insertar: O(|L|)
         
+            Complejidad Total:  O(|L|)
         */
         Promociones.insertar(nombre, new Promocion(nombre, factor, false, -1));
 
     }
 
     public void iniciarPromocionConTope(String nombre, double factor, double tope) {
-        // Posible idea de implementacion (composicion)
         /* 
-        Llamaria al constructor pero es lo mismo, tendria dos clases constructoras y es comun
-        Promocion.iniciarPromocionConTope(nombre,factor,tope) -> Le corresponde a la clase Promocion implementada con un Trie
+            Analisis de complejidad:
+            Insertar: O(|L|)
         
+            Complejidad Total:  O(|L|)
         */
         Promociones.insertar(nombre, new Promocion(nombre, factor, true, tope));
     }
 
     public void finalizarPromocion(String nombre) {
-        // Posible idea de implementacion (composicion)
         /* 
-        Habria que ver si la borra o si modifica una flag. Tendriamos que ver como esta implementado en los tests/ lo que dice la especificacion que dicen cosas distintas.
-        Promocion.finalizarPromocion(nombre) -> Le corresponde a la clase Promocion implementada con un Trie
+            Analisis de complejidad:
+            eliminar: O(|L|)
+        
+            Complejidad Total:  O(|L|)
         */
 
-        // Si la promocion primero la obtengo y si se consumio entoncess la saco
         Promociones.eliminar(nombre);
     }
 
@@ -316,6 +330,13 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public int[][] paresTransferidoresExclusivos() {
+        /* 
+            Análisis de complejidad
+            Recorrer todos los usuarios con el iterador inorder: O(U) Aca viene lo pesado de la busqueda, hay que recorrer todos los nodos del arbol
+            esExclusivo: O(1)
+            Recorrer el arrayList es O(U) en el peor caso.
+            ComplejidadTotal: O(U)
+        */
         //Recorro el arbol de usuarios inorder la complejidad de esto es O(U)
         ABB<Usuario>.ABB_Iterador iterador = Usuarios.iterador();
         ArrayList<int[]> paresTransferidores = new ArrayList<>();
