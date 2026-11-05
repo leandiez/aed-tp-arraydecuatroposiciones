@@ -91,8 +91,8 @@ public class Heap<T> {
         data.set(i, otro);
         data.set(j, temp);
         // Tengo que tambien permutar los indices de los handles
-        temp.indice = i;
-        otro.indice = j;
+        temp.indice = j;
+        otro.indice = i;
     }
 
     public void siftDown(){
@@ -158,14 +158,17 @@ public class Heap<T> {
         // Retorna la raiz y hace sift-down para no romper el invariante
         if (data.size() > 0){
             HandleHeap valor = data.get(0); // Obtengo la raiz
-            data.set(0, data.get(data.size()-1)); // meto el ultimo en la raiz
-            data.remove(data.size() - 1); // Borro el ultimo elemento, creo que la complejidad de esto es O(1)
-            siftDown(0); // Dejo que el siftdown lo acomode solo y retorno el valor
+            HandleHeap ultimo = data.remove(data.size() - 1); // Borro el ultimo elemento, creo que la complejidad de esto es O(1)
+            if (!data.isEmpty()) {                                // si quedó algo, reubica el último
+                ultimo.indice = 0; // Me tengo que acordar de cambiarle el indice al heap
+                data.set(0, ultimo); // Pongo el ultimo al inicio
+                siftDown(0); // heapify  
+            }
             return valor.valor();
         } else {
             return null;
         }    
-    };
+    }
 
     public T getSinQuitar(){
         if (data.size() > 0){
