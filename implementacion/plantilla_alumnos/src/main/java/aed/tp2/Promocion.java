@@ -14,6 +14,11 @@ public class Promocion {
         this.TopePromo = TopePromo;
         this.millasRestantes = TopePromo;
     }
+    public void restarMillas(double millas){
+        if (this.TieneTope == true){
+            this.millasRestantes -= millas;
+        }
+    }
 
     public boolean tieneTope(){
         return TieneTope;

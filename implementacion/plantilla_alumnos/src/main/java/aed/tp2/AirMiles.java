@@ -121,6 +121,7 @@ public class AirMiles implements SistemaAirMiles {
             // Se le agregan las millas al usuario
             usuarioDelArbol.sumaMillasDisponibles(millasPromo);
             usuarioDelArbol.sumaMillasTotales(millasPromo);
+            promocion.restarMillas(millasPromo); // hay que restarle las millas si no la consumio
         }
         // Caso 1.1 Si las millasPromo superan a las millas restantes solo guardo todo con factor 1.
         else if (promocion.tieneTope() && millasPromo > promocion.millasRestantes()){
@@ -130,6 +131,7 @@ public class AirMiles implements SistemaAirMiles {
             usuarioDelArbol.sumaMillasTotales(millasNoPromo);
         }
         // Actualizo las millas restantes de la promo y si se consumio la saco.
+        // si millasPromo <= millas restantes como se va a consumir la promo?
         if (promocion.tieneTope() && millasPromo <= promocion.millasRestantes()){
             promocion.restarMillasPromo(millasPromo);
             if (promocion.seConsumio()){
