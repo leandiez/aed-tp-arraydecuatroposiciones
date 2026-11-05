@@ -12,7 +12,7 @@ import aed.tp2.Promocion;
 public class AirMiles implements SistemaAirMiles {
     
     ABB<Usuario> Usuarios;
-    Trie<Promocion> Promociones = new Trie<Promocion>(); // No implementado aun
+    Trie<Promocion> Promociones; // No implementado aun
     /* 
     Le pasamos al constructor del Heap la clase PorMasCanjeos que es la clase que implementa el Comparator (interfaz de java) que tiene
     un metodo override al compare para hacer la comparacion que necesitamos.
@@ -31,6 +31,8 @@ public class AirMiles implements SistemaAirMiles {
         elMasCanjeador = new Heap(new PorMasCanjeos());
         rankingMillas = new Heap(new PorMillasDisponibles());
         paresTransferidoresExclusivos = new ArrayList<int[]>();
+        Promociones =  new Trie<Promocion>();
+        Promociones.insertar("NoPromo", new Promocion("NoPromo", 1.0f, false, -1.0));
     }
 
     public void registrarUsuario(int id) {
@@ -124,7 +126,50 @@ public class AirMiles implements SistemaAirMiles {
         int indiceHeap = rankingMillas.buscarPorUsuario(usuario);
         rankingMillas.siftUp(indiceHeap); 
         */
-        throw new UnsupportedOperationException("Sin implementar");
+
+        // Primero obtengo la promocion
+        Promocion promocion = Promociones.obtener(nombrePromo);
+        // Calculo las millas que tiene que recorrer el usuario
+        Usuario usuario = new Usuario(id);
+        Usuario usuarioDelArbol = Usuarios.buscarNodo(usuario);
+        double millasCalculadas = usuarioDelArbol.calcularMillasViaje(distancia,usuarioDelArbol.darFactorCategoria(),promocion.factor());
+        // caso 1 si las millas calculadas que tiene que hacer el usuario son menores a las que tiene el tope de la promo
+        if (promocion.tieneTope() && millasCalculadas <= promocion.millasRestantes()){
+            // Se le agregan las millas al usuario
+            usuarioDelArbol.sumaMillasDisponibles(millasCalculadas);
+            usuarioDelArbol.sumaMillasTotales(millasCalculadas);
+        }
+        // Caso 1.1 si la promocion tiene tope y no alcanza se hace una con la promo y la otra con "NoPromo" 
+        else if (millasCalculadas > promocion.millasRestantes()){
+            usuarioDelArbol.sumaMillasDisponibles(millasCalculadas);
+            usuarioDelArbol.sumaMillasTotales(millasCalculadas);
+            // Se busca cual es la distancia restante de vuelo
+            double millasExcedentes = millasCalculadas - promocion.millasRestantes();
+            double distanciaRestante = distancia - millasExcedentes; // distancia menos millas esta bien? creo que si
+            usuarioDelArbol.sumaMillasDisponibles(distanciaRestante);
+            usuarioDelArbol.sumaMillasTotales(distanciaRestante);
+            // ¿Se crean las transacciones en algun lado o no? Hay que crear 2 transacciones en todo caso, una con promo y otra con "NoPromo" 
+        }
+        // Si la promocion no tiene tope simplemento acumulo las millas
+        else{
+            usuarioDelArbol.sumaMillasDisponibles(millasCalculadas);
+            usuarioDelArbol.sumaMillasTotales(millasCalculadas);
+        }
+
+        // Actualizo las millas restantes de la promo y si se consumio la saco.
+        if (promocion.tieneTope()){
+            promocion.restarMillasPromo(millasCalculadas);
+            if (promocion.seConsumio()){
+                // Si se consumio la promo la quito del Trie
+                Promociones.eliminar(nombrePromo);
+            }
+        }
+
+        //Tengo que actualizar los heaps de elMasAcumulador y rankingMillas
+        int indiceHeap = elMasAcumulador.buscarPorUsuario(usuarioDelArbol); 
+        elMasAcumulador.siftUp(indiceHeap);
+        int indiceHeapRanking = rankingMillas.buscarPorUsuario(usuarioDelArbol);
+        rankingMillas.siftUp(indiceHeapRanking); 
     }
 
     public void canjearMillas(int id, double cantidad) {

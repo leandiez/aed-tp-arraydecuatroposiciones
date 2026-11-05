@@ -15,8 +15,8 @@ public class Promocion {
         this.millasRestantes = TopePromo;
     }
 
-    public boolean tieneTope(Promocion promo){
-        return promo.TieneTope;
+    public boolean tieneTope(){
+        return TieneTope;
     }
     public double topPromo(){
         return TopePromo;
@@ -33,6 +33,10 @@ public class Promocion {
     }
 
     public boolean seConsumio(){
-        return millasRestantes == 0;
+        return millasRestantes <= 0;
+    }
+
+    public void restarMillasPromo(double millas){
+        this.millasRestantes -= millas;
     }
 }

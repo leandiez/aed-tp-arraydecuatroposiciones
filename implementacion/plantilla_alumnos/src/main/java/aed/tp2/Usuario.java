@@ -65,7 +65,7 @@ public class Usuario implements Comparable<Usuario>{
         millasDisponibles += puntos;
     }
 
-    public void sumaMillasTotales(int puntos){
+    public void sumaMillasTotales(double puntos){
         millasTotales += puntos;
     }
 
