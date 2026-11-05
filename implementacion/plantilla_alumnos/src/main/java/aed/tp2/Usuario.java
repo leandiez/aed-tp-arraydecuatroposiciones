@@ -12,7 +12,8 @@ public class Usuario implements Comparable<Usuario>{
     private double millasDisponibles;
     private double millasCanjeadas;
     private int idReferidor;
-    private ArrayList<Integer> transferidores; // Esta sería la lista de personas que transfirieron o le transfirio el usuario
+    private int cantidadUsuariosTransferencias; // Esto es para las transferencias que recibo o doy
+    private Usuario OtroUsuario; // Un objeto usuario para ver si se cumplen los pares transferidores 
     private Categoria categoria;
     // private ALGUNAESTRUCTURARANDOM transferidores; Aca en teoria deberíamos meter algo para ver como 
 
@@ -30,7 +31,6 @@ public class Usuario implements Comparable<Usuario>{
         this.millasDisponibles = 0;
         this.millasCanjeadas = 0;
         this.categoria = categoria.Bronce;
-        this.transferidores = new ArrayList<Integer>();
         this.idReferidor = 0; // Si es 0 significaria que nadie lo refirio, no se si es la mejor forma...
     }
 
@@ -41,7 +41,6 @@ public class Usuario implements Comparable<Usuario>{
         this.millasDisponibles = 0;
         this.millasCanjeadas = 0;
         this.categoria = categoria.Bronce;
-        this.transferidores = new ArrayList<Integer>();
         this.idReferidor = idReferido;
     }
 
@@ -100,13 +99,10 @@ public class Usuario implements Comparable<Usuario>{
             return 0;
         }
     }
-    public void crearUsuario(int id){
-        Usuario usuario = new Usuario(id);
-    }
 
     public boolean esExclusivo(){
         // Por la aclaracion en el tp, esta es valida como una unica transferencia para ambas partes asi que cuenta como par.
-        return transferidores.size() == 1;
+        return cantidadUsuariosTransferencias == 1; // La complejidad de size es O(1) para la clase ArrayList
     }
 
     @Override 
@@ -129,8 +125,26 @@ public class Usuario implements Comparable<Usuario>{
         return this.id() == usuario.id();
     }
 
-    public void crearTransferencia(int destino){
-        transferidores.add(destino);
+    public void crearReferenciaUsuario(Usuario usuario){
+        if (cantidadUsuariosTransferencias == 0){
+            cantidadUsuariosTransferencias = 1;
+            OtroUsuario = usuario;
+        } else if (cantidadUsuariosTransferencias == 1){
+            // Si hay alguna transferencia registrada entonces existe otroUsuario
+            if(OtroUsuario.id() != usuario.id()){
+                cantidadUsuariosTransferencias = 2;
+                OtroUsuario = null;
+            }
+            // Si son >= dos los usuarios entonces ya no son exclusivos y no me interesa ese caso.
+        }
+    }
+
+    public Usuario getOtroUsuario(){ 
+        return OtroUsuario; 
+    }
+
+    public int getCantidadTransferencias(){
+        return cantidadUsuariosTransferencias;
     }
 
     public double calcularMillasViaje(double distancia, double factorCategoria, double factorPromo){

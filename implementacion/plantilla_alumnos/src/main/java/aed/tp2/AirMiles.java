@@ -20,7 +20,6 @@ public class AirMiles implements SistemaAirMiles {
     Heap<Usuario> elMasAcumulador; // Algo asi esta hecho en la filmina del campus 
     Heap<Usuario> elMasCanjeador;
     Heap<Usuario> rankingMillas;
-    ArrayList<int[]> paresTransferidoresExclusivos; //[[1,2],[6,3], etc]
 
     public AirMiles() {
         Usuarios = new ABB<Usuario>();
@@ -28,7 +27,6 @@ public class AirMiles implements SistemaAirMiles {
         elMasAcumulador = new Heap<Usuario>(new PorMillasTotales());
         elMasCanjeador = new Heap<Usuario>(new PorMasCanjeos());
         rankingMillas = new Heap<Usuario>(new PorMillasDisponibles());
-        paresTransferidoresExclusivos = new ArrayList<int[]>();
         Promociones =  new Trie<Promocion>();
         Promociones.insertar("NoPromo", new Promocion("NoPromo", 1.0f, false, -1.0));
     }
@@ -70,14 +68,14 @@ public class AirMiles implements SistemaAirMiles {
         Usuarios.insertar(usuarioReferido);
 
         // Busco al usuario referidor
-        Usuario usuarioDelArbol = Usuarios.buscarNodo(usuarioReferidor);
+        Usuario usuarioDelArbolReferidor = Usuarios.buscarNodo(usuarioReferidor);
         Usuario usaurioDelArbolReferido = Usuarios.buscarNodo(usuarioReferido);
 
         // Se le asigna a cada uno 500 puntos
-        usuarioReferido.sumaMillasDisponibles(500);
-        usuarioReferido.sumaMillasTotales(500);
-        usuarioDelArbol.sumaMillasDisponibles(500);
-        usuarioDelArbol.sumaMillasTotales(500);
+        usaurioDelArbolReferido.sumaMillasDisponibles(500);
+        usaurioDelArbolReferido.sumaMillasTotales(500);
+        usuarioDelArbolReferidor.sumaMillasDisponibles(500);
+        usuarioDelArbolReferidor.sumaMillasTotales(500);
 
         // Agrego el nuevo usuario a todos los heaps. El heap automaticamente se encargara de acomodarlo donde corresponda.
         elMasAcumulador.agregar(usuarioReferido);
@@ -85,54 +83,15 @@ public class AirMiles implements SistemaAirMiles {
         rankingMillas.agregar(usuarioReferido);
 
         // Tengo que actualizar tambien los heaps porque ganaron 500 millas
-        int indiceHeapRanking1 = rankingMillas.buscarPorUsuario(usuarioReferidor);
-        int indiceHeapRanking2 = rankingMillas.buscarPorUsuario(usuarioReferido);
+        int indiceHeapRanking1 = rankingMillas.buscarPorUsuario(usuarioDelArbolReferidor);
+        int indiceHeapRanking2 = rankingMillas.buscarPorUsuario(usaurioDelArbolReferido);
         rankingMillas.siftUp(indiceHeapRanking1);
         rankingMillas.siftUp(indiceHeapRanking2);
 
     }
 
     public void acumularMillas(int id, double distancia, String nombrePromo) {
-        /* 
-            Posible implementacion
         
-            // busco la promo
-            Promocion.buscarPromo(nombrePromo)
-            
-            // Busco al usuario
-            Usuario usuario = new Usuario(id);
-            Usuario usuarioDelArbol = Usuarios.buscarNodo(usuario);
-
-            // Caso 1, la promocion alcanza para recorrer lo que tiene que viajar
-            millasARecorrer = usuario.calcularMillasViaje(distancia, usuario.darFactorCategoria(), Promocion.darFactorPromo(nombrePromo));
-
-
-        */
-       /* 
-       // logica y busco el usuario
-        double cantMillas = distancia;
-        boolean promocionTieneTope = true;
-        Usuario usuario = new Usuario(id);
-        Usuario usuarioDelArbol = Usuarios.buscarNodo(usuario);
-        //calculo las millas
-        // Caso 1: promocion sin tope
-        if (promocionTieneTope == false){
-            cantMillas = cantMillas*nombrePromo.darFactorPromocion*usuarioDelArbol.darCategoria()
-            usuarioDestinoArbol.sumaMillasDisponibles(cantMillas)
-            usuarioDestinoArbol.sumaMillas(cantMillas)
-        }
-        //caso 2:
-        if (promocionTieneTope == false){
-        
-        }
-        //actualizo el heap millas totales
-        int indiceHeap = elMasAcumulador.buscarPorUsuario(usuario); 
-        elMasAcumulador.siftUp(indiceHeap);
-        //actualizo el heap millas disponibles
-        int indiceHeap = rankingMillas.buscarPorUsuario(usuario);
-        rankingMillas.siftUp(indiceHeap); 
-        */
-
         // Primero obtengo la promocion
         Promocion promocion = Promociones.obtener(nombrePromo);
         if (promocion == null){
@@ -222,10 +181,12 @@ public class AirMiles implements SistemaAirMiles {
 
         // Se asume que tienen las millas disponibles. Se le resta unicamente de las millas disponibles
         usuarioOrigenArbol.restarMillas(cantidad); // se le resta la cantidad de millas al usuario
+        usuarioOrigenArbol.sumarMillasCanjeadas(cantidad); // Se le suma a lo que perdio el usuario (esta en el primer punto de la aclaracion)
         usuarioDestinoArbol.sumaMillasDisponibles(cantidad); // Se le agregan las millas al usuario de destino y no se modifican las totales.
 
-        // Se crea la relacion en algun lugar
-        usuarioOrigenArbol.crearTransferencia(destino); // Solo le agrega la transferencia al usuario de origen 
+        // Creo la relacion reciproca entre los usuarios
+        usuarioOrigenArbol.crearReferenciaUsuario(usuarioDestinoArbol);
+        usuarioDestinoArbol.crearReferenciaUsuario(usuarioOrigenArbol);
         //hay que hacer un sift en el heap rankingMillas con el que recibio se le suman a las disponibles
         int indiceHeap = rankingMillas.buscarPorUsuario(usuarioDestinoArbol);
         rankingMillas.siftUp(indiceHeap); 
@@ -347,6 +308,27 @@ public class AirMiles implements SistemaAirMiles {
     }
 
     public int[][] paresTransferidoresExclusivos() {
-        throw new UnsupportedOperationException("Sin implementar");
+        //Recorro el arbol de usuarios inorder la complejidad de esto es O(U)
+        ABB<Usuario>.ABB_Iterador iterador = Usuarios.iterador();
+        ArrayList<int[]> paresTransferidores = new ArrayList<>();
+        while(iterador.haySiguiente()){
+            Usuario usuario = iterador.siguiente(); // Obtengo el usuario haciendo la busqueda en el arbol inorder
+            // Exclusivo significa que unicamente tiene 1 transferencia, hay que chequear que "el otro" sea exclusivo tambien
+            if (usuario.esExclusivo()){
+                Usuario otro = usuario.getOtroUsuario();
+                if( otro != null && usuario.id() < otro.id() && otro.esExclusivo()){
+                    paresTransferidores.add(new int[]{usuario.id(), otro.id()});
+                }
+            }
+        }
+
+        // Una vez que termine de armar mi array, lo tengo que pasar a int[][]
+        int[][] res = new int[paresTransferidores.size()][2]; // Medio rara esta forma pero funcionar funciona
+        // Esto solo porque no me dejan usar seguro nada para hacer la conversion
+        for(int i =0; i < paresTransferidores.size(); i++){
+            res[i] = paresTransferidores.get(i);
+        }
+
+        return res;
     }
 }
