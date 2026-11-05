@@ -192,7 +192,6 @@ public class Heap<T> {
         // Recordar que lo que tengo que almacenar es un handle! asi que lo tengo que crear aca
         HandleHeap h = new HandleHeap(elem,data.size()); // Hay que ver si el tema del indice molesta o no. Al agregarlo lo agrego siempre al final
         data.add(h);
-        cantidadElementos ++;
         siftUp();
     }
 

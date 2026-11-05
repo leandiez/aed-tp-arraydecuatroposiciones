@@ -71,6 +71,7 @@ public class AirMiles implements SistemaAirMiles {
 
         // Busco al usuario referidor
         Usuario usuarioDelArbol = Usuarios.buscarNodo(usuarioReferidor);
+        Usuario usaurioDelArbolReferido = Usuarios.buscarNodo(usuarioReferido);
 
         // Se le asigna a cada uno 500 puntos
         usuarioReferido.sumaMillasDisponibles(500);
@@ -82,6 +83,13 @@ public class AirMiles implements SistemaAirMiles {
         elMasAcumulador.agregar(usuarioReferido);
         elMasCanjeador.agregar(usuarioReferido);
         rankingMillas.agregar(usuarioReferido);
+
+        // Tengo que actualizar tambien los heaps porque ganaron 500 millas
+        int indiceHeapRanking1 = rankingMillas.buscarPorUsuario(usuarioReferidor);
+        int indiceHeapRanking2 = rankingMillas.buscarPorUsuario(usuarioReferido);
+        rankingMillas.siftUp(indiceHeapRanking1);
+        rankingMillas.siftUp(indiceHeapRanking2);
+
     }
 
     public void acumularMillas(int id, double distancia, String nombrePromo) {
@@ -186,8 +194,11 @@ public class AirMiles implements SistemaAirMiles {
         usuarioDelArbol.sumarMillasCanjeadas(cantidad);
 
         // Despues de canjear las millas del usuario tengo que actualizar el heap.
-        int indiceHeap = elMasCanjeador.buscarPorUsuario(usuario); // No me gusta esta forma, la complejidad de buscarlo en el arbol es en el peor caso O(U)
+        int indiceHeap = elMasCanjeador.buscarPorUsuario(usuarioDelArbol); // No me gusta esta forma, la complejidad de buscarlo en el arbol es en el peor caso O(U)
         elMasCanjeador.siftUp(indiceHeap);
+        // Actualizo tambien el rankingMillas, aca el saldo del usuario baja, asi que al canjear el saldo lo normal seria que el usuario baje del heap porque perdio millas 
+        int indiceHeapRanking = rankingMillas.buscarPorUsuario(usuarioDelArbol);
+        rankingMillas.siftDown(indiceHeapRanking); 
     }
 
     public void transferirMillas(int origen, int destino, double cantidad) {
@@ -262,7 +273,7 @@ public class AirMiles implements SistemaAirMiles {
         // En caso de que me pidan mas elementos de los que realmente tengo en el RankingMillas lo puedo salvar de que explote
         int cantidad = Math.min(n, rankingMillas.size());
         int i = 0;
-        int[] res = new int[n];
+        int[] res = new int[cantidad];
         // Primero devuelvo los usuarios
         Usuario[] usuarios = new Usuario[cantidad];
         while(i < cantidad){
