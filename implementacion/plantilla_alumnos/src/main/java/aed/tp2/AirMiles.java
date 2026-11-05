@@ -127,6 +127,9 @@ public class AirMiles implements SistemaAirMiles {
 
         // Primero obtengo la promocion
         Promocion promocion = Promociones.obtener(nombrePromo);
+        if (promocion == null){
+            promocion = Promociones.obtener("NoPromo");
+        }
         // Calculo las millas que tiene que recorrer el usuario
         Usuario usuario = new Usuario(id);
         Usuario usuarioDelArbol = Usuarios.buscarNodo(usuario);
@@ -137,20 +140,16 @@ public class AirMiles implements SistemaAirMiles {
             usuarioDelArbol.sumaMillasDisponibles(millasPromo);
             usuarioDelArbol.sumaMillasTotales(millasPromo);
         }
-        // Caso 1.1 si la promocion tiene tope y no alcanza se hace una con la promo y la otra con "NoPromo" 
+        // Caso 1.1 Si las millasPromo superan a las millas restantes solo guardo todo con factor 1.
         else if (promocion.tieneTope() && millasPromo > promocion.millasRestantes()){
             // Tal cual a como esta hecho en el tp1
-            double distanciaPromo = millasPromo / (usuarioDelArbol.darFactorCategoria() * promocion.factor());
-            double distanciaRestante = distancia - distanciaPromo;
-            double millasNoPromo = usuarioDelArbol.calcularMillasViaje(distanciaRestante, usuarioDelArbol.darFactorCategoria(), 1.0);
-            usuarioDelArbol.sumaMillasDisponibles(millasPromo);
-            usuarioDelArbol.sumaMillasTotales(millasPromo);
+            double millasNoPromo = usuarioDelArbol.calcularMillasViaje(distancia, usuarioDelArbol.darFactorCategoria(), 1.0);
             usuarioDelArbol.sumaMillasDisponibles(millasNoPromo);
             usuarioDelArbol.sumaMillasTotales(millasNoPromo);
         }
         // Tengo que viajar 2000 millas, la promo tiene 500 -> viajo 500 millas -> me restan 2000 (millas calculadas) - restantesDePromo (500) = 1500 total con NoPromo?
         // Actualizo las millas restantes de la promo y si se consumio la saco.
-        if (promocion.tieneTope()){
+        if (promocion.tieneTope() && millasPromo <= promocion.millasRestantes()){
             promocion.restarMillasPromo(millasPromo);
             if (promocion.seConsumio()){
                 // Si se consumio la promo la quito del Trie
@@ -222,9 +221,6 @@ public class AirMiles implements SistemaAirMiles {
         // y tambien hay que actualizar el heap del mas canjeador (lo dice en aclaraciones)
         int indiceHeap0 = elMasCanjeador.buscarPorUsuario(usuarioOrigenArbol);
         elMasCanjeador.siftUp(indiceHeap0);
-
-        
-        throw new UnsupportedOperationException("Sin implementar");
     }
 
     public double consultarSaldo(int id) {
