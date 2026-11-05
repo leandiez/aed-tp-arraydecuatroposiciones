@@ -15,15 +15,13 @@ public class AirMiles implements SistemaAirMiles {
     Le pasamos al constructor del Heap la clase PorMasCanjeos que es la clase que implementa el Comparator (interfaz de java) que tiene
     un metodo override al compare para hacer la comparacion que necesitamos.
     */
-    // ArrayList<Transaccion> Transacciones; No se si va aca o directamente todo dentro desde usuarios al momento de crearse.
-    // En realidad por dentro el heap esta creando los Handles! Esto es importante de mencionar. Es similar al taller 5 lo que estoy haciendo aca.
-    Heap<Usuario> elMasAcumulador; // Algo asi esta hecho en la filmina del campus 
+    // En realidad por dentro el heap esta creando los Handles. Esto es importante de mencionar. Es similar al taller 5 lo que estoy haciendo aca.
+    Heap<Usuario> elMasAcumulador; 
     Heap<Usuario> elMasCanjeador;
     Heap<Usuario> rankingMillas;
 
     public AirMiles() {
         Usuarios = new ABB<Usuario>();
-        // Se crea el sistema con la promocion NOPROMO --IMPLEMENTAR--
         elMasAcumulador = new Heap<Usuario>(new PorMillasTotales());
         elMasCanjeador = new Heap<Usuario>(new PorMasCanjeos());
         rankingMillas = new Heap<Usuario>(new PorMillasDisponibles());
@@ -131,7 +129,6 @@ public class AirMiles implements SistemaAirMiles {
             usuarioDelArbol.sumaMillasDisponibles(millasNoPromo);
             usuarioDelArbol.sumaMillasTotales(millasNoPromo);
         }
-        // Tengo que viajar 2000 millas, la promo tiene 500 -> viajo 500 millas -> me restan 2000 (millas calculadas) - restantesDePromo (500) = 1500 total con NoPromo?
         // Actualizo las millas restantes de la promo y si se consumio la saco.
         if (promocion.tieneTope() && millasPromo <= promocion.millasRestantes()){
             promocion.restarMillasPromo(millasPromo);
@@ -145,7 +142,7 @@ public class AirMiles implements SistemaAirMiles {
         int indiceHeap = elMasAcumulador.buscarPorUsuario(usuarioDelArbol); 
         elMasAcumulador.siftUp(indiceHeap);
         int indiceHeapRanking = rankingMillas.buscarPorUsuario(usuarioDelArbol);
-        rankingMillas.siftUp(indiceHeapRanking); 
+        rankingMillas.siftUp(indiceHeapRanking);
     }
 
     public void canjearMillas(int id, double cantidad) {
