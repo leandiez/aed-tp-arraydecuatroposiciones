@@ -79,7 +79,7 @@ public class Usuario implements Comparable<Usuario>{
     public Categoria darCategoria(){
         if (millasTotales < 10000){
             return categoria.Bronce;
-        } else if (millasTotales >= 10000 && millasTotales < 49999){
+        } else if (millasTotales >= 10000 && millasTotales <= 49999){
             return categoria.Plata;
         } else if (millasTotales >= 50000 && millasTotales < 1000000){
             return categoria.Oro;
@@ -91,7 +91,7 @@ public class Usuario implements Comparable<Usuario>{
     public double darFactorCategoria(){
         if (millasTotales < 10000){
             return 1;
-        } else if (millasTotales >= 10000 && millasTotales < 49999){
+        } else if (millasTotales >= 10000 && millasTotales <= 49999){
             return 1.5;
         } else if (millasTotales >= 50000 && millasTotales < 1000000){
             return 2.0;
