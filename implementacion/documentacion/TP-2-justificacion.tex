@@ -69,23 +69,47 @@ Por ultimo el MaxHeap, lo utilizamos como estructura paralela para los usuarios,
 No requiere demasiada explicacion. Inicializar las estructuras, se realiza en un tiempo fijo que no depende de una entrada, por lo cual la complejidad es O(1)
 
 \subsubsection{Registrar Usuario - Registrar Referido}
-En este caso, la operacion mas costosa es la de insertar el usuario en el ABB. Esto como dijimos se realiza en O(log(U)) en promedio y en O(U) en el peor caso
+En este caso, la operacion mas costosa es la de insertar el usuario en el ABB. Esto como dijimos se realiza en O(log(U)) en promedio y en O(U) en el peor caso.
+
+Tambien actualizamos los Heaps, pero en esa estructura la complejidad es O(log(U)) en el peor caso, y se suma, por lo cual no cambia lo anterior.
 
 \subsubsection{Acumular Millas}
 
+Aca la busqueda de la Promocion se realiza en O($|L|$). En el caso de que haya que eliminarla por el Tope, se suma la misma complejidad.
+
+Por otro lado la busqueda del Usuario, se realiza en O(log(U)) en promedio y en O(U) en el peor caso.
+
+La actualizacion del Heap, tiene la misma complejidad que el caso anterior.
+
+Finalmente, tomando los tiempos mas grandes de cada variable, y teniendo en cuenta que las constantes no suman, nos queda O(log U + $|L|$) en el caso promedio, y O(U + $|L|$) en el peor caso.
+
 \subsubsection{Canjear Millas}
+
+En este acso, es similar a Registrar Usuario, la complejidad es buscarlo. Luego modificarlo es O(1) y actualizar los Heaps O(log(U)).
 
 \subsubsection{Transferir Millas}
 
+Idem a Canjear Millas. La unica aclaracion es que aunque se busque 2 veces, al ser una cantidad constante de veces, no afecta a la complejidad.
+
 \subsubsection{Consular Saldo}
+
+Idem a Canjear y Transferir Millas, la busqueda del Usuario es lo que lleva la complejidad. Luego devolver el dato es O(1)
 
 \subsubsection{Iniciar Promocion}
 
+Iniciar promociones se realiza en O($|L|$), pues los indices donde guardar cada letra son fijos, y depende del tamaño del nombre de la promocion
+
 \subsubsection{Finalizar Promocion}
+
+Para finalizar promociones, se realiza en O($|L|$) 2 veces, por la busqueda y la eliminacion.
 
 \subsubsection{Mas Acumulador - Mas Canjeador}
 
+Como estamos usando MaxHeaps, en ambos casos la complejidad es O(1), ya que segun el criterio, tendremos al maximo en la posicion 0 del Array.
+
 \subsubsection{Ranking Millas}
+
+
 
 \subsubsection{Pares Transferidores Exclusivos}
 
