@@ -6,42 +6,54 @@ public class Promocion {
     private boolean TieneTope;
     private double TopePromo;
     private double millasRestantes;
-    
-    public Promocion(String NombrePromo, double FactorPromo, boolean TieneTope, double TopePromo){
+
+    public Promocion(String NombrePromo, double FactorPromo) {
         this.NombrePromo = NombrePromo;
         this.FactorPromo = FactorPromo;
-        this.TieneTope = TieneTope;
+        this.TieneTope = false;
+        this.TopePromo = -1.0;
+        this.millasRestantes = TopePromo;
+    }
+
+    public Promocion(String NombrePromo, double FactorPromo, double TopePromo) {
+        this.NombrePromo = NombrePromo;
+        this.FactorPromo = FactorPromo;
+        this.TieneTope = true;
         this.TopePromo = TopePromo;
         this.millasRestantes = TopePromo;
     }
-    public void restarMillas(double millas){
-        if (this.TieneTope == true){
+
+    public void restarMillas(double millas) {
+        if (this.TieneTope == true) {
             this.millasRestantes -= millas;
         }
     }
 
-    public boolean tieneTope(){
+    public boolean tieneTope() {
         return TieneTope;
     }
-    public double topPromo(){
+
+    public double topPromo() {
         return TopePromo;
     }
 
-    public String nombre(){
+    public String nombre() {
         return NombrePromo;
     }
-   public double factor(){
+
+    public double factor() {
         return FactorPromo;
     }
-    public double millasRestantes(){
+
+    public double millasRestantes() {
         return millasRestantes;
     }
 
-    public boolean seConsumio(){
+    public boolean seConsumio() {
         return millasRestantes <= 0;
     }
 
-    public void restarMillasPromo(double millas){
+    public void restarMillasPromo(double millas) {
         this.millasRestantes -= millas;
     }
 }
