@@ -23,12 +23,6 @@ public class Promocion {
         this.millasRestantes = TopePromo;
     }
 
-    public void restarMillas(double millas) {
-        if (this.TieneTope == true) {
-            this.millasRestantes -= millas;
-        }
-    }
-
     public boolean tieneTope() {
         return TieneTope;
     }
@@ -54,6 +48,8 @@ public class Promocion {
     }
 
     public void restarMillasPromo(double millas) {
+        if (this.TieneTope == true) {
         this.millasRestantes -= millas;
     }
+}
 }
