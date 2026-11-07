@@ -1,0 +1,93 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[left=2.5cm,top=3cm,right=2.5cm,bottom=3cm,bindingoffset=0.5cm]{geometry}
+\usepackage{AEDLogica, AEDEspecificacion, AEDTADs}
+\usepackage{caratula}
+\usepackage{hyperref}
+\newlength{\miSangria}
+\setlength{\miSangria}{2em}
+
+\titulo{Trabajo práctico 2: Implementacion AirMiles}
+\subtitulo{Tad AirMiles}
+
+\fecha{\today}
+
+\materia{Algoritmos y Estructuras de Datos}
+\grupo{Grupo: Arraydecuatroposiciones} 
+
+\integrante{Javier M. Ramos}{288/20}{ramosjavier276@gmail.com}
+\integrante{Nancy Ramos}{1206/24}{Ramosnancydaniela@outlook.com}
+\integrante{Elian Carreño}{1420/23}{elianuba2004@gmail.com }
+\integrante{Leandro Amodey}{618/24}{leandroamodey@gmail.com}
+% \integrante{Apellido, Nombre2}{002/01}{email2@dominio.com} %
+
+
+% Declaramos donde van a estar las figuras
+% No es obligatorio, pero suele ser comodo
+\graphicspath{{../static/}} 
+
+% Asi pueden escribir nuevos comandos. 
+% Este por ejemplo asegura q los nombres 
+% que figuren con una tipografia diferenciada  
+\newcommand{\Tipo}[1]{\mathsf{#1}}
+% la sintaxis es \newcommand{\nombreDeLaMacro}[cantidadDeParametros]{Lo que va ser remplazado por el macro} 
+\newcommand{\norm}[1]{\vert#1\vert}
+
+
+
+\begin{document}
+\maketitle
+\section{Trabajo Practico 2 - Justificaciones}
+Para la segunda parte de la materia, implementamos en codigo algunas de las funcionalidades descriptas en la especificacion de AirMiles.
+
+
+Para esta implementacion, en primer lugar elejimos las estructuras de datos que cumplen con las complejidades pedidas. En esta eleccion tuvimos que decidir de que manera agrupar los datos primero (Usuarios y Promociones) y luego de que manera almacenarlos en memoria (Heap, ABB o Trie).
+
+A continuacion daremos una exposicion de como lo pensamos inicialmente y luego como es que cada procedimiento/funcion cumple con las complejidades pedidas.
+
+\subsection{Clases}
+Elegimos tener 2 clases que representen nuestros objetos: Usuarios y Promociones.
+
+En Usuarios, guardamos la informacion de millas disponibles y totales, categoria actual y datos necesarios para conocer a los transferidores exclusivos ** DUDA: hay una parte que hay un idReferidor que no entendi para que se usa **
+
+En Promociones, guardamos el nombre de la misma, y los datos para saber que factor aplicar en funcion de si tiene tope o no.
+
+\subsection{Estructuras}
+Pasando a las estructuras elegidas, utilizamos 3: una Arbol Binario de Busqueda, un Heap y un Trie.
+
+El ABB, lo utilizamos como estructura principal para guardar y recuperar Usuarios. De esta manera, en el caso promedio, que es que los IDs de los usuarios esten distribuidos de manera aleatoria, tendriamos un orden de complejidad O(log U). En el peor caso que seria siempre insertar IDs en orden, el orden de complejidad es similar al de una lista enlazada que es O(U)
+
+El Trie, lo utilizamos como estructura para almacenar, recuperar y eliminar las promociones a partir del nombre de la misma. Esto nos permite incorporar la complejidad O(tamaño(L)) que es requerida en alguno de los procedimientos.
+
+Por ultimo el MaxHeap, lo utilizamos como estructura paralela para los usuarios, ya que de esta manera podremos ordenarlos de acuerdo a un comparador, y obtenerlos en tiempos mas acotados a que si hubiera que hacerlo mediante un algoritmo. Esta estructura esta vinculada con los usuarios mediante Handles, de manera que los tengamos como una referencia directa y no haya que realizar una doble busqueda. (** A CHEQUEAR **)
+
+\subsection{Complejidad de los procedimientos}
+
+\subsubsection{Crear Sistema}
+
+No requiere demasiada explicacion. Inicializar las estructuras, se realiza en un tiempo fijo que no depende de una entrada, por lo cual la complejidad es O(1)
+
+\subsubsection{Registrar Usuario - Registrar Referido}
+En este caso, la operacion mas costosa es la de insertar el usuario en el ABB. Esto como dijimos se realiza en O(log(U)) en promedio y en O(U) en el peor caso
+
+\subsubsection{Acumular Millas}
+
+\subsubsection{Canjear Millas}
+
+\subsubsection{Transferir Millas}
+
+\subsubsection{Consular Saldo}
+
+\subsubsection{Iniciar Promocion}
+
+\subsubsection{Finalizar Promocion}
+
+\subsubsection{Mas Acumulador - Mas Canjeador}
+
+\subsubsection{Ranking Millas}
+
+\subsubsection{Pares Transferidores Exclusivos}
+
+
+\end{document}

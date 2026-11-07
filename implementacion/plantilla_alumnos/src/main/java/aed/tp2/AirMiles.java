@@ -359,6 +359,7 @@ public class AirMiles implements SistemaAirMiles {
     public int[][] paresTransferidoresExclusivos() {
         /*
          * Análisis de complejidad
+         * Crear el iterador es log(U)
          * Recorrer todos los usuarios con el iterador inorder: O(U) Aca viene lo pesado
          * de la busqueda, hay que recorrer todos los nodos del arbol
          * esExclusivo: O(1)
