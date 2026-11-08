@@ -49,7 +49,7 @@ A continuacion daremos una exposicion de como lo pensamos inicialmente y luego c
 \subsection{Clases}
 Elegimos tener 2 clases que representen nuestros objetos: Usuarios y Promociones.
 
-En Usuarios, guardamos la informacion de millas disponibles y totales, categoria actual y datos necesarios para conocer a los transferidores exclusivos ** DUDA: hay una parte que hay un idReferidor que no entendi para que se usa **
+En Usuarios, guardamos la informacion de millas disponibles y totales, categoria actual y datos necesarios para conocer a los transferidores exclusivos.
 
 En Promociones, guardamos el nombre de la misma, y los datos para saber que factor aplicar en funcion de si tiene tope o no.
 
@@ -60,7 +60,7 @@ El ABB, lo utilizamos como estructura principal para guardar y recuperar Usuario
 
 El Trie, lo utilizamos como estructura para almacenar, recuperar y eliminar las promociones a partir del nombre de la misma. Esto nos permite incorporar la complejidad O(tamaño(L)) que es requerida en alguno de los procedimientos.
 
-Por ultimo el MaxHeap, lo utilizamos como estructura paralela para los usuarios, ya que de esta manera podremos ordenarlos de acuerdo a un comparador, y obtenerlos en tiempos mas acotados a que si hubiera que hacerlo mediante un algoritmo. Esta estructura esta vinculada con los usuarios mediante Handles, de manera que los tengamos como una referencia directa y no haya que realizar una doble busqueda. (** A CHEQUEAR **)
+Por ultimo el MaxHeap, lo utilizamos como estructura paralela para los usuarios, ya que de esta manera podremos ordenarlos de acuerdo a un comparador, y obtenerlos en tiempos mas acotados a que si hubiera que hacerlo mediante un algoritmo. Esta estructura esta vinculada con los usuarios mediante Handles, de manera que los tengamos como una referencia directa y no haya que realizar una doble busqueda.
 
 \subsection{Complejidad de los procedimientos}
 
@@ -105,13 +105,16 @@ Para finalizar promociones, se realiza en O($|L|$) 2 veces, por la busqueda y la
 
 \subsubsection{Mas Acumulador - Mas Canjeador}
 
-Como estamos usando MaxHeaps, en ambos casos la complejidad es O(1), ya que segun el criterio, tendremos al maximo en la posicion 0 del Array.
+Como estamos usando MaxHeaps, en ambos casos la complejidad es O(1), ya que segun el criterio de comparaacion, tendremos al maximo en la posicion 0 del Array.
 
 \subsubsection{Ranking Millas}
 
+En este caso, tambien usamos el MaxHeap, pero necesitamos desencolar el elemento Maximo. Para desencolar es necesario realizar un ShiftUp o ShiftDown, esto se realiza en O(log(U)) y lo tenemos que hacer N veces para la cantidad de usuarios rankeados, llegando ala complejidad O(N log(U))
 
 
 \subsubsection{Pares Transferidores Exclusivos}
+Para crear los Pares Transferidores utilizamos un iterador del ABB, creamos un ArrayList para guardar los transferidores exclusivos y luego con el tamaño final lo pasamos a un array bidimensional que es lo que se pide devolver.
 
+Crear el iterador nos lleva O(U) porque debemos encontrar el minimo. Iterar inorder, es O(U) en el peor caso ya que debemos recorrer todos los nodos, y por ultimo pasar el ArrayList al array bidimensional, es O(u) siendo u (minuscula) la cantidad de pares encontrados, y nos queda finalmente O(U) como complejidad total.
 
 \end{document}

@@ -143,12 +143,12 @@ public class AirMiles implements SistemaAirMiles {
             usuarioDelArbol.sumaMillasTotales(millasNoPromo);
         }
         // Actualizo las millas restantes de la promo y si se consumio la saco.
-        promocion.restarMillasPromo(millasPromo); //resto las millas a la promo y dentro del metodo tiene la guarda de tieneTope
+        promocion.restarMillasPromo(millasPromo); // resto las millas a la promo y dentro del metodo tiene la guarda de
+                                                  // tieneTope
         if (promocion.seConsumio() && promocion.tieneTope()) {
             // Si se consumio la promo la quito del Trie
-             Promociones.eliminar(nombrePromo);
-            }
-        
+            Promociones.eliminar(nombrePromo);
+        }
 
         // Tengo que actualizar los heaps de elMasAcumulador y rankingMillas
         int indiceHeap = elMasAcumulador.buscarPorUsuario(usuarioDelArbol);
@@ -183,8 +183,8 @@ public class AirMiles implements SistemaAirMiles {
 
         // Despues de canjear las millas del usuario tengo que actualizar el heap.
         int indiceHeap = elMasCanjeador.buscarPorUsuario(usuarioDelArbol); // No me gusta esta forma, la complejidad de
-                                                                           // buscarlo en el arbol es en el peor caso
-                                                                           // O(U)
+        // buscarlo en el arbol es en el peor caso
+        // O(U)
         elMasCanjeador.siftUp(indiceHeap);
         // Actualizo tambien el rankingMillas, aca el saldo del usuario baja, asi que al
         // canjear el saldo lo normal seria que el usuario baje del heap porque perdio
@@ -356,7 +356,7 @@ public class AirMiles implements SistemaAirMiles {
     public int[][] paresTransferidoresExclusivos() {
         /*
          * Análisis de complejidad
-         * Crear el iterador es log(U)
+         * Crear el iterador es O(U) en el peor caso
          * Recorrer todos los usuarios con el iterador inorder: O(U) Aca viene lo pesado
          * de la busqueda, hay que recorrer todos los nodos del arbol
          * esExclusivo: O(1)
