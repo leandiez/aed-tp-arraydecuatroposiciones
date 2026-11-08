@@ -91,7 +91,7 @@ En este acso, es similar a Registrar Usuario, la complejidad es buscarlo. Luego 
 
 Idem a Canjear Millas. La unica aclaracion es que aunque se busque 2 veces, al ser una cantidad constante de veces, no afecta a la complejidad.
 
-\subsubsection{Consular Saldo}
+\subsubsection{Consultar Saldo}
 
 Idem a Canjear y Transferir Millas, la busqueda del Usuario es lo que lleva la complejidad. Luego devolver el dato es O(1)
 
@@ -115,6 +115,6 @@ En este caso, tambien usamos el MaxHeap, pero necesitamos desencolar el elemento
 \subsubsection{Pares Transferidores Exclusivos}
 Para crear los Pares Transferidores utilizamos un iterador del ABB, creamos un ArrayList para guardar los transferidores exclusivos y luego con el tamaño final lo pasamos a un array bidimensional que es lo que se pide devolver.
 
-Crear el iterador nos lleva O(U) porque debemos encontrar el minimo. Iterar inorder, es O(U) en el peor caso ya que debemos recorrer todos los nodos, y por ultimo pasar el ArrayList al array bidimensional, es O(u) siendo u (minuscula) la cantidad de pares encontrados, y nos queda finalmente O(U) como complejidad total.
+Crear el iterador nos lleva O(U) en el peor caso porque debemos encontrar el minimo. Iterar inorder, es O(U) ya que debemos recorrer todos los nodos, y por ultimo pasar el ArrayList al array bidimensional, es O(u) siendo u (minuscula) la cantidad de pares encontrados, y nos queda finalmente O(U) como complejidad total.
 
 \end{document}
