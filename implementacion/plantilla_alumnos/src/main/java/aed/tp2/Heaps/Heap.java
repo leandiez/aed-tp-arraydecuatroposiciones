@@ -8,10 +8,7 @@ public class Heap<T> {
     // No especificaron nada acerca de si se puede usar esta estructura o no. No tenemos tiempo para implementar tantas cosas asi que opto por usar esto.
     private ArrayList<HandleHeap> data;
     private Comparator<T> comparator; // La clase del heap utiliza el comparator del tipo que le corresponda, ejemplo PorMillasTotales, PorMillasDisponibles, etc 
-    private int cantidadElementos;
-    /*
-    No tenemos muy seguro la complejidad de hacer la extension del arrayList ¿se puede no considerar?
-    */
+
     public Heap(Comparator<T> comparator){
         // Creo el array vacio
         data = new ArrayList<HandleHeap>();
@@ -33,10 +30,11 @@ public class Heap<T> {
         public void eliminar(){
             this.nodoReferencia = null;
         };
+        // Estos dos metodos no se usan asi como estan, igual se modifican los indices del handle en la funcion swap.
         public void modificar(T v){};
         public boolean equals(Handle<T> h){
             return true;
-        }; // Ni la mas pálida idea de como implementar el equals aca
+        };
 
     }
     // Algunos metodos comunes
@@ -190,7 +188,7 @@ public class Heap<T> {
 
     public void agregar(T elem){
         // Recordar que lo que tengo que almacenar es un handle! asi que lo tengo que crear aca
-        HandleHeap h = new HandleHeap(elem,data.size()); // Hay que ver si el tema del indice molesta o no. Al agregarlo lo agrego siempre al final
+        HandleHeap h = new HandleHeap(elem,data.size());
         data.add(h);
         siftUp();
     }

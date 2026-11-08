@@ -66,8 +66,7 @@ public class AirMiles implements SistemaAirMiles {
          * Complejidad Total: Promedio O(ln U), peor caso O(U)
          */
         // El usuario referidor ya existe en el sistema.
-        Usuario usuarioReferidor = new Usuario(ref); // Este usuario no lo estoy creando y agregando al arbol, solo lo
-                                                     // creo para buscarlo en el arbol
+        Usuario usuarioReferidor = new Usuario(ref); // Este usuario no lo estoy creando y agregando al arbol, solo lo creo para buscarlo en el arbol
         Usuario usuarioReferido = new Usuario(id, ref);
 
         // El que agrego al arbol es el referido, el referidor ya estaba en el sistema
@@ -168,11 +167,6 @@ public class AirMiles implements SistemaAirMiles {
          * 
          * Total: O(log U) en caso promedio y O(U) en peor caso.
          * 
-         * Anotacion Javi:
-         * No le estamos sacando el jugo al Handle con el indice aca, no supe como
-         * corregirlo. No tiene sentido buscarPorUsuario, para eso deberia usarse el
-         * Handle y hacerse mas rapido, aun asi no rompe la complejidad pero no lo
-         * estamos aprovechando creo.
          */
         // Primero creo el usuario para buscarlo
         Usuario usuario = new Usuario(id);
@@ -182,9 +176,7 @@ public class AirMiles implements SistemaAirMiles {
         usuarioDelArbol.sumarMillasCanjeadas(cantidad);
 
         // Despues de canjear las millas del usuario tengo que actualizar el heap.
-        int indiceHeap = elMasCanjeador.buscarPorUsuario(usuarioDelArbol); // No me gusta esta forma, la complejidad de
-                                                                           // buscarlo en el arbol es en el peor caso
-                                                                           // O(U)
+        int indiceHeap = elMasCanjeador.buscarPorUsuario(usuarioDelArbol);
         elMasCanjeador.siftUp(indiceHeap);
         // Actualizo tambien el rankingMillas, aca el saldo del usuario baja, asi que al
         // canjear el saldo lo normal seria que el usuario baje del heap porque perdio
@@ -215,20 +207,16 @@ public class AirMiles implements SistemaAirMiles {
         // Se asume que tienen las millas disponibles. Se le resta unicamente de las
         // millas disponibles
         usuarioOrigenArbol.restarMillas(cantidad); // se le resta la cantidad de millas al usuario
-        usuarioOrigenArbol.sumarMillasCanjeadas(cantidad); // Se le suma a lo que perdio el usuario (esta en el primer
-                                                           // punto de la aclaracion)
-        usuarioDestinoArbol.sumaMillasDisponibles(cantidad); // Se le agregan las millas al usuario de destino y no se
-                                                             // modifican las totales.
+        usuarioOrigenArbol.sumarMillasCanjeadas(cantidad); // Se le suma a lo que perdio el usuario (esta en el primer punto de la aclaracion)
+        usuarioDestinoArbol.sumaMillasDisponibles(cantidad); // Se le agregan las millas al usuario de destino y no se modifican las totales.
 
         // Creo la relacion reciproca entre los usuarios
         usuarioOrigenArbol.crearReferenciaUsuario(usuarioDestinoArbol);
         usuarioDestinoArbol.crearReferenciaUsuario(usuarioOrigenArbol);
-        // Hay que hacer un siftup en el heap rankingMillas con el que recibio se le
-        // suman a las disponibles
+        // Hay que hacer un siftup en el heap rankingMillas con el que recibio se le suman a las disponibles
         int indiceHeap = rankingMillas.buscarPorUsuario(usuarioDestinoArbol);
         rankingMillas.siftUp(indiceHeap);
-        // y tambien hay que actualizar el heap del mas canjeador (lo dice en
-        // aclaraciones)
+        // y tambien hay que actualizar el heap del mas canjeador (lo dice en aclaraciones)
         int indiceHeap0 = elMasCanjeador.buscarPorUsuario(usuarioOrigenArbol);
         elMasCanjeador.siftUp(indiceHeap0);
 
@@ -245,8 +233,6 @@ public class AirMiles implements SistemaAirMiles {
          * 
          * Complejidad Total: Promedio O(ln U), peor caso O(U)
          */
-        // Creo el usuario y lo busco (Esto me suena muy raro igual) Esto habría que
-        // consultarlo...
         Usuario usuario = new Usuario(id);
         Usuario nodoUsuario = Usuarios.buscarNodo(usuario);
         return nodoUsuario.millasDisponibles();
@@ -275,8 +261,7 @@ public class AirMiles implements SistemaAirMiles {
          * 
          * Complejidad Total: O(N ln U)
          */
-        // En caso de que me pidan mas elementos de los que realmente tengo en el
-        // RankingMillas lo puedo salvar de que explote
+        // En caso de que me pidan mas elementos de los que realmente tengo en el RankingMillas lo puedo salvar de que explote
         int cantidad = Math.min(n, rankingMillas.size());
         int i = 0;
         int[] res = new int[cantidad];
