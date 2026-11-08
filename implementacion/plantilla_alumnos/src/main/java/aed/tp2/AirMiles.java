@@ -168,11 +168,6 @@ public class AirMiles implements SistemaAirMiles {
          * 
          * Total: O(log U) en caso promedio y O(U) en peor caso.
          * 
-         * Anotacion Javi:
-         * No le estamos sacando el jugo al Handle con el indice aca, no supe como
-         * corregirlo. No tiene sentido buscarPorUsuario, para eso deberia usarse el
-         * Handle y hacerse mas rapido, aun asi no rompe la complejidad pero no lo
-         * estamos aprovechando creo.
          */
         // Primero creo el usuario para buscarlo
         Usuario usuario = new Usuario(id);
@@ -182,9 +177,7 @@ public class AirMiles implements SistemaAirMiles {
         usuarioDelArbol.sumarMillasCanjeadas(cantidad);
 
         // Despues de canjear las millas del usuario tengo que actualizar el heap.
-        int indiceHeap = elMasCanjeador.buscarPorUsuario(usuarioDelArbol); // No me gusta esta forma, la complejidad de
-        // buscarlo en el arbol es en el peor caso
-        // O(U)
+        int indiceHeap = elMasCanjeador.buscarPorUsuario(usuarioDelArbol);
         elMasCanjeador.siftUp(indiceHeap);
         // Actualizo tambien el rankingMillas, aca el saldo del usuario baja, asi que al
         // canjear el saldo lo normal seria que el usuario baje del heap porque perdio
@@ -245,8 +238,6 @@ public class AirMiles implements SistemaAirMiles {
          * 
          * Complejidad Total: Promedio O(ln U), peor caso O(U)
          */
-        // Creo el usuario y lo busco (Esto me suena muy raro igual) Esto habría que
-        // consultarlo...
         Usuario usuario = new Usuario(id);
         Usuario nodoUsuario = Usuarios.buscarNodo(usuario);
         return nodoUsuario.millasDisponibles();

@@ -3,7 +3,7 @@ package aed.tp2;
 import java.util.ArrayList;
 
 /*  
-La posta es que esto habría que consultarlo... Tengo que implementarle este Comparable porque es la clase que usa el Arbol del taller 6. 
+Tengo que implementarle este Comparable porque es la clase que usa el Arbol del taller 6. 
 Si no lo tenemos no se puede usar el Comparator pero creo que no es necesario, la comparacion entre usuarios para el arbol basta unicamente con el ID
 Asi que creo que esto es suficiente.
 */
@@ -18,8 +18,6 @@ public class Usuario implements Comparable<Usuario> {
     private int cantidadUsuariosTransferencias; // Esto es para las transferencias que recibo o doy
     private Usuario OtroUsuario; // Un objeto usuario para ver si se cumplen los pares transferidores
     private Categoria categoria;
-    // private ALGUNAESTRUCTURARANDOM transferidores; Aca en teoria deberíamos meter
-    // algo para ver como
 
     public enum Categoria {
         Bronce,
@@ -141,8 +139,7 @@ public class Usuario implements Comparable<Usuario> {
                 cantidadUsuariosTransferencias = 2;
                 OtroUsuario = null;
             }
-            // Si son >= dos los usuarios entonces ya no son exclusivos y no me interesa ese
-            // caso.
+            // Si son >= dos los usuarios entonces ya no son exclusivos y no me interesa ese caso.
         }
     }
 
