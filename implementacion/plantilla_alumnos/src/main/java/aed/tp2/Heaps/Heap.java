@@ -31,7 +31,15 @@ public class Heap<T> {
             this.nodoReferencia = null;
         };
         // Estos dos metodos no se usan asi como estan, igual se modifican los indices del handle en la funcion swap.
-        public void modificar(T v){};
+        public void modificar(T v){
+            /* 
+            Al modificar el handle lo que se busca es que se reacomode aprovechando que ahora se conoce el indice, para no hacer trabajo de más
+            como no se sabe si tiene que bajar o subir el handle se aplican las dos cosas, esto no rompe la logica y tampoco la complejidad
+            ya que en alguno de los casos la complejidad es O(1) y aunque asi no lo fuese la diferencia es constante y no afecta.
+            */
+            siftDown(this.indice);
+            siftUp(this.indice);
+        };
         public boolean equals(Handle<T> h){
             return true;
         };
@@ -39,7 +47,7 @@ public class Heap<T> {
     }
     // Algunos metodos comunes
     // Si tengo que implementar un sift up lo que hago es lo pongo al final y voy subiendo
-    public void siftUp(){
+    private void siftUp(){
         // Recordar:
         // HijoIzq = 2*i+1
         // HijoDer = 2*i+2
@@ -65,7 +73,7 @@ public class Heap<T> {
         }
     }
 
-    public void siftUp(int indice){
+    private void siftUp(int indice){
         /* Misma idea que el siftUp pero solo que este es para un indice en especifico.*/
         int i = indice ; // Empiezo desde el final de array y hago subir al elemento
         while (i > 0){
@@ -93,7 +101,7 @@ public class Heap<T> {
         otro.indice = i;
     }
 
-    public void siftDown(){
+    private void siftDown(){
         int i = 0;
         int longitud = data.size(); // no se si es size o size - 1 
         while (i < longitud){
@@ -121,7 +129,7 @@ public class Heap<T> {
         }
     };
 
-    public void siftDown(int indice){
+    private void siftDown(int indice){
         /* Misma idea que el siftdown pero solo que este es para un indice en especifico.*/
         int i = indice;
         int longitud = data.size(); // no se si es size o size - 1 
@@ -186,11 +194,12 @@ public class Heap<T> {
         return -1; // No deberia llegar nunca aca
     }
 
-    public void agregar(T elem){
+    public Handle<T> agregar(T elem){
         // Recordar que lo que tengo que almacenar es un handle! asi que lo tengo que crear aca
         HandleHeap h = new HandleHeap(elem,data.size());
         data.add(h);
         siftUp();
+        return h;
     }
 
     public int size() { 

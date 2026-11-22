@@ -18,6 +18,9 @@ public class Usuario implements Comparable<Usuario> {
     private int cantidadUsuariosTransferencias; // Esto es para las transferencias que recibo o doy
     private Usuario OtroUsuario; // Un objeto usuario para ver si se cumplen los pares transferidores
     private Categoria categoria;
+    private Handle elMasAcumulador;
+    private Handle elMasCanjeador;
+    private Handle rankingMillas;
 
     public enum Categoria {
         Bronce,
@@ -153,5 +156,35 @@ public class Usuario implements Comparable<Usuario> {
 
     public double calcularMillasViaje(double distancia, double factorCategoria, double factorPromo) {
         return distancia * factorCategoria * factorPromo;
+    }
+
+    public void crearAcumulador(Handle elMasAcumulador){
+        this.elMasAcumulador = elMasAcumulador;
+    }
+
+    public void crearMasCanjeador(Handle elMasCanjeador){
+        this.elMasCanjeador = elMasCanjeador;
+    }
+
+    public void crearRankingMillas(Handle rankingMillas){
+        this.rankingMillas = rankingMillas;
+    }
+
+    public void crearHandles(Handle elMasAcumulador, Handle elMasCanjeador, Handle rankingMillas){
+        this.elMasAcumulador = elMasAcumulador;
+        this.elMasCanjeador = elMasCanjeador;
+        this.rankingMillas = rankingMillas;
+    }
+
+    public Handle getHandleAcumulador(){
+        return this.elMasAcumulador;
+    }
+
+    public Handle getHandleMasCanjeador(){
+        return this.elMasCanjeador;
+    }
+
+    public Handle getHandleRanking(){
+        return this.rankingMillas;
     }
 }

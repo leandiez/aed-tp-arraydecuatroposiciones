@@ -49,9 +49,10 @@ public class AirMiles implements SistemaAirMiles {
         // Ahora todos esos usuarios tienen que pertenecer a todos los heaps
         // (Complejidad es O(log U))
         // Lo que va en el heap es un handle.
-        elMasAcumulador.agregar(usuario);
-        elMasCanjeador.agregar(usuario);
-        rankingMillas.agregar(usuario);
+        Handle<Usuario> HandleAcumulador = elMasAcumulador.agregar(usuario);
+        Handle<Usuario> HandleMasCanjeador = elMasCanjeador.agregar(usuario);
+        Handle<Usuario> HandlerankingMillas = rankingMillas.agregar(usuario);
+        usuario.crearHandles(HandleAcumulador,HandleMasCanjeador,HandlerankingMillas);
     }
 
     public void registrarUsuarioConReferidor(int id, int ref) {
@@ -64,6 +65,11 @@ public class AirMiles implements SistemaAirMiles {
          * Agregar a cualquier heap: O(log U)
          * 
          * Complejidad Total: Promedio O(ln U), peor caso O(U)
+         * 
+         * Comentario POST correccion:
+         * Ahora de esta forma utilizar los handles permite una abstraccion mas grande sin que Airmiles necesite conocer sobre
+         * los metodos que estan implementados dentro del heap, a traves de la interfaz del handle estan pasando todas 
+         * esas cosas por detras y esa es la forma correcta.
          */
         // El usuario referidor ya existe en el sistema.
         Usuario usuarioReferidor = new Usuario(ref); // Este usuario no lo estoy creando y agregando al arbol, solo lo
@@ -75,30 +81,30 @@ public class AirMiles implements SistemaAirMiles {
 
         // Busco al usuario referidor
         Usuario usuarioDelArbolReferidor = Usuarios.buscarNodo(usuarioReferidor);
-        Usuario usaurioDelArbolReferido = Usuarios.buscarNodo(usuarioReferido);
+        Usuario usuarioDelArbolReferido = Usuarios.buscarNodo(usuarioReferido);
 
         // Se le asigna a cada uno 500 puntos
-        usaurioDelArbolReferido.sumaMillasDisponibles(500);
-        usaurioDelArbolReferido.sumaMillasTotales(500);
+        usuarioDelArbolReferido.sumaMillasDisponibles(500);
+        usuarioDelArbolReferido.sumaMillasTotales(500);
         usuarioDelArbolReferidor.sumaMillasDisponibles(500);
         usuarioDelArbolReferidor.sumaMillasTotales(500);
 
         // Agrego el nuevo usuario a todos los heaps. El heap automaticamente se
         // encargara de acomodarlo donde corresponda.
-        elMasAcumulador.agregar(usuarioReferido);
-        elMasCanjeador.agregar(usuarioReferido);
-        rankingMillas.agregar(usuarioReferido);
+        Handle<Usuario> HandleAcumulador = elMasAcumulador.agregar(usuarioReferido);
+        Handle<Usuario> HandleMasCanjeador = elMasCanjeador.agregar(usuarioReferido);
+        Handle<Usuario> HandlerankingMillas = rankingMillas.agregar(usuarioReferido);
+        usuarioReferido.crearHandles(HandleAcumulador,HandleMasCanjeador,HandlerankingMillas);
 
-        // Tengo que actualizar tambien los heaps porque ganaron 500 millas
-        int indiceHeapRanking1 = rankingMillas.buscarPorUsuario(usuarioDelArbolReferidor);
-        int indiceHeapRanking2 = rankingMillas.buscarPorUsuario(usaurioDelArbolReferido);
-        rankingMillas.siftUp(indiceHeapRanking1);
-        rankingMillas.siftUp(indiceHeapRanking2);
+        Handle<Usuario> HandleReferidorRanking = usuarioDelArbolReferidor.getHandleRanking();
 
+        // Se modifica el ranking del referidor pero a traves del handle
+        HandleReferidorRanking.modificar(usuarioDelArbolReferidor);
         // Y tambien el mas Acumulador, solo el del referidor porque el otro ya estaba
         // agregado
-        int indiceHeapAcumulador1 = elMasAcumulador.buscarPorUsuario(usuarioDelArbolReferidor);
-        elMasAcumulador.siftUp(indiceHeapAcumulador1);
+
+        Handle<Usuario> HandleElMasAcumulador = usuarioDelArbolReferidor.getHandleAcumulador();
+        HandleElMasAcumulador.modificar(usuarioDelArbolReferidor);
 
     }
 
