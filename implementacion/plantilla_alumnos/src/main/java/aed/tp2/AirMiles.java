@@ -89,15 +89,8 @@ public class AirMiles implements SistemaAirMiles {
         usuarioDelArbolReferidor.sumaMillasDisponibles(500);
         usuarioDelArbolReferidor.sumaMillasTotales(500);
 
-        // Agrego el nuevo usuario a todos los heaps. El heap automaticamente se
-        // encargara de acomodarlo donde corresponda.
-        Handle<Usuario> HandleAcumulador = elMasAcumulador.agregar(usuarioReferido);
-        Handle<Usuario> HandleMasCanjeador = elMasCanjeador.agregar(usuarioReferido);
-        Handle<Usuario> HandlerankingMillas = rankingMillas.agregar(usuarioReferido);
-        usuarioReferido.crearHandles(HandleAcumulador,HandleMasCanjeador,HandlerankingMillas);
-
+        // Luego de sumarle las millas, actualizo el estado del usuarioReferidor, esto para evitar que se rompa el invariante
         Handle<Usuario> HandleReferidorRanking = usuarioDelArbolReferidor.getHandleRanking();
-
         // Se modifica el ranking del referidor pero a traves del handle
         HandleReferidorRanking.modificar(usuarioDelArbolReferidor);
         // Y tambien el mas Acumulador, solo el del referidor porque el otro ya estaba
@@ -105,6 +98,13 @@ public class AirMiles implements SistemaAirMiles {
 
         Handle<Usuario> HandleElMasAcumulador = usuarioDelArbolReferidor.getHandleAcumulador();
         HandleElMasAcumulador.modificar(usuarioDelArbolReferidor);
+
+        // Agrego el nuevo usuario a todos los heaps. El heap automaticamente se
+        // encargara de acomodarlo donde corresponda.
+        Handle<Usuario> HandleAcumulador = elMasAcumulador.agregar(usuarioReferido);
+        Handle<Usuario> HandleMasCanjeador = elMasCanjeador.agregar(usuarioReferido);
+        Handle<Usuario> HandlerankingMillas = rankingMillas.agregar(usuarioReferido);
+        usuarioReferido.crearHandles(HandleAcumulador,HandleMasCanjeador,HandlerankingMillas);
 
     }
 
@@ -157,10 +157,15 @@ public class AirMiles implements SistemaAirMiles {
         }
 
         // Tengo que actualizar los heaps de elMasAcumulador y rankingMillas
-        int indiceHeap = elMasAcumulador.buscarPorUsuario(usuarioDelArbol);
-        elMasAcumulador.siftUp(indiceHeap);
-        int indiceHeapRanking = rankingMillas.buscarPorUsuario(usuarioDelArbol);
-        rankingMillas.siftUp(indiceHeapRanking);
+        Handle<Usuario> HandleMasAcumulador = usuarioDelArbol.getHandleAcumulador();
+        HandleMasAcumulador.modificar(usuarioDelArbol);
+        // int indiceHeap = elMasAcumulador.buscarPorUsuario(usuarioDelArbol);
+        // elMasAcumulador.siftUp(indiceHeap);
+
+        Handle<Usuario> HandleRanking = usuarioDelArbol.getHandleRanking();
+        HandleRanking.modificar(usuarioDelArbol);
+        // int indiceHeapRanking = rankingMillas.buscarPorUsuario(usuarioDelArbol);
+        // rankingMillas.siftUp(indiceHeapRanking);
     }
 
     public void canjearMillas(int id, double cantidad) {
@@ -183,13 +188,18 @@ public class AirMiles implements SistemaAirMiles {
         usuarioDelArbol.sumarMillasCanjeadas(cantidad);
 
         // Despues de canjear las millas del usuario tengo que actualizar el heap.
-        int indiceHeap = elMasCanjeador.buscarPorUsuario(usuarioDelArbol);
-        elMasCanjeador.siftUp(indiceHeap);
+        Handle<Usuario> HandleMasCanjeador = usuarioDelArbol.getHandleMasCanjeador();
+        HandleMasCanjeador.modificar(usuarioDelArbol);
+
+        // int indiceHeap = elMasCanjeador.buscarPorUsuario(usuarioDelArbol);
+        // elMasCanjeador.siftUp(indiceHeap);
         // Actualizo tambien el rankingMillas, aca el saldo del usuario baja, asi que al
         // canjear el saldo lo normal seria que el usuario baje del heap porque perdio
         // millas
-        int indiceHeapRanking = rankingMillas.buscarPorUsuario(usuarioDelArbol);
-        rankingMillas.siftDown(indiceHeapRanking);
+        Handle<Usuario> HandleHeapRanking = usuarioDelArbol.getHandleRanking();
+        HandleHeapRanking.modificar(usuarioDelArbol);
+        // int indiceHeapRanking = rankingMillas.buscarPorUsuario(usuarioDelArbol);
+        // rankingMillas.siftDown(indiceHeapRanking);
     }
 
     public void transferirMillas(int origen, int destino, double cantidad) {
@@ -224,16 +234,24 @@ public class AirMiles implements SistemaAirMiles {
         usuarioDestinoArbol.crearReferenciaUsuario(usuarioOrigenArbol);
         // Hay que hacer un siftup en el heap rankingMillas con el que recibio se le
         // suman a las disponibles
-        int indiceHeap = rankingMillas.buscarPorUsuario(usuarioDestinoArbol);
-        rankingMillas.siftUp(indiceHeap);
+
+        Handle<Usuario> HandleRankingMillasDestino = usuarioDestinoArbol.getHandleRanking();
+        HandleRankingMillasDestino.modificar(usuarioDestinoArbol);
+        // int indiceHeap = rankingMillas.buscarPorUsuario(usuarioDestinoArbol);
+        // rankingMillas.siftUp(indiceHeap);
         // y tambien hay que actualizar el heap del mas canjeador (lo dice en
         // aclaraciones)
-        int indiceHeap0 = elMasCanjeador.buscarPorUsuario(usuarioOrigenArbol);
-        elMasCanjeador.siftUp(indiceHeap0);
 
+        Handle<Usuario> HandleElMasCanjeador = usuarioOrigenArbol.getHandleMasCanjeador();
+        HandleElMasCanjeador.modificar(usuarioOrigenArbol);
+        // int indiceHeap0 = elMasCanjeador.buscarPorUsuario(usuarioOrigenArbol);
+        // elMasCanjeador.siftUp(indiceHeap0);
+
+        Handle<Usuario> HandleRankingMillasOrigen = usuarioOrigenArbol.getHandleRanking();
+        HandleRankingMillasOrigen.modificar(usuarioOrigenArbol);
         // Para el usuario que transfirio las millas tiene que hacerse un siftdown
-        int indiceOrigen = rankingMillas.buscarPorUsuario(usuarioOrigenArbol);
-        rankingMillas.siftDown(indiceOrigen);
+        // int indiceOrigen = rankingMillas.buscarPorUsuario(usuarioOrigenArbol);
+        // rankingMillas.siftDown(indiceOrigen);
     }
 
     public double consultarSaldo(int id) {
