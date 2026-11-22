@@ -41,6 +41,9 @@ public class AirMiles implements SistemaAirMiles {
          * Agregar al heap: O(log U) porque lo agrega al final y lo tiene que subir
          * 
          * Complejidad Total: Promedio O(ln U), peor caso O(U)
+         * 
+         * Comentario POST correccion:
+         * Se agregan los Handles al usuario asi se puede acceder en O(1)
          */
         // Creo el usuario y lo meto en el arbol
         Usuario usuario = new Usuario(id);
@@ -68,8 +71,14 @@ public class AirMiles implements SistemaAirMiles {
          * 
          * Comentario POST correccion:
          * Ahora de esta forma utilizar los handles permite una abstraccion mas grande sin que Airmiles necesite conocer sobre
-         * los metodos que estan implementados dentro del heap, a traves de la interfaz del handle estan pasando todas 
+         * los metodos que estan implementados dentro del heap, a través de la interfaz del handle estan pasando todas 
          * esas cosas por detras y esa es la forma correcta.
+         * 
+         * Comentario2 POST correccion:
+         * Se modifico el orden de como se agregaban los handles porque si no se modifica el referidor en el ranking millas 
+         * instantaneamente luego de que reciba sus puntos, no creamos un metodo de heapyficar entonces podria introducir un error 
+         * en la estructura rompiendo el invariante. Esto tambien se podria evitar si directamente se agrega todo y se heapyfica
+         * pero asi es mas rapido esta bien tambien.
          */
         // El usuario referidor ya existe en el sistema.
         Usuario usuarioReferidor = new Usuario(ref); // Este usuario no lo estoy creando y agregando al arbol, solo lo
@@ -120,6 +129,10 @@ public class AirMiles implements SistemaAirMiles {
          * ModificarHeaps: O(log U) (se tiene que reordenar los heaps)
          * 
          * Complejidad Total: Promedio O(ln U + |L|), peor caso O(U + |L|)
+         * 
+         * Comentario POST Correccion:
+         * Se modifico unicamente la obtencion del handle y se utilizo el metodo modificar del handle
+         * para mejor encapsulamiento y correcto uso del handle
          */
         // Primero obtengo la promocion
         Promocion promocion = Promociones.obtener(nombrePromo);
@@ -158,13 +171,9 @@ public class AirMiles implements SistemaAirMiles {
         // Tengo que actualizar los heaps de elMasAcumulador y rankingMillas
         Handle<Usuario> HandleMasAcumulador = usuarioDelArbol.getHandleAcumulador();
         HandleMasAcumulador.modificar(usuarioDelArbol);
-        // int indiceHeap = elMasAcumulador.buscarPorUsuario(usuarioDelArbol);
-        // elMasAcumulador.siftUp(indiceHeap);
 
         Handle<Usuario> HandleRanking = usuarioDelArbol.getHandleRanking();
         HandleRanking.modificar(usuarioDelArbol);
-        // int indiceHeapRanking = rankingMillas.buscarPorUsuario(usuarioDelArbol);
-        // rankingMillas.siftUp(indiceHeapRanking);
     }
 
     public void canjearMillas(int id, double cantidad) {
@@ -190,15 +199,11 @@ public class AirMiles implements SistemaAirMiles {
         Handle<Usuario> HandleMasCanjeador = usuarioDelArbol.getHandleMasCanjeador();
         HandleMasCanjeador.modificar(usuarioDelArbol);
 
-        // int indiceHeap = elMasCanjeador.buscarPorUsuario(usuarioDelArbol);
-        // elMasCanjeador.siftUp(indiceHeap);
         // Actualizo tambien el rankingMillas, aca el saldo del usuario baja, asi que al
         // canjear el saldo lo normal seria que el usuario baje del heap porque perdio
         // millas
         Handle<Usuario> HandleHeapRanking = usuarioDelArbol.getHandleRanking();
         HandleHeapRanking.modificar(usuarioDelArbol);
-        // int indiceHeapRanking = rankingMillas.buscarPorUsuario(usuarioDelArbol);
-        // rankingMillas.siftDown(indiceHeapRanking);
     }
 
     public void transferirMillas(int origen, int destino, double cantidad) {
@@ -236,21 +241,15 @@ public class AirMiles implements SistemaAirMiles {
 
         Handle<Usuario> HandleRankingMillasDestino = usuarioDestinoArbol.getHandleRanking();
         HandleRankingMillasDestino.modificar(usuarioDestinoArbol);
-        // int indiceHeap = rankingMillas.buscarPorUsuario(usuarioDestinoArbol);
-        // rankingMillas.siftUp(indiceHeap);
         // y tambien hay que actualizar el heap del mas canjeador (lo dice en
         // aclaraciones)
-
         Handle<Usuario> HandleElMasCanjeador = usuarioOrigenArbol.getHandleMasCanjeador();
         HandleElMasCanjeador.modificar(usuarioOrigenArbol);
-        // int indiceHeap0 = elMasCanjeador.buscarPorUsuario(usuarioOrigenArbol);
-        // elMasCanjeador.siftUp(indiceHeap0);
 
+        // Para el usuario que transfirio las millas tiene que hacerse un siftdown
         Handle<Usuario> HandleRankingMillasOrigen = usuarioOrigenArbol.getHandleRanking();
         HandleRankingMillasOrigen.modificar(usuarioOrigenArbol);
-        // Para el usuario que transfirio las millas tiene que hacerse un siftdown
-        // int indiceOrigen = rankingMillas.buscarPorUsuario(usuarioOrigenArbol);
-        // rankingMillas.siftDown(indiceOrigen);
+
     }
 
     public double consultarSaldo(int id) {
@@ -288,6 +287,11 @@ public class AirMiles implements SistemaAirMiles {
          * entonces queda O(N lg U)
          * 
          * Complejidad Total: O(N ln U)
+         * 
+         * Comentario POST correccion: 
+         * Al momento de restaurar los usuarios, como ahora agregar devuelve un handle (mete al usuario, crea el handle
+         * y modifica su indice donde corresponde) hay que reasignar dicho Handle al atributo Handle de la clase usuario
+         * para que no se rompa el ranking.
          */
         // En caso de que me pidan mas elementos de los que realmente tengo en el
         // RankingMillas lo puedo salvar de que explote
