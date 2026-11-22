@@ -93,8 +93,7 @@ public class AirMiles implements SistemaAirMiles {
         Handle<Usuario> HandleReferidorRanking = usuarioDelArbolReferidor.getHandleRanking();
         // Se modifica el ranking del referidor pero a traves del handle
         HandleReferidorRanking.modificar(usuarioDelArbolReferidor);
-        // Y tambien el mas Acumulador, solo el del referidor porque el otro ya estaba
-        // agregado
+        // Y tambien el mas Acumulador
 
         Handle<Usuario> HandleElMasAcumulador = usuarioDelArbolReferidor.getHandleAcumulador();
         HandleElMasAcumulador.modificar(usuarioDelArbolReferidor);
@@ -307,7 +306,9 @@ public class AirMiles implements SistemaAirMiles {
 
         // Restauro los usuarios despues de haberlos sacado.
         for (Usuario usuario : usuarios) {
-            rankingMillas.agregar(usuario);
+            // Ahora agregar me devuelve un handle que tengo que volver a acomodar
+            Handle<Usuario> handleUsuario  = rankingMillas.agregar(usuario);
+            usuario.crearRankingMillas(handleUsuario); // Vuelvo a asignar el handle del usuario donde corresponde 
         }
 
         return res;
