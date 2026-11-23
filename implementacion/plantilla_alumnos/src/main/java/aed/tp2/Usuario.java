@@ -18,9 +18,9 @@ public class Usuario implements Comparable<Usuario> {
     private int cantidadUsuariosTransferencias; // Esto es para las transferencias que recibo o doy
     private Usuario OtroUsuario; // Un objeto usuario para ver si se cumplen los pares transferidores
     private Categoria categoria;
-    private Handle elMasAcumulador;
-    private Handle elMasCanjeador;
-    private Handle rankingMillas;
+    private Handle<Usuario> elMasAcumulador;
+    private Handle<Usuario> elMasCanjeador;
+    private Handle<Usuario> rankingMillas;
 
     public enum Categoria {
         Bronce,
@@ -142,7 +142,8 @@ public class Usuario implements Comparable<Usuario> {
                 cantidadUsuariosTransferencias = 2;
                 OtroUsuario = null;
             }
-            // Si son >= dos los usuarios entonces ya no son exclusivos y no me interesa ese caso.
+            // Si son >= dos los usuarios entonces ya no son exclusivos y no me interesa ese
+            // caso.
         }
     }
 
@@ -158,33 +159,34 @@ public class Usuario implements Comparable<Usuario> {
         return distancia * factorCategoria * factorPromo;
     }
 
-    public void crearAcumulador(Handle elMasAcumulador){
+    public void crearAcumulador(Handle<Usuario> elMasAcumulador) {
         this.elMasAcumulador = elMasAcumulador;
     }
 
-    public void crearMasCanjeador(Handle elMasCanjeador){
+    public void crearMasCanjeador(Handle<Usuario> elMasCanjeador) {
         this.elMasCanjeador = elMasCanjeador;
     }
 
-    public void crearRankingMillas(Handle rankingMillas){
+    public void crearRankingMillas(Handle<Usuario> rankingMillas) {
         this.rankingMillas = rankingMillas;
     }
 
-    public void crearHandles(Handle elMasAcumulador, Handle elMasCanjeador, Handle rankingMillas){
+    public void crearHandles(Handle<Usuario> elMasAcumulador, Handle<Usuario> elMasCanjeador,
+            Handle<Usuario> rankingMillas) {
         this.elMasAcumulador = elMasAcumulador;
         this.elMasCanjeador = elMasCanjeador;
         this.rankingMillas = rankingMillas;
     }
 
-    public Handle getHandleAcumulador(){
+    public Handle<Usuario> getHandleAcumulador() {
         return this.elMasAcumulador;
     }
 
-    public Handle getHandleMasCanjeador(){
+    public Handle<Usuario> getHandleMasCanjeador() {
         return this.elMasCanjeador;
     }
 
-    public Handle getHandleRanking(){
+    public Handle<Usuario> getHandleRanking() {
         return this.rankingMillas;
     }
 }
