@@ -146,8 +146,8 @@ public class AirMiles implements SistemaAirMiles {
         // Calculo las millas que tiene que recorrer el usuario
         Usuario usuario = new Usuario(id);
         Usuario usuarioDelArbol = Usuarios.buscarNodo(usuario);
-        double millasPromo = usuarioDelArbol.calcularMillasViaje(distancia, usuarioDelArbol.darFactorCategoria(),
-                promocion.factor());
+        double millasSinPromo = distancia * usuarioDelArbol.darFactorCategoria();
+        double millasPromo = millasSinPromo * promocion.factor();
         // caso 1 si las millas calculadas que tiene que hacer el usuario son menores a
         // las que tiene el tope de la promo
         if (!promocion.tieneTope() || (promocion.tieneTope() && millasPromo <= promocion.millasRestantes())) {
@@ -159,10 +159,8 @@ public class AirMiles implements SistemaAirMiles {
         // con factor 1.
         else if (promocion.tieneTope() && millasPromo > promocion.millasRestantes()) {
             // Tal cual a como esta hecho en el tp1
-            double millasNoPromo = usuarioDelArbol.calcularMillasViaje(distancia, usuarioDelArbol.darFactorCategoria(),
-                    1.0);
-            usuarioDelArbol.sumaMillasDisponibles(millasNoPromo);
-            usuarioDelArbol.sumaMillasTotales(millasNoPromo);
+            usuarioDelArbol.sumaMillasDisponibles(millasSinPromo);
+            usuarioDelArbol.sumaMillasTotales(millasSinPromo);
         }
         // Actualizo las millas restantes de la promo y si se consumio la saco.
         promocion.restarMillasPromo(millasPromo); // resto las millas a la promo y dentro del metodo tiene la guarda de
