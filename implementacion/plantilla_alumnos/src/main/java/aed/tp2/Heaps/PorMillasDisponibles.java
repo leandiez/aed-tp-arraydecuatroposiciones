@@ -3,7 +3,7 @@ import java.util.Comparator; // Este comparador es de la interfaz de java
 import aed.tp2.Usuario; // importo el usuario aca
 
 public class PorMillasDisponibles implements Comparator<Usuario>{
-    // Hago una comparación entre 2 usuarios para saber quien es el que mas millas acumuló
+    // Hago una comparación entre 2 usuarios para saber quien es el que mas millas disponibles tiene
     /*  
     Entiendo que la clase Comparator debe estar pisando el metodo Compare (que es distinto de CompareTo)
     el metodo Compare se usa para hacer comparaciones personalizadas entre clases. No se como esta implementado

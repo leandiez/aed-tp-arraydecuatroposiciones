@@ -1,6 +1,8 @@
 package aed.tp2.Heaps;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Objects;
+
 import aed.tp2.Handle;
 import aed.tp2.Usuario;
 
@@ -37,11 +39,27 @@ public class Heap<T> {
             como no se sabe si tiene que bajar o subir el handle se aplican las dos cosas, esto no rompe la logica y tampoco la complejidad
             ya que en alguno de los casos la complejidad es O(1) y aunque asi no lo fuese la diferencia es constante y no afecta.
             */
+            this.nodoReferencia = v;
             siftDown(this.indice);
             siftUp(this.indice);
         };
         public boolean equals(Handle<T> h){
-            return true;
+            // Chequeos "burocraticos"
+            // Primero chequeo que no sea null
+            if (h == null){
+                return false;
+            }
+            // Si la clase es distinta a la del handleHeap entonces tambien es falso
+            if (h.getClass() != this.getClass()){
+                return false;
+            }
+
+            /* 
+            La comparacion se hace a traves del metodo equals porque no nos interesa la igualdad con ==, no estamos revisando
+            la posicion en memoria de los objetos, mas bien revisamos si los atributos son iguales, este equals es el mismo
+            que esta definido para el objeto de tipo T (un usuario) entonces usa el metodo equals del usuario que ya esta implementado.
+            */ 
+            return h.valor().equals(this.valor());
         };
 
     }
