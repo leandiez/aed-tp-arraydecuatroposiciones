@@ -30,12 +30,9 @@ public class StructuresTests {
         Trie trie = new Trie<>();
     }
 
-    @Test
-    void insertarABB() {
-        assertNotNull(am);
-        assertEquals(0, am.paresTransferidoresExclusivos().length);
-    }
-
+    /* 
+    Caso 1 insersion normal en Heap
+    */
     @Test
     void insertarHeap() {
         assertNotNull(am);

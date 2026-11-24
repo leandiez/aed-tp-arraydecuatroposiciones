@@ -1,61 +1,94 @@
 package aed.tp2.Heaps;
+
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Objects;
+
 import aed.tp2.Handle;
-import aed.tp2.Usuario;
 
 public class Heap<T> {
-    // No especificaron nada acerca de si se puede usar esta estructura o no. No tenemos tiempo para implementar tantas cosas asi que opto por usar esto.
+    // No especificaron nada acerca de si se puede usar esta estructura o no. No
+    // tenemos tiempo para implementar tantas cosas asi que opto por usar esto.
     private ArrayList<HandleHeap> data;
-    private Comparator<T> comparator; // La clase del heap utiliza el comparator del tipo que le corresponda, ejemplo PorMillasTotales, PorMillasDisponibles, etc 
+    private Comparator<T> comparator; // La clase del heap utiliza el comparator del tipo que le corresponda, ejemplo
+                                      // PorMillasTotales, PorMillasDisponibles, etc
 
-    public Heap(Comparator<T> comparator){
+    public Heap(Comparator<T> comparator) {
         // Creo el array vacio
         data = new ArrayList<HandleHeap>();
-        this.comparator = comparator; 
+        this.comparator = comparator;
     }
 
     // Tampoco estoy del todo seguro si esto deberia ir aca. Entiendo que si igual
-    public class HandleHeap implements Handle<T>{
-        public T nodoReferencia; // Aca estoy guardando la referencia a un objeto cualquiera de tipo T, en particular un usuario
+    public class HandleHeap implements Handle<T> {
+        public T nodoReferencia; // Aca estoy guardando la referencia a un objeto cualquiera de tipo T, en
+                                 // particular un usuario
         public int indice; // Este sería el indice donde estaria guardado mi Usuario en el Heap¿?
 
-        public HandleHeap(T usuario, int indice){
+        public HandleHeap(T usuario, int indice) {
             this.nodoReferencia = usuario;
             this.indice = indice;
         }
-        public T valor(){
+
+        public T valor() {
             return this.nodoReferencia;
         };
-        public void eliminar(){
+
+        public void eliminar() {
             this.nodoReferencia = null;
         };
         // Estos dos metodos no se usan asi como estan, igual se modifican los indices del handle en la funcion swap.
-        public void modificar(T v){};
+        public void modificar(T v){
+            /* 
+            Al modificar el handle lo que se busca es que se reacomode aprovechando que ahora se conoce el indice, para no hacer trabajo de más
+            como no se sabe si tiene que bajar o subir el handle se aplican las dos cosas, esto no rompe la logica y tampoco la complejidad
+            ya que en alguno de los casos la complejidad es O(1) y aunque asi no lo fuese la diferencia es constante y no afecta.
+            */
+            this.nodoReferencia = v;
+            siftDown(this.indice);
+            siftUp(this.indice);
+        };
         public boolean equals(Handle<T> h){
-            return true;
+            // Chequeos "burocraticos"
+            // Primero chequeo que no sea null
+            if (h == null){
+                return false;
+            }
+            // Si la clase es distinta a la del handleHeap entonces tambien es falso
+            if (h.getClass() != this.getClass()){
+                return false;
+            }
+
+            /* 
+            La comparacion se hace a traves del metodo equals porque no nos interesa la igualdad con ==, no estamos revisando
+            la posicion en memoria de los objetos, mas bien revisamos si los atributos son iguales, este equals es el mismo
+            que esta definido para el objeto de tipo T (un usuario) entonces usa el metodo equals del usuario que ya esta implementado.
+            */ 
+            return h.valor().equals(this.valor());
         };
 
     }
+
     // Algunos metodos comunes
-    // Si tengo que implementar un sift up lo que hago es lo pongo al final y voy subiendo
-    public void siftUp(){
+    // Si tengo que implementar un sift up lo que hago es lo pongo al final y voy
+    // subiendo
+    private void siftUp() {
         // Recordar:
         // HijoIzq = 2*i+1
         // HijoDer = 2*i+2
         // Padre = [(i-1)/2], es la funcion piso
 
         // [24,34,45,29,35,43,60,15] -> i = 8, indicePadre = 3
-        int i = data.size() -1 ; // Empiezo desde el final de array y hago subir al elemento
-        while (i > 0){
-            int padreIndice = (i-1)/2;
+        int i = data.size() - 1; // Empiezo desde el final de array y hago subir al elemento
+        while (i > 0) {
+            int padreIndice = (i - 1) / 2;
             T padre = data.get(padreIndice).valor();
             T hijo = data.get(i).valor();
 
-            // El compare devuelve negativo si o1 < o2 
+            // El compare devuelve negativo si o1 < o2
             // El compare devuelve 0 si o1 = o2
-            // El compare devuelve positivo si o1 > o2  
-            if (comparator.compare(hijo,padre) > 0){
+            // El compare devuelve positivo si o1 > o2
+            if (comparator.compare(hijo, padre) > 0) {
                 // Si entro aca es porque hay que hacer un swap
                 swap(i, padreIndice);
                 i = padreIndice;
@@ -65,15 +98,17 @@ public class Heap<T> {
         }
     }
 
-    public void siftUp(int indice){
-        /* Misma idea que el siftUp pero solo que este es para un indice en especifico.*/
-        int i = indice ; // Empiezo desde el final de array y hago subir al elemento
-        while (i > 0){
-            int padreIndice = (i-1)/2;
+    private void siftUp(int indice) {
+        /*
+         * Misma idea que el siftUp pero solo que este es para un indice en especifico.
+         */
+        int i = indice; // Empiezo desde el final de array y hago subir al elemento
+        while (i > 0) {
+            int padreIndice = (i - 1) / 2;
             T padre = data.get(padreIndice).valor();
             T hijo = data.get(i).valor();
 
-            if (comparator.compare(hijo,padre) > 0){
+            if (comparator.compare(hijo, padre) > 0) {
                 // Si entro aca es porque hay que hacer un swap
                 swap(i, padreIndice);
                 i = padreIndice;
@@ -93,26 +128,29 @@ public class Heap<T> {
         otro.indice = i;
     }
 
-    public void siftDown(){
+    private void siftDown() {
         int i = 0;
-        int longitud = data.size(); // no se si es size o size - 1 
-        while (i < longitud){
-            int hijoIzqIndice = 2*i+1;
-            int hijoDerIndice = 2*i+2;
+        int longitud = data.size(); // no se si es size o size - 1
+        while (i < longitud) {
+            int hijoIzqIndice = 2 * i + 1;
+            int hijoDerIndice = 2 * i + 2;
             int hijoMayorIndice = i;
- 
-            // Esto debería funciona porque se supone que el invariante del heap es "izquierdista", entonces deberia estar lleno del lado izquierdo
+
+            // Esto debería funciona porque se supone que el invariante del heap es
+            // "izquierdista", entonces deberia estar lleno del lado izquierdo
             // Esto se va a pisar si o si con el mayor
             // Hay que ver bien el signo, si es > 0 o < 0
-            if(hijoIzqIndice < longitud && comparator.compare(data.get(hijoIzqIndice).valor(), data.get(hijoMayorIndice).valor()) > 0){
+            if (hijoIzqIndice < longitud
+                    && comparator.compare(data.get(hijoIzqIndice).valor(), data.get(hijoMayorIndice).valor()) > 0) {
                 hijoMayorIndice = hijoIzqIndice;
-            } 
-            
-            if(hijoDerIndice < longitud && comparator.compare(data.get(hijoDerIndice).valor(), data.get(hijoMayorIndice).valor()) > 0){
+            }
+
+            if (hijoDerIndice < longitud
+                    && comparator.compare(data.get(hijoDerIndice).valor(), data.get(hijoMayorIndice).valor()) > 0) {
                 hijoMayorIndice = hijoDerIndice;
-            } 
-            
-            if(hijoMayorIndice == i){
+            }
+
+            if (hijoMayorIndice == i) {
                 return;
             } else {
                 swap(i, hijoMayorIndice);
@@ -121,27 +159,33 @@ public class Heap<T> {
         }
     };
 
-    public void siftDown(int indice){
-        /* Misma idea que el siftdown pero solo que este es para un indice en especifico.*/
+    private void siftDown(int indice) {
+        /*
+         * Misma idea que el siftdown pero solo que este es para un indice en
+         * especifico.
+         */
         int i = indice;
-        int longitud = data.size(); // no se si es size o size - 1 
-        while (i < longitud){
-            int hijoIzqIndice = 2*i+1;
-            int hijoDerIndice = 2*i+2;
+        int longitud = data.size(); // no se si es size o size - 1
+        while (i < longitud) {
+            int hijoIzqIndice = 2 * i + 1;
+            int hijoDerIndice = 2 * i + 2;
             int hijoMayorIndice = i;
- 
-            // Esto debería funciona porque se supone que el invariante del heap es "izquierdista", entonces deberia estar lleno del lado izquierdo
+
+            // Esto debería funciona porque se supone que el invariante del heap es
+            // "izquierdista", entonces deberia estar lleno del lado izquierdo
             // Esto se va a pisar si o si con el mayor
             // Hay que ver bien el signo, si es > 0 o < 0
-            if(hijoIzqIndice < longitud && comparator.compare(data.get(hijoIzqIndice).valor(), data.get(hijoMayorIndice).valor()) > 0){
+            if (hijoIzqIndice < longitud
+                    && comparator.compare(data.get(hijoIzqIndice).valor(), data.get(hijoMayorIndice).valor()) > 0) {
                 hijoMayorIndice = hijoIzqIndice;
-            } 
-            
-            if(hijoDerIndice < longitud && comparator.compare(data.get(hijoDerIndice).valor(), data.get(hijoMayorIndice).valor()) > 0){
+            }
+
+            if (hijoDerIndice < longitud
+                    && comparator.compare(data.get(hijoDerIndice).valor(), data.get(hijoMayorIndice).valor()) > 0) {
                 hijoMayorIndice = hijoDerIndice;
-            } 
-            
-            if(hijoMayorIndice == i){
+            }
+
+            if (hijoMayorIndice == i) {
                 return;
             } else {
                 swap(i, hijoMayorIndice);
@@ -151,49 +195,43 @@ public class Heap<T> {
         }
     };
 
-    public T get(){
+    public T get() {
         // Este metodo tambien tiene que sacar efectivamente el elemento del heap.
         // Retorna la raiz y hace sift-down para no romper el invariante
-        if (data.size() > 0){
+        if (data.size() > 0) {
             HandleHeap valor = data.get(0); // Obtengo la raiz
-            HandleHeap ultimo = data.remove(data.size() - 1); // Borro el ultimo elemento, creo que la complejidad de esto es O(1)
-            if (!data.isEmpty()) {  // si quedó algo, reubica el último
+            HandleHeap ultimo = data.remove(data.size() - 1); // Borro el ultimo elemento, creo que la complejidad de
+                                                              // esto es O(1)
+            if (!data.isEmpty()) { // si quedó algo, reubica el último
                 ultimo.indice = 0; // Me tengo que acordar de cambiarle el indice al heap
                 data.set(0, ultimo); // Pongo el ultimo al inicio
-                siftDown(0); // heapify  
+                siftDown(0); // heapify
             }
             return valor.valor();
         } else {
             return null;
-        }    
+        }
     }
 
-    public T getSinQuitar(){
-        if (data.size() > 0){
+    public T getSinQuitar() {
+        if (data.size() > 0) {
             HandleHeap valor = data.get(0); // Obtengo la raiz
             return valor.valor();
         } else {
             return null;
-        }  
-    }
-
-    public int buscarPorUsuario(T usuario){
-        for (HandleHeap handleHeap : data) {
-            if (handleHeap.valor().equals(usuario)){
-                return handleHeap.indice;
-            }
         }
-        return -1; // No deberia llegar nunca aca
     }
 
-    public void agregar(T elem){
-        // Recordar que lo que tengo que almacenar es un handle! asi que lo tengo que crear aca
-        HandleHeap h = new HandleHeap(elem,data.size());
+    public Handle<T> agregar(T elem) {
+        // Recordar que lo que tengo que almacenar es un handle! asi que lo tengo que
+        // crear aca
+        HandleHeap h = new HandleHeap(elem, data.size());
         data.add(h);
         siftUp();
+        return h;
     }
 
-    public int size() { 
-        return data.size(); 
+    public int size() {
+        return data.size();
     }
 }
